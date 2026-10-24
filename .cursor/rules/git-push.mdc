@@ -39,4 +39,6 @@ Do **not** use a separate `hlu-server` remote/repo.
 
 | Branch | Message |
 |--------|---------|
-| ui / server | pushed ok / push failed / … |
+| ui / server | `<short-hash> pushed ok` or `<short-hash> push failed` |
+
+Example: `31112a6 pushed ok`

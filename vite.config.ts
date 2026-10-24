@@ -28,17 +28,17 @@ export default defineConfig({
         scope: '/ui/hlu/',
         icons: [
           {
-            src: '/ui/hlu/assets/icons/android-chrome-192x192.png',
+            src: 'assets/icons/android-chrome-192x192.png',
             sizes: '192x192',
             type: 'image/png',
           },
           {
-            src: '/ui/hlu/assets/icons/android-chrome-512x512.png',
+            src: 'assets/icons/android-chrome-512x512.png',
             sizes: '512x512',
             type: 'image/png',
           },
           {
-            src: '/ui/hlu/assets/icons/android-chrome-512x512.png',
+            src: 'assets/icons/android-chrome-512x512.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'maskable',

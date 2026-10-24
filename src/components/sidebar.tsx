@@ -10,10 +10,10 @@ import {
   Typography,
 } from '@mui/material';
 import { Link, useLocation } from 'react-router-dom';
-import { VERSION } from '../config';
+import { publicUrl, VERSION } from '../config';
 import { AppEnv } from '../resources/env/app.env';
 
-const BRAND_LOGO = '/assets/icons/android-chrome-192x192.png';
+const BRAND_LOGO = publicUrl('assets/icons/android-chrome-192x192.png');
 
 type AppSidebarProps = {
   open: boolean;
