@@ -1,0 +1,29 @@
+---
+description: Mirror DHAMMA_JUNGLE_UI src folder structure
+alwaysApply: true
+---
+
+# `src` folder structure
+
+Match the layout used by `DHAMMA_JUNGLE_UI`:
+
+```
+src/
+  app.tsx
+  main.tsx
+  config.ts
+  styles.css
+  vite-env.d.ts
+  components/     # shared UI (sidebar, toolbar, …)
+  handlers/       # API / data handlers
+  hooks/          # React hooks
+  interfaces/     # TypeScript interfaces
+  layouts/        # route layouts (e.g. home.layout.tsx)
+  pages/          # route pages, grouped by area (e.g. pages/home/…)
+  providers/      # React context providers
+  resources/      # static/config resources (e.g. resources/env/)
+  tools/          # pure utility helpers
+```
+
+- Put feature pages under `pages/<area>/<feature>/`.
+- Prefer `*.handler.ts`, `*.hook.ts`, `*.interface.ts`, `*.provider.tsx`, `*.layout.tsx`, `*.tool.ts` suffixes like the reference app.

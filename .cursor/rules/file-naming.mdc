@@ -1,0 +1,11 @@
+---
+description: Lowercase train-case (kebab-case) file naming for all project files
+alwaysApply: true
+---
+
+# File naming
+
+- Use **lowercase train-case** (kebab-case) for all project source files and folders you create or rename.
+- Examples: `app.tsx`, `user-profile.tsx`, `auth-api.ts`, `home-page/`
+- Do not use PascalCase or camelCase filenames (e.g. avoid `App.tsx`, `UserProfile.tsx`).
+- Leave third-party / toolchain defaults alone unless renaming is required (`node_modules`, generated configs that break if renamed).
