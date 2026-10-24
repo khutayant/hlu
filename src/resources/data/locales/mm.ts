@@ -13,6 +13,7 @@ const mm = {
     myanmar: 'မြန်မာ',
     allowed: 'ခွင့်ပြုသည်',
     notAllowed: 'ခွင့်မပြုပါ',
+    close: 'ပိတ်ရန်',
   },
   ageForVaccination: {
     title: 'အသက်အလိုက် ကာကွယ်ဆေး',
@@ -24,6 +25,8 @@ const mm = {
     askTrueDob: 'ကလေး၏ မွေးနေ့အမှန်ကို မေးပါ။',
     minus12Lead: 'ကလေး၏မွေးနေ့သည်',
     minus12Rule: 'ဤနေ့ထက် ပို၍စောပါက ဘီစီဂျီ မထိုးရ။',
+    myanmarEraTitle: 'မြန်မာသက္ကရာဇ်',
+    showMyanmarDate: 'မြန်မာသက္ကရာဇ် ပြရန်',
     mmrLead: 'ကလေး၏မွေးနေ့သည်',
     mmrFrom: 'မှ',
     mmrWithin: 'အတွင်း',

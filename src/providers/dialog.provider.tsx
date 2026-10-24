@@ -1,5 +1,6 @@
 import { Box, Button, Fade, Modal, Typography } from '@mui/material';
 import { createContext, useContext, useState, type ReactNode } from 'react';
+import { useI18n } from './i18n.provider';
 
 export type DialogSize = 'fit-content' | 'fullscreen';
 
@@ -19,6 +20,7 @@ type DialogContextValue = {
 const DialogContext = createContext<DialogContextValue | null>(null);
 
 export function DialogProvider({ children }: { children: ReactNode }) {
+  const { t } = useI18n();
   const [dialog, setDialog] = useState<DialogOptions | null>(null);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -109,7 +111,7 @@ export function DialogProvider({ children }: { children: ReactNode }) {
                 {dialog.actions !== undefined ? (
                   dialog.actions
                 ) : (
-                  <Button onClick={closeDialog}>Close</Button>
+                  <Button onClick={closeDialog}>{t('common.close')}</Button>
                 )}
               </Box>
             </Box>

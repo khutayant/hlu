@@ -13,6 +13,7 @@ const en = {
     myanmar: 'Myanmar',
     allowed: 'allowed',
     notAllowed: 'not allowed',
+    close: 'Close',
   },
   ageForVaccination: {
     title: 'Age for vaccination',
@@ -24,6 +25,8 @@ const en = {
     askTrueDob: "Ask for the child's true date of birth.",
     minus12Lead: "If the child's date of birth is",
     minus12Rule: 'earlier than this day, do not give BCG.',
+    myanmarEraTitle: 'မြန်မာသက္ကရာဇ်',
+    showMyanmarDate: 'Show Myanmar calendar date',
     mmrLead: "The child's date of birth is",
     mmrFrom: 'to',
     mmrWithin: '',

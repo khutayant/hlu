@@ -15,9 +15,11 @@ import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import dayjs, { type Dayjs } from 'dayjs';
 import { useMemo, useState, type MouseEvent } from 'react';
+import { useDialog } from '../../../providers/dialog.provider';
 import { useI18n } from '../../../providers/i18n.provider';
 import {
   formatDdMmmYyyy,
+  formatMyanmarCalendarDate,
   parseIsoDate,
   toDayjs,
   toIsoDate,
@@ -27,6 +29,7 @@ const PAGE_CODE = 'C001';
 
 function AgeForVaccinationPage() {
   const { t, locale } = useI18n();
+  const { openDialog } = useDialog();
   const [asOfIso, setAsOfIso] = useState(() => toIsoDate(dayjs()));
   const [asOfPickerAnchor, setAsOfPickerAnchor] = useState<HTMLElement | null>(
     null,
@@ -66,6 +69,84 @@ function AgeForVaccinationPage() {
     closeAsOfPicker();
   };
 
+  const openSelectedMyanmarDate = () => {
+    openDialog({
+      title: t('ageForVaccination.myanmarEraTitle'),
+      content: (
+        <Typography variant='h6' sx={{ fontWeight: 700 }}>
+          {formatMyanmarCalendarDate(selectedDate)}
+        </Typography>
+      ),
+      width: 360,
+    });
+  };
+
+  const openMinus12MyanmarDate = () => {
+    openDialog({
+      title: t('ageForVaccination.myanmarEraTitle'),
+      content: (
+        <Typography variant='h6' sx={{ fontWeight: 700 }}>
+          {formatMyanmarCalendarDate(minus12Date)}
+        </Typography>
+      ),
+      width: 360,
+    });
+  };
+
+  const myanmarDateChipSx = {
+    height: 'auto',
+    py: 0.75,
+    maxWidth: '100%',
+    '& .MuiChip-label': {
+      display: 'block',
+      whiteSpace: 'normal',
+      fontWeight: 700,
+      lineHeight: 1.4,
+      fontSize: '0.95rem',
+    },
+  } as const;
+
+  const openMmrMyanmarDate = () => {
+    openDialog({
+      title: t('ageForVaccination.myanmarEraTitle'),
+      content: (
+        <Stack spacing={1.25}>
+          <Stack
+            direction='row'
+            spacing={1}
+            sx={{ alignItems: 'center', flexWrap: 'wrap' }}
+          >
+            <Chip
+              label={formatMyanmarCalendarDate(minus60Date)}
+              color='primary'
+              variant='outlined'
+              sx={myanmarDateChipSx}
+            />
+            <Typography component='span' sx={{ fontWeight: 600 }}>
+              မှ
+            </Typography>
+          </Stack>
+          <Stack
+            direction='row'
+            spacing={1}
+            sx={{ alignItems: 'center', flexWrap: 'wrap' }}
+          >
+            <Chip
+              label={formatMyanmarCalendarDate(selectedDate)}
+              color='primary'
+              variant='outlined'
+              sx={myanmarDateChipSx}
+            />
+            <Typography component='span' sx={{ fontWeight: 600 }}>
+              အတွင်း
+            </Typography>
+          </Stack>
+        </Stack>
+      ),
+      width: 420,
+    });
+  };
+
   return (
     <Stack spacing={3} className='w-full max-w-xl'>
       {/* Header */}
@@ -99,110 +180,114 @@ function AgeForVaccinationPage() {
         variant='outlined'
         sx={{
           p: 2.5,
+          position: 'relative',
           borderColor: 'primary.light',
           bgcolor: 'background.paper',
         }}
       >
-        <Stack direction='row' spacing={1.5} sx={{ alignItems: 'center' }}>
-          {/* Beautify Icon */}
-          {/* <Box
-            sx={{
-              width: 56,
-              height: 56,
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'primary.main',
-              bgcolor: 'transparent',
-              border: 1,
-              borderColor: 'primary.main',
-              borderRadius: 1,
-              flexShrink: 0,
-            }}
-          >
-          </Box> */}
-
-          {/* Today Date Display */}
-          <Box sx={{ minWidth: 0, flex: 1 }}>
-            {/* Vaccination Date Label */}
-            <Stack
-              direction='row'
-              spacing={1}
-              sx={{ alignItems: 'center', flexWrap: 'wrap' }}
-            >
-              <Typography variant='overline' color='text.secondary'>
-                {t('ageForVaccination.todayCardTitle')}
-              </Typography>
-              {isAsOfToday ? (
-                <Chip
-                  size='small'
-                  color='primary'
-                  variant='outlined'
-                  label={t('ageForVaccination.todayChip')}
-                />
-              ) : null}
-            </Stack>
-            {/* Today Value */}
-            <Typography variant='h5' sx={{ fontWeight: 700, lineHeight: 1.2 }}>
-              {todayDisplay}
-            </Typography>
-            {/* Today Hint */}
-            <Typography variant='caption' color='text.secondary'>
-              {t('ageForVaccination.todayCardHint')}
-            </Typography>
-          </Box>
-
-          {/* Date Picker Trigger */}
-          <IconButton
-            color='primary'
-            aria-label={t('ageForVaccination.asOfDate')}
-            aria-haspopup='dialog'
-            aria-expanded={isAsOfPickerOpen}
-            onClick={openAsOfPicker}
-          >
-            <EditCalendarOutlinedIcon />
-          </IconButton>
-          {/* Date Picker Popover (stays inside viewport) */}
-          <Popover
-            open={isAsOfPickerOpen}
-            anchorEl={asOfPickerAnchor}
-            onClose={closeAsOfPicker}
-            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-            marginThreshold={8}
-            slotProps={{
-              paper: {
-                sx: {
-                  maxWidth: 'calc(100vw - 16px)',
-                  overflow: 'auto',
-                },
+        <Chip
+          label='သက္ကရာဇ်'
+          size='small'
+          variant='outlined'
+          clickable
+          onClick={openSelectedMyanmarDate}
+          aria-label={t('ageForVaccination.showMyanmarDate')}
+          sx={{
+            position: 'absolute',
+            top: 8,
+            right: 8,
+            zIndex: 1,
+            height: 24,
+            fontWeight: 600,
+            fontSize: '0.75rem',
+          }}
+        />
+        {/* Date Picker Trigger */}
+        <IconButton
+          color='primary'
+          aria-label={t('ageForVaccination.asOfDate')}
+          aria-haspopup='dialog'
+          aria-expanded={isAsOfPickerOpen}
+          onClick={openAsOfPicker}
+          sx={{
+            position: 'absolute',
+            top: 40,
+            right: 4,
+            zIndex: 1,
+          }}
+        >
+          <EditCalendarOutlinedIcon />
+        </IconButton>
+        {/* Date Picker Popover (stays inside viewport) */}
+        <Popover
+          open={isAsOfPickerOpen}
+          anchorEl={asOfPickerAnchor}
+          onClose={closeAsOfPicker}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+          transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+          marginThreshold={8}
+          slotProps={{
+            paper: {
+              sx: {
+                maxWidth: 'calc(100vw - 16px)',
+                overflow: 'auto',
               },
-            }}
+            },
+          }}
+        >
+          <LocalizationProvider
+            dateAdapter={AdapterDayjs}
+            adapterLocale={locale === 'mm' ? 'my' : 'en'}
           >
-            <LocalizationProvider
-              dateAdapter={AdapterDayjs}
-              adapterLocale={locale === 'mm' ? 'my' : 'en'}
+            <DateCalendar
+              value={asOfDate ?? dayjs()}
+              onChange={handleAsOfChange}
+              disableFuture={false}
+            />
+            {/* Select Today */}
+            <Box
+              sx={{
+                px: 2,
+                pb: 1.5,
+                display: 'flex',
+                justifyContent: 'flex-end',
+              }}
             >
-              <DateCalendar
-                value={asOfDate ?? dayjs()}
-                onChange={handleAsOfChange}
-                disableFuture={false}
+              <Button size='small' onClick={() => handleAsOfChange(dayjs())}>
+                {t('ageForVaccination.todayChip')}
+              </Button>
+            </Box>
+          </LocalizationProvider>
+        </Popover>
+
+        {/* Today Date Display */}
+        <Stack spacing={0.5}>
+          {/* Vaccination Date Label */}
+          <Stack
+            direction='row'
+            spacing={1}
+            sx={{ alignItems: 'center', flexWrap: 'wrap' }}
+          >
+            <Typography variant='overline' color='text.secondary'>
+              {t('ageForVaccination.todayCardTitle')}
+            </Typography>
+            {isAsOfToday ? (
+              <Chip
+                size='small'
+                color='primary'
+                variant='outlined'
+                label={t('ageForVaccination.todayChip')}
               />
-              {/* Select Today */}
-              <Box
-                sx={{
-                  px: 2,
-                  pb: 1.5,
-                  display: 'flex',
-                  justifyContent: 'flex-end',
-                }}
-              >
-                <Button size='small' onClick={() => handleAsOfChange(dayjs())}>
-                  {t('ageForVaccination.todayChip')}
-                </Button>
-              </Box>
-            </LocalizationProvider>
-          </Popover>
+            ) : null}
+          </Stack>
+          {/* Today Value */}
+          <Typography variant='h5' sx={{ fontWeight: 700, lineHeight: 1.2 }}>
+            {todayDisplay}
+          </Typography>
+          {/* Today Hint */}
+          <Typography variant='caption' color='text.secondary'>
+            {t('ageForVaccination.todayCardHint')}
+          </Typography>
         </Stack>
       </Paper>
 
@@ -214,10 +299,28 @@ function AgeForVaccinationPage() {
         variant='outlined'
         sx={{
           p: 2.5,
+          position: 'relative',
           borderColor: 'divider',
           bgcolor: 'background.paper',
         }}
       >
+        <Chip
+          label='သက္ကရာဇ်'
+          size='small'
+          variant='outlined'
+          clickable
+          onClick={openMinus12MyanmarDate}
+          aria-label={t('ageForVaccination.showMyanmarDate')}
+          sx={{
+            position: 'absolute',
+            top: 8,
+            right: 8,
+            zIndex: 1,
+            height: 24,
+            fontWeight: 600,
+            fontSize: '0.75rem',
+          }}
+        />
         <Stack spacing={1}>
           <Typography color='text.secondary'>
             {t('ageForVaccination.minus12Lead')}
@@ -240,10 +343,28 @@ function AgeForVaccinationPage() {
         variant='outlined'
         sx={{
           p: 2.5,
+          position: 'relative',
           borderColor: 'divider',
           bgcolor: 'background.paper',
         }}
       >
+        <Chip
+          label='သက္ကရာဇ်'
+          size='small'
+          variant='outlined'
+          clickable
+          onClick={openMmrMyanmarDate}
+          aria-label={t('ageForVaccination.showMyanmarDate')}
+          sx={{
+            position: 'absolute',
+            top: 8,
+            right: 8,
+            zIndex: 1,
+            height: 24,
+            fontWeight: 600,
+            fontSize: '0.75rem',
+          }}
+        />
         <Stack spacing={1}>
           <Typography color='text.secondary'>
             {t('ageForVaccination.mmrLead')}

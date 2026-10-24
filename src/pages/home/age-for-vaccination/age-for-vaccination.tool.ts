@@ -1,6 +1,7 @@
 import dayjs, { type Dayjs } from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import 'dayjs/locale/my';
+import { Mycal } from 'mycal';
 
 dayjs.extend(customParseFormat);
 
@@ -45,6 +46,12 @@ export function parseIsoDate(value: string): Dayjs | null {
 
 export function toIsoDate(value: DateInput = dayjs()): string {
   return toDayjs(value).format(INPUT_DATE_FORMAT);
+}
+
+/** Myanmar calendar date string (မြန်မာသက္ကရာဇ်) for a Gregorian day. */
+export function formatMyanmarCalendarDate(value: DateInput): string {
+  const cal = new Mycal(toIsoDate(value));
+  return `${cal.year.my} ခုနှစ် ${cal.month.my} ${cal.day.mp.my} ${cal.day.fd.my} ရက်`;
 }
 
 export type EligibilitySummaryKey =
