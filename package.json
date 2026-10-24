@@ -6,7 +6,7 @@
   "scripts": {
     "start:dev": "vite",
     "build": "tsc -b && vite build",
-    "build:vercel": "tsc -b && VITE_BASE=/ vite build",
+    "build:vc": "tsc -b && VITE_BASE=/ vite build",
     "lint": "oxlint",
     "preview": "vite preview",
 
