@@ -1,0 +1,39 @@
+---
+description: How to run version patch / minor / main (commit then bump only)
+alwaysApply: true
+---
+
+# Version bump (`version patch` | `version minor` | `version main`)
+
+When the user says **version patch**, **version minor**, or **version main**, bump version **only** (no build, no copy, no deploy). Do not push unless they also ask to push.
+
+| User says | npm script |
+|-----------|------------|
+| `version patch` | `npm run version:patch` |
+| `version minor` | `npm run version:minor` |
+| `version main` | `npm run version:main` |
+
+| Target | Folder | Branch |
+|--------|--------|--------|
+| ui (default if unspecified) | `hlu/` | `ui` |
+| server | `hlu-server/` | `server` |
+
+- `version patch` / `version patch ui` → `hlu/`
+- `version patch server` → `hlu-server/`
+- `version patch both` → both folders, same bump type each
+
+## Steps (per target folder)
+
+1. **Clean git first**:
+   - If dirty: `git add` + **commit with a clear message** (not `-`, not empty).
+   - If clean: skip.
+2. **Bump only** via `npm run version:patch|minor|main` (`scripts/version.sh`):
+   - Bumps `package.json` / lockfile.
+   - Commits with message = new version only (e.g. `1.0.5` or `0.0.2`).
+   - **Do not build. Do not copy. Do not deploy.**
+3. Confirm the new version(s) to the user.
+
+## Not the same as publish / deploy
+
+- UI `publish:*` builds and copies to `hlu-server/ui/` — only when user says **publish**.
+- Server `deploy` — only when user says **deploy**.

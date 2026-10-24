@@ -31,7 +31,10 @@
     "migration:ts:revert": "npm run typeorm:ts -- migration:revert -d src/database/database-ts-migrate.config.ts",
     "migration:ts:show": "npm run typeorm:ts -- migration:show -d src/database/database-ts-migrate.config.ts",
     "migration:ts:auto": "npm run migration:ts:generate && npm run migration:ts:run",
-    "git:push": "bash scripts/git-push.sh"
+    "git:push": "bash scripts/git-push.sh",
+    "version:patch": "bash scripts/version.sh patch",
+    "version:minor": "bash scripts/version.sh minor",
+    "version:main": "bash scripts/version.sh major"
   },
   "dependencies": {
     "@nestjs/common": "^12.0.1",
