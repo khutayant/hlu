@@ -2,6 +2,7 @@ node_modules
 dist
 coverage
 .env
+.github-pat
 *.log
 .DS_Store
 tsconfig.build.tsbuildinfo
