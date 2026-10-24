@@ -6,4 +6,4 @@ Show today date by default
 [today date - 12 month + 1 day]
 
 - MMR only if DOB is within
-[today date - 60 month + 1 day] မှ [today] နေ့အထိ
+[today date - 60 month + 1 day] မှ [today date - 9 month] နေ့အထိ

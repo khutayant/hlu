@@ -1,0 +1,31 @@
+---
+description: How to run version patch / minor / main (commit then bump)
+alwaysApply: true
+---
+
+# Version bump (`version patch` | `version minor` | `version main`)
+
+When the user says **version patch**, **version minor**, or **version main**, follow this exact order in `hlu/` (ui). Do not skip steps. Do not push unless they also ask to push.
+
+| User says | npm script |
+|-----------|------------|
+| `version patch` | `npm run publish:patch` |
+| `version minor` | `npm run publish:minor` |
+| `version main` | `npm run publish:main` |
+
+## Steps
+
+1. **Clean git first** (required before bump):
+   - `git status` / `git diff` / recent `git log` in `hlu/`
+   - If there are pending changes: `git add` relevant files and **commit with a clear message** describing the work (not `-`, not empty).
+   - If the tree is already clean, skip the commit.
+2. **Run the matching publish script** (`publish.sh`):
+   - Requires a clean working tree (script exits if dirty).
+   - Bumps `package.json` / lockfile (`patch` | `minor` | `major`).
+   - Commits the bump with message = new version only (e.g. `1.0.5`).
+   - Builds UI and copies `dist/` → `hlu-server/ui/`.
+3. Confirm the new version from `package.json` to the user.
+
+## Why
+
+Keeps app version aligned with released UI: feature work is committed, then the version number advances in its own commit.

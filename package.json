@@ -13,6 +13,9 @@
     "publish:patch": "bash scripts/publish.sh patch",
     "publish:minor": "bash scripts/publish.sh minor",
     "publish:main": "bash scripts/publish.sh major",
+    "version:patch": "bash scripts/publish.sh patch",
+    "version:minor": "bash scripts/publish.sh minor",
+    "version:main": "bash scripts/publish.sh major",
     "beautify": "prettier --write .",
     "format": "prettier --write .",
     "format:check": "prettier --check ."

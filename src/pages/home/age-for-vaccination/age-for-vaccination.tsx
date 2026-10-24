@@ -45,12 +45,17 @@ function AgeForVaccinationPage() {
     () => toDayjs(selectedDate).subtract(60, 'month').add(1, 'day'),
     [selectedDate],
   );
+  const minus9Date = useMemo(
+    () => toDayjs(selectedDate).subtract(9, 'month'),
+    [selectedDate],
+  );
   const isAsOfToday = asOfDate
     ? asOfDate.isSame(toDayjs(dayjs()), 'day')
     : false;
   const todayDisplay = formatDdMmmYyyy(selectedDate, locale);
   const minus12Display = formatDdMmmYyyy(minus12Date, locale);
   const minus60Display = formatDdMmmYyyy(minus60Date, locale);
+  const minus9Display = formatDdMmmYyyy(minus9Date, locale);
   const isAsOfPickerOpen = Boolean(asOfPickerAnchor);
 
   const openAsOfPicker = (event: MouseEvent<HTMLElement>) => {
@@ -108,7 +113,7 @@ function AgeForVaccinationPage() {
 
   const openMmrMyanmarDate = () => {
     const fromLabel = formatMyanmarCalendarDate(minus60Date);
-    const toLabel = formatMyanmarCalendarDate(selectedDate);
+    const toLabel = formatMyanmarCalendarDate(minus9Date);
     const fromChip = (
       <Chip
         label={fromLabel}
@@ -276,6 +281,8 @@ function AgeForVaccinationPage() {
               value={asOfDate ?? dayjs()}
               onChange={handleAsOfChange}
               disableFuture={false}
+              // Keep MM month/year; English weekday headers (Mon, Tue, …)
+              dayOfWeekFormatter={(date) => date.locale('en').format('ddd')}
             />
             {/* Select Today */}
             <Box
@@ -371,7 +378,7 @@ function AgeForVaccinationPage() {
       </Paper>
 
       {/* Card - to give MMR */}
-      {/* Formula - today − 60 month + 1 day → today */}
+      {/* Formula - today − 60 month + 1 day → today − 9 month */}
       <Paper
         variant='outlined'
         sx={{
@@ -402,7 +409,7 @@ function AgeForVaccinationPage() {
           <Typography color='text.secondary'>
             {t('ageForVaccination.mmrLead')}
           </Typography>
-          {/* EN: from [−60m+1d] until [today] | MM: [−60m+1d] မှ [today] နေ့အထိ */}
+          {/* EN: from [−60m+1d] until [−9m] | MM: [−60m+1d] မှ [−9m] နေ့အထိ */}
           <Typography
             component='p'
             sx={{
@@ -425,17 +432,19 @@ function AgeForVaccinationPage() {
                 </Box>{' '}
                 {t('ageForVaccination.mmrWithin')}{' '}
                 <Box component='span' className='mmr-date'>
-                  {todayDisplay}
+                  {minus9Display}
                 </Box>
               </>
             ) : (
               <>
                 <Box component='span' className='mmr-date'>
+                  {/* MMR Start Date */}
                   {minus60Display}
                 </Box>{' '}
                 {t('ageForVaccination.mmrFrom')}{' '}
                 <Box component='span' className='mmr-date'>
-                  {todayDisplay}
+                  {/* MMR End Date */}
+                  {minus9Display}
                 </Box>{' '}
                 {t('ageForVaccination.mmrWithin')}
               </>
