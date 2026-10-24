@@ -19,6 +19,7 @@ npm run git:push    # push `ui` branch and print commit table
 - [React](https://react.dev/) 19
 - [MUI](https://mui.com/) 9 (`@mui/material`, `@mui/icons-material`)
 - [Tailwind CSS](https://tailwindcss.com/) 4 (`@tailwindcss/vite`)
+- [vite-plugin-pwa](https://vite-pwa-org.netlify.app/) (service worker + web manifest)
 - Emotion (`@emotion/react`, `@emotion/styled`)
 
 App entry wraps the tree with `BrowserRouter`, `ThemeProvider`, `CssBaseline`, and shared providers in `src/main.tsx`.

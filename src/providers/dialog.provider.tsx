@@ -1,33 +1,33 @@
-import { createContext, useContext, useState, type ReactNode } from 'react'
-import { Box, Button, Fade, Modal, Typography } from '@mui/material'
+import { Box, Button, Fade, Modal, Typography } from '@mui/material';
+import { createContext, useContext, useState, type ReactNode } from 'react';
 
-export type DialogSize = 'fit-content' | 'fullscreen'
+export type DialogSize = 'fit-content' | 'fullscreen';
 
 export type DialogOptions = {
-  title?: string
-  content: ReactNode
-  size?: DialogSize
-  width?: number
-  actions?: ReactNode
-}
+  title?: string;
+  content: ReactNode;
+  size?: DialogSize;
+  width?: number;
+  actions?: ReactNode;
+};
 
 type DialogContextValue = {
-  openDialog: (options: DialogOptions) => void
-  closeDialog: () => void
-}
+  openDialog: (options: DialogOptions) => void;
+  closeDialog: () => void;
+};
 
-const DialogContext = createContext<DialogContextValue | null>(null)
+const DialogContext = createContext<DialogContextValue | null>(null);
 
 export function DialogProvider({ children }: { children: ReactNode }) {
-  const [dialog, setDialog] = useState<DialogOptions | null>(null)
-  const [isOpen, setIsOpen] = useState(false)
+  const [dialog, setDialog] = useState<DialogOptions | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
 
   const openDialog = (options: DialogOptions) => {
-    setDialog(options)
-    setIsOpen(true)
-  }
+    setDialog(options);
+    setIsOpen(true);
+  };
 
-  const closeDialog = () => setIsOpen(false)
+  const closeDialog = () => setIsOpen(false);
 
   return (
     <DialogContext.Provider value={{ openDialog, closeDialog }}>
@@ -37,8 +37,8 @@ export function DialogProvider({ children }: { children: ReactNode }) {
         onClose={closeDialog}
         closeAfterTransition
         onTransitionExited={() => setDialog(null)}
-        aria-labelledby="global-dialog-title"
-        aria-describedby="global-dialog-content"
+        aria-labelledby='global-dialog-title'
+        aria-describedby='global-dialog-content'
         slotProps={{
           backdrop: {
             sx: { backgroundColor: 'rgba(0, 0, 0, 0.48)' },
@@ -48,7 +48,7 @@ export function DialogProvider({ children }: { children: ReactNode }) {
         {dialog ? (
           <Fade in={isOpen} timeout={{ enter: 220, exit: 160 }}>
             <Box
-              role="dialog"
+              role='dialog'
               tabIndex={-1}
               sx={{
                 position: 'absolute',
@@ -78,21 +78,39 @@ export function DialogProvider({ children }: { children: ReactNode }) {
               }}
             >
               {dialog.title && (
-                <Typography id="global-dialog-title" variant="h6" sx={{ px: 3, pt: 3, fontWeight: 700 }}>
+                <Typography
+                  id='global-dialog-title'
+                  variant='h6'
+                  sx={{ px: 3, pt: 3, fontWeight: 700 }}
+                >
                   {dialog.title}
                 </Typography>
               )}
               <Box
-                id="global-dialog-content"
+                id='global-dialog-content'
                 sx={{
                   p: 3,
-                  ...(dialog.size === 'fullscreen' ? { flex: 1, overflow: 'auto' } : {}),
+                  ...(dialog.size === 'fullscreen'
+                    ? { flex: 1, overflow: 'auto' }
+                    : {}),
                 }}
               >
                 {dialog.content}
               </Box>
-              <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, px: 3, pb: 3 }}>
-                {dialog.actions !== undefined ? dialog.actions : <Button onClick={closeDialog}>Close</Button>}
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                  gap: 1,
+                  px: 3,
+                  pb: 3,
+                }}
+              >
+                {dialog.actions !== undefined ? (
+                  dialog.actions
+                ) : (
+                  <Button onClick={closeDialog}>Close</Button>
+                )}
               </Box>
             </Box>
           </Fade>
@@ -101,15 +119,15 @@ export function DialogProvider({ children }: { children: ReactNode }) {
         )}
       </Modal>
     </DialogContext.Provider>
-  )
+  );
 }
 
 export function useDialog() {
-  const context = useContext(DialogContext)
+  const context = useContext(DialogContext);
 
   if (!context) {
-    throw new Error('useDialog must be used inside DialogProvider')
+    throw new Error('useDialog must be used inside DialogProvider');
   }
 
-  return context
+  return context;
 }

@@ -1,20 +1,20 @@
-import { createContext, useContext, useState, type ReactNode } from 'react'
-import { Alert, Snackbar, type AlertColor } from '@mui/material'
+import { Alert, Snackbar, type AlertColor } from '@mui/material';
+import { createContext, useContext, useState, type ReactNode } from 'react';
 
 type ToastOptions = {
-  message: string
-  severity?: AlertColor
-}
+  message: string;
+  severity?: AlertColor;
+};
 
 type ToastContextValue = {
-  showToast: (options: ToastOptions) => void
-  closeToast: () => void
-}
+  showToast: (options: ToastOptions) => void;
+  closeToast: () => void;
+};
 
-const ToastContext = createContext<ToastContextValue | null>(null)
+const ToastContext = createContext<ToastContextValue | null>(null);
 
 export function ToastProvider({ children }: { children: ReactNode }) {
-  const [toast, setToast] = useState<ToastOptions | null>(null)
+  const [toast, setToast] = useState<ToastOptions | null>(null);
 
   return (
     <ToastContext.Provider
@@ -31,21 +31,25 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
         {toast ? (
-          <Alert onClose={() => setToast(null)} severity={toast.severity ?? 'info'} variant="filled">
+          <Alert
+            onClose={() => setToast(null)}
+            severity={toast.severity ?? 'info'}
+            variant='filled'
+          >
             {toast.message}
           </Alert>
         ) : undefined}
       </Snackbar>
     </ToastContext.Provider>
-  )
+  );
 }
 
 export function useToast() {
-  const context = useContext(ToastContext)
+  const context = useContext(ToastContext);
 
   if (!context) {
-    throw new Error('useToast must be used inside ToastProvider')
+    throw new Error('useToast must be used inside ToastProvider');
   }
 
-  return context
+  return context;
 }
