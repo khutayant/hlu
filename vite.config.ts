@@ -3,9 +3,19 @@ import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
+/** Nest serves UI at /ui/hlu/; Vercel static root uses VITE_BASE=/ */
+function normalizeBase(value: string | undefined): string {
+  if (!value || value === '/') {
+    return '/';
+  }
+  return value.endsWith('/') ? value : `${value}/`;
+}
+
+const base = normalizeBase(process.env.VITE_BASE ?? '/ui/hlu');
+
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/ui/hlu/',
+  base,
   plugins: [
     react(),
     tailwindcss(),
@@ -24,8 +34,8 @@ export default defineConfig({
         theme_color: '#1565c0',
         background_color: '#ffffff',
         display: 'standalone',
-        start_url: '/ui/hlu/',
-        scope: '/ui/hlu/',
+        start_url: base,
+        scope: base,
         icons: [
           {
             src: 'assets/icons/android-chrome-192x192.png',

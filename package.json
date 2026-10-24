@@ -6,8 +6,10 @@
   "scripts": {
     "start:dev": "vite",
     "build": "tsc -b && vite build",
+    "build:vercel": "tsc -b && VITE_BASE=/ vite build",
     "lint": "oxlint",
     "preview": "vite preview",
+
     "git:push": "bash scripts/git-push.sh",
     "publish:patch": "bash scripts/publish.sh patch",
     "publish:minor": "bash scripts/publish.sh minor",

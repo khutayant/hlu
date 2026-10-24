@@ -6,12 +6,15 @@ React + TypeScript + Vite + MUI + Tailwind CSS starter.
 
 ```bash
 npm install
-npm run start:dev   # start dev server (port 5191)
-npm run build       # production build
-npm run preview     # preview production build
-npm run lint        # oxlint
-npm run git:push    # push `ui` branch and print commit table
+npm run start:dev     # start dev server (port 5191)
+npm run build         # production build (base /ui/hlu/ for Nest)
+npm run build:vercel  # production build (base / for Vercel static)
+npm run preview       # preview production build
+npm run lint          # oxlint
+npm run git:push      # push `ui` branch and print commit table
 ```
+
+On Vercel: Build Command `npm run build:vercel`, Output Directory `dist`.
 
 ## Stack
 
