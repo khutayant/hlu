@@ -21,4 +21,4 @@ export const LOCALE_OPTIONS: {
   { code: 'mm', label: 'မြန်မာ', flag: flagMm },
 ];
 
-export const DEFAULT_LOCALE: LocaleCode = 'en';
+export const DEFAULT_LOCALE: LocaleCode = 'mm';
