@@ -67,9 +67,9 @@ function BrandSection({ collapsed }: { collapsed: boolean }) {
       >
         <Typography
           variant='subtitle1'
-          fontWeight={800}
           noWrap
           color='primary.main'
+          sx={{ fontWeight: 800 }}
         >
           {AppEnv.APP_NAME}
         </Typography>
