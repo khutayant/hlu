@@ -107,42 +107,75 @@ function AgeForVaccinationPage() {
   } as const;
 
   const openMmrMyanmarDate = () => {
+    const fromLabel = formatMyanmarCalendarDate(minus60Date);
+    const toLabel = formatMyanmarCalendarDate(selectedDate);
+    const fromChip = (
+      <Chip
+        label={fromLabel}
+        color='primary'
+        variant='outlined'
+        sx={myanmarDateChipSx}
+      />
+    );
+    const toChip = (
+      <Chip
+        label={toLabel}
+        color='primary'
+        variant='outlined'
+        sx={myanmarDateChipSx}
+      />
+    );
+
     openDialog({
       title: t('ageForVaccination.myanmarEraTitle'),
-      content: (
-        <Stack spacing={1.25}>
-          <Stack
-            direction='row'
-            spacing={1}
-            sx={{ alignItems: 'center', flexWrap: 'wrap' }}
-          >
-            <Chip
-              label={formatMyanmarCalendarDate(minus60Date)}
-              color='primary'
-              variant='outlined'
-              sx={myanmarDateChipSx}
-            />
-            <Typography component='span' sx={{ fontWeight: 600 }}>
-              {t('ageForVaccination.mmrFrom')}
-            </Typography>
+      content:
+        locale === 'en' ? (
+          <Stack spacing={1.25}>
+            <Stack
+              direction='row'
+              spacing={1}
+              sx={{ alignItems: 'center', flexWrap: 'wrap' }}
+            >
+              <Typography component='span' sx={{ fontWeight: 600 }}>
+                {t('ageForVaccination.mmrFrom')}
+              </Typography>
+              {fromChip}
+            </Stack>
+            <Stack
+              direction='row'
+              spacing={1}
+              sx={{ alignItems: 'center', flexWrap: 'wrap' }}
+            >
+              <Typography component='span' sx={{ fontWeight: 600 }}>
+                {t('ageForVaccination.mmrWithin')}
+              </Typography>
+              {toChip}
+            </Stack>
           </Stack>
-          <Stack
-            direction='row'
-            spacing={1}
-            sx={{ alignItems: 'center', flexWrap: 'wrap' }}
-          >
-            <Chip
-              label={formatMyanmarCalendarDate(selectedDate)}
-              color='primary'
-              variant='outlined'
-              sx={myanmarDateChipSx}
-            />
-            <Typography component='span' sx={{ fontWeight: 600 }}>
-              {t('ageForVaccination.mmrWithin')}
-            </Typography>
+        ) : (
+          <Stack spacing={1.25}>
+            <Stack
+              direction='row'
+              spacing={1}
+              sx={{ alignItems: 'center', flexWrap: 'wrap' }}
+            >
+              {fromChip}
+              <Typography component='span' sx={{ fontWeight: 600 }}>
+                {t('ageForVaccination.mmrFrom')}
+              </Typography>
+            </Stack>
+            <Stack
+              direction='row'
+              spacing={1}
+              sx={{ alignItems: 'center', flexWrap: 'wrap' }}
+            >
+              {toChip}
+              <Typography component='span' sx={{ fontWeight: 600 }}>
+                {t('ageForVaccination.mmrWithin')}
+              </Typography>
+            </Stack>
           </Stack>
-        </Stack>
-      ),
+        ),
       width: 420,
     });
   };
@@ -369,7 +402,7 @@ function AgeForVaccinationPage() {
           <Typography color='text.secondary'>
             {t('ageForVaccination.mmrLead')}
           </Typography>
-          {/* [date1 = −60m+1d] မှ [date2] နေ့အထိ */}
+          {/* EN: from [−60m+1d] until [today] | MM: [−60m+1d] မှ [today] နေ့အထိ */}
           <Typography
             component='p'
             sx={{
@@ -384,14 +417,29 @@ function AgeForVaccinationPage() {
               },
             }}
           >
-            <Box component='span' className='mmr-date'>
-              {minus60Display}
-            </Box>{' '}
-            {t('ageForVaccination.mmrFrom')}{' '}
-            <Box component='span' className='mmr-date'>
-              {todayDisplay}
-            </Box>{' '}
-            {t('ageForVaccination.mmrWithin')}
+            {locale === 'en' ? (
+              <>
+                {t('ageForVaccination.mmrFrom')}{' '}
+                <Box component='span' className='mmr-date'>
+                  {minus60Display}
+                </Box>{' '}
+                {t('ageForVaccination.mmrWithin')}{' '}
+                <Box component='span' className='mmr-date'>
+                  {todayDisplay}
+                </Box>
+              </>
+            ) : (
+              <>
+                <Box component='span' className='mmr-date'>
+                  {minus60Display}
+                </Box>{' '}
+                {t('ageForVaccination.mmrFrom')}{' '}
+                <Box component='span' className='mmr-date'>
+                  {todayDisplay}
+                </Box>{' '}
+                {t('ageForVaccination.mmrWithin')}
+              </>
+            )}
           </Typography>
           <Typography color='text.secondary'>
             {t('ageForVaccination.mmrRule')}
