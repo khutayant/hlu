@@ -4,8 +4,9 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
-if [[ ! -f "$ROOT/.env" ]]; then
-  echo "Missing .env — copy .env-mock and set production values first."
+# Local: .env is optional if vars are already exported (e.g. Vercel dashboard).
+if [[ ! -f "$ROOT/.env" && -z "${DATABASE_URL:-}" ]]; then
+  echo "DATABASE_URL is required — add .env (from .env-mock) or set env vars in the host (Vercel → Settings → Environment Variables)."
   exit 1
 fi
 
@@ -19,6 +20,12 @@ fi
 
 echo "==> Running migrations"
 npm run migration:run
+
+# Vercel builds a serverless function from src/main.ts — do not start a long-running process.
+if [[ "${VERCEL:-}" == "1" ]]; then
+  echo "==> Vercel build complete (skipping start:prod)"
+  exit 0
+fi
 
 echo "==> Starting production server"
 exec npm run start:prod

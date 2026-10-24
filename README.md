@@ -42,9 +42,16 @@ Entities live in `src/entities/`. Migration files go under `migrations/`.
 ```bash
 npm run start:dev
 npm run build
-npm run deploy          # build + migration:run + start:prod
+npm run deploy          # build + migration:run + start:prod (skips start on Vercel)
 npm run start:prod      # node dist/src/main.js
 npm run beautify
 npm run lint
 npm test
 ```
+
+### Vercel
+
+1. Set **Root Directory** to `hlu-server` (or the server branch checkout).
+2. Set env vars in the project (at least `DATABASE_URL`, plus `ALLOW_ORIGINS`, etc.) — there is no `.env` file on Vercel.
+3. Build Command: `npm run deploy` (or leave Nest’s default build if you run migrations separately).
+4. Do not set a Start Command; Nest runs as a Vercel Function from `src/main.ts`.
