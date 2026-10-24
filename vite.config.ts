@@ -5,6 +5,7 @@ import { VitePWA } from 'vite-plugin-pwa';
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: '/ui/hlu/',
   plugins: [
     react(),
     tailwindcss(),
@@ -23,20 +24,21 @@ export default defineConfig({
         theme_color: '#1565c0',
         background_color: '#ffffff',
         display: 'standalone',
-        start_url: '/',
+        start_url: '/ui/hlu/',
+        scope: '/ui/hlu/',
         icons: [
           {
-            src: '/assets/icons/android-chrome-192x192.png',
+            src: '/ui/hlu/assets/icons/android-chrome-192x192.png',
             sizes: '192x192',
             type: 'image/png',
           },
           {
-            src: '/assets/icons/android-chrome-512x512.png',
+            src: '/ui/hlu/assets/icons/android-chrome-512x512.png',
             sizes: '512x512',
             type: 'image/png',
           },
           {
-            src: '/assets/icons/android-chrome-512x512.png',
+            src: '/ui/hlu/assets/icons/android-chrome-512x512.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'maskable',

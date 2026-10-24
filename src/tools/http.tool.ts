@@ -43,16 +43,10 @@ export function resolveApiUrl(url: string) {
 }
 
 function fetchWithHeaders(url: string, options?: RequestInit) {
-  const params = new URLSearchParams(window.location.search);
-  const organizationId = params.get('organizationId');
-  const facilityId = params.get('facilityId');
-
   return fetch(url, {
     ...options,
     headers: {
       ...(options?.headers ?? {}),
-      'X-Organization-Id': organizationId ?? '',
-      'X-Facility-Id': facilityId ?? '',
     },
   });
 }

@@ -1,7 +1,7 @@
 {
   "name": "hlu",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "start:dev": "vite",
@@ -9,6 +9,9 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "git:push": "bash scripts/git-push.sh",
+    "publish:patch": "bash scripts/publish.sh patch",
+    "publish:minor": "bash scripts/publish.sh minor",
+    "publish:main": "bash scripts/publish.sh major",
     "beautify": "prettier --write .",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
