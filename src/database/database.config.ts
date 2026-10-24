@@ -9,11 +9,7 @@ const migrations = ['dist/migrations/**/*.js'];
 
 export const DatabaseConfig: DataSourceOptions = {
   type: 'postgres',
-  host: AppEnv.DATABASE_HOST,
-  port: AppEnv.DATABASE_PORT,
-  database: AppEnv.DATABASE_NAME,
-  username: AppEnv.DATABASE_USERNAME,
-  password: AppEnv.DATABASE_PASSWORD,
+  url: AppEnv.DATABASE_URL,
   entities,
   migrations,
   migrationsTableName: DATABASE_MIGRATION_TABLE_NAME,

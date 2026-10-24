@@ -6,7 +6,7 @@ NestJS 12 API for Heartland Union.
 
 ```bash
 cp .env-mock .env
-# edit .env database credentials
+# edit .env (set DATABASE_URL)
 npm install
 npm run start:dev
 ```
@@ -42,6 +42,8 @@ Entities live in `src/entities/`. Migration files go under `migrations/`.
 ```bash
 npm run start:dev
 npm run build
+npm run deploy          # build + migration:run + start:prod
+npm run start:prod      # node dist/src/main.js
 npm run beautify
 npm run lint
 npm test

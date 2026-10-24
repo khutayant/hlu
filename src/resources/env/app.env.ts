@@ -22,15 +22,11 @@ export const AppEnv: AppEnvDto = {
   // url
   CWD: cwd,
   BASE: base,
-  UI_BASE_URL: `/ui/${base}`,
+  UI_BASE_URL: `/ui/${base}/`,
   API_BASE_URL: `/api/${base}`,
 
   // database
-  DATABASE_HOST: process.env.DATABASE_HOST!,
-  DATABASE_PORT: Number(process.env.DATABASE_PORT ?? 5432),
-  DATABASE_NAME: process.env.DATABASE_NAME!,
-  DATABASE_USERNAME: process.env.DATABASE_USERNAME!,
-  DATABASE_PASSWORD: process.env.DATABASE_PASSWORD!,
+  DATABASE_URL: process.env.DATABASE_URL!,
 
   // allows
   ALLOW_ORIGINS: (process.env.ALLOW_ORIGINS ?? '')

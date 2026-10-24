@@ -52,13 +52,12 @@ async function bootstrap() {
     credentials: true,
   });
 
-  const uiRoute = AppEnv.UI_BASE_URL.replace(/^\//, '');
 
   app.setGlobalPrefix(`/api/${AppEnv.BASE}`, {
     exclude: [
       { path: '', method: RequestMethod.GET },
-      { path: uiRoute, method: RequestMethod.GET },
-      { path: `${uiRoute}/*`, method: RequestMethod.GET },
+      { path: 'ui', method: RequestMethod.GET },
+      { path: 'ui/{*path}', method: RequestMethod.GET },
       { path: 'health', method: RequestMethod.GET },
     ],
   });

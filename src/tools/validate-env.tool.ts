@@ -4,11 +4,7 @@ const REQUIRED_KEYS: (keyof AppEnvDto)[] = [
   'NAME',
   'PORT',
   'BASE',
-  'DATABASE_HOST',
-  'DATABASE_PORT',
-  'DATABASE_NAME',
-  'DATABASE_USERNAME',
-  'DATABASE_PASSWORD',
+  'DATABASE_URL',
 ];
 
 export function validateEnv(env: AppEnvDto) {

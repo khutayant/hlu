@@ -2,16 +2,17 @@ import {
   Controller,
   Get,
   Param,
+  Req,
   Res,
   VERSION_NEUTRAL,
   Version,
 } from '@nestjs/common';
-import type { Response } from 'express';
+import type { Request, Response } from 'express';
 import { join, resolve, sep } from 'node:path';
 import { AppService } from './app.service.js';
 import { AppEnv } from './resources/env/app.env.js';
 
-const UI_ROUTE = AppEnv.UI_BASE_URL.replace(/^\//, '');
+const UI_ROUTE = AppEnv.UI_BASE_URL.replace(/^\/|\/$/g, '');
 
 @Controller()
 export class AppController {
@@ -25,14 +26,25 @@ export class AppController {
     return response.redirect(AppEnv.UI_BASE_URL);
   }
 
-  @Get([UI_ROUTE, `${UI_ROUTE}/*pathname`])
+  /** Bare `/ui/hlu` → `/ui/hlu/` so relative asset URLs resolve under the base. */
+  @Get(UI_ROUTE)
+  @Version(VERSION_NEUTRAL)
+  redirectUiRoot(@Req() request: Request, @Res() response: Response) {
+    const pathOnly = request.originalUrl.split('?')[0] ?? '';
+    if (pathOnly.endsWith('/')) {
+      return this.sendUiFile('', response);
+    }
+    return response.redirect(301, AppEnv.UI_BASE_URL);
+  }
+
+  @Get(`${UI_ROUTE}/{*pathname}`)
   @Version(VERSION_NEUTRAL)
   serveUi(
     @Param('pathname') pathname: string | string[] | undefined,
     @Res() response: Response,
   ) {
     const relativePath = Array.isArray(pathname)
-      ? pathname.join('/')
+      ? pathname.filter(Boolean).join('/')
       : (pathname ?? '');
 
     return this.sendUiFile(relativePath, response);
