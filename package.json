@@ -1,7 +1,7 @@
 {
   "name": "hlu",
   "private": true,
-  "version": "1.0.3",
+  "version": "1.0.4",
   "type": "module",
   "scripts": {
     "start:dev": "vite",
@@ -44,4 +44,3 @@
     "vite-plugin-pwa": "^2.0.0"
   }
 }
-
