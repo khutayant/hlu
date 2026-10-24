@@ -42,7 +42,7 @@ function AgeForVaccinationPage() {
     [selectedDate],
   );
   const minus60Date = useMemo(
-    () => toDayjs(selectedDate).subtract(60, 'month'),
+    () => toDayjs(selectedDate).subtract(60, 'month').add(1, 'day'),
     [selectedDate],
   );
   const isAsOfToday = asOfDate
@@ -123,7 +123,7 @@ function AgeForVaccinationPage() {
               sx={myanmarDateChipSx}
             />
             <Typography component='span' sx={{ fontWeight: 600 }}>
-              မှ
+              {t('ageForVaccination.mmrFrom')}
             </Typography>
           </Stack>
           <Stack
@@ -138,7 +138,7 @@ function AgeForVaccinationPage() {
               sx={myanmarDateChipSx}
             />
             <Typography component='span' sx={{ fontWeight: 600 }}>
-              အတွင်း
+              {t('ageForVaccination.mmrWithin')}
             </Typography>
           </Stack>
         </Stack>
@@ -338,7 +338,7 @@ function AgeForVaccinationPage() {
       </Paper>
 
       {/* Card - to give MMR */}
-      {/* Formula - today - 60 month */}
+      {/* Formula - today − 60 month + 1 day → today */}
       <Paper
         variant='outlined'
         sx={{
@@ -369,7 +369,7 @@ function AgeForVaccinationPage() {
           <Typography color='text.secondary'>
             {t('ageForVaccination.mmrLead')}
           </Typography>
-          {/* [date1] မှ [date2] အတွင်း */}
+          {/* [date1 = −60m+1d] မှ [date2] နေ့အထိ */}
           <Typography
             component='p'
             sx={{
@@ -390,10 +390,8 @@ function AgeForVaccinationPage() {
             {t('ageForVaccination.mmrFrom')}{' '}
             <Box component='span' className='mmr-date'>
               {todayDisplay}
-            </Box>
-            {t('ageForVaccination.mmrWithin')
-              ? ` ${t('ageForVaccination.mmrWithin')}`
-              : null}
+            </Box>{' '}
+            {t('ageForVaccination.mmrWithin')}
           </Typography>
           <Typography color='text.secondary'>
             {t('ageForVaccination.mmrRule')}

@@ -29,7 +29,7 @@ const mm = {
     showMyanmarDate: 'မြန်မာသက္ကရာဇ် ပြရန်',
     mmrLead: 'ကလေး၏မွေးနေ့သည်',
     mmrFrom: 'မှ',
-    mmrWithin: 'အတွင်း',
+    mmrWithin: 'နေ့အထိ',
     mmrRule: 'ရှိနေမှသာ MMR ကာကွယ်ဆေးထိုးရမည်။',
     asOfDate: 'တွက်ချက်မည့် ရက်စွဲ',
     asOfHelper: '{{date}} အဖြစ် ပြသသည် (ပုံမှန်: ယနေ့)',
