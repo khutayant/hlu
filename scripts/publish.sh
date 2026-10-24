@@ -13,23 +13,8 @@ DIST="$ROOT/dist"
 
 cd "$ROOT"
 
-if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-  echo "Not a git repository."
-  exit 1
-fi
-
-if [[ -n "$(git status --porcelain)" ]]; then
-  echo "Working tree is dirty. Commit all changes first, then re-run."
-  echo "Agent flow: version patch|minor|main → git add + commit, then publish."
-  git status -sb
-  exit 1
-fi
-
-npm version "$BUMP" --no-git-tag-version
-NEW_VER="$(node -p "require('./package.json').version")"
-
-git add package.json package-lock.json
-git commit -m "$NEW_VER"
+# Version bump only (no build/copy) is scripts/version.sh — use npm run version:* for that.
+bash "$ROOT/scripts/version.sh" "$BUMP"
 
 npm run build
 
@@ -42,5 +27,5 @@ mkdir -p "$SERVER_UI"
 rm -rf "${SERVER_UI:?}"/*
 cp -R "$DIST"/. "$SERVER_UI"/
 
+NEW_VER="$(node -p "require('./package.json').version")"
 echo "Published $NEW_VER → $SERVER_UI"
-echo "Version commit: $NEW_VER (push separately with git push)"
