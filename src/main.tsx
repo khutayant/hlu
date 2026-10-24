@@ -4,7 +4,7 @@ import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './app';
 import { BASE_URL } from './config';
-import { DialogProvider, ToastProvider } from './providers';
+import { DialogProvider, I18nProvider, ToastProvider } from './providers';
 import './pwa';
 import './styles.css';
 
@@ -26,11 +26,13 @@ createRoot(document.getElementById('root')!).render(
     <BrowserRouter basename={BASE_URL}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <ToastProvider>
-          <DialogProvider>
-            <App />
-          </DialogProvider>
-        </ToastProvider>
+        <I18nProvider>
+          <ToastProvider>
+            <DialogProvider>
+              <App />
+            </DialogProvider>
+          </ToastProvider>
+        </I18nProvider>
       </ThemeProvider>
     </BrowserRouter>
   </StrictMode>,

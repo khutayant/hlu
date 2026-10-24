@@ -1,6 +1,7 @@
 import VaccinesOutlinedIcon from '@mui/icons-material/VaccinesOutlined';
 import {
   Box,
+  Chip,
   Drawer,
   List,
   ListItemButton,
@@ -8,18 +9,27 @@ import {
   ListItemText,
   Tooltip,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
+import type { ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { publicUrl, VERSION } from '../config';
-import { AppEnv } from '../resources/env/app.env';
+import { useI18n } from '../providers/i18n.provider';
 
-const NAV_ITEMS = [
+const NAV_ITEMS: {
+  code?: string;
+  labelKey: string;
+  path: string;
+  icon: ReactNode;
+}[] = [
   {
-    label: 'Age vaccination',
+    code: 'C001',
+    labelKey: 'nav.ageForVaccination',
     path: '/',
     icon: <VaccinesOutlinedIcon />,
   },
-] as const;
+];
 
 
 const BRAND_LOGO = publicUrl('assets/icons/android-chrome-192x192.png');
@@ -29,7 +39,7 @@ type AppSidebarProps = {
   onClose: () => void;
 };
 
-const drawerWidth = 240;
+const drawerWidth = 350;
 const collapsedWidth = 72;
 
 type NavigationContentProps = Pick<AppSidebarProps, 'onClose'> & {
@@ -37,6 +47,8 @@ type NavigationContentProps = Pick<AppSidebarProps, 'onClose'> & {
 };
 
 function BrandSection({ collapsed }: { collapsed: boolean }) {
+  const { t } = useI18n();
+
   return (
     <Box
       component={Link}
@@ -80,7 +92,7 @@ function BrandSection({ collapsed }: { collapsed: boolean }) {
           color='primary.main'
           sx={{ fontWeight: 800 }}
         >
-          {AppEnv.APP_NAME}
+          {t('app.name')}
         </Typography>
       </Box>
     </Box>
@@ -92,6 +104,7 @@ function NavigationContent({
   collapsed = false,
 }: NavigationContentProps) {
   const location = useLocation();
+  const { t } = useI18n();
 
   return (
     <Box
@@ -105,9 +118,12 @@ function NavigationContent({
     >
       <BrandSection collapsed={collapsed} />
       <List sx={{ flexGrow: 1 }}>
-        {NAV_ITEMS.map(({ label, path, icon }) => (
+        {NAV_ITEMS.map(({ code, labelKey, path, icon }) => {
+          const label = t(labelKey);
+          const tooltip = code ? `${code} ${label}` : label;
+          return (
             <Box key={path} sx={{ display: 'block', width: '100%' }}>
-              <Tooltip title={collapsed ? label : ''} placement='right'>
+              <Tooltip title={collapsed ? tooltip : ''} placement='right'>
                 <ListItemButton
                   component={Link}
                   to={path}
@@ -117,7 +133,9 @@ function NavigationContent({
                     minHeight: 48,
                     width: '100%',
                     justifyContent: collapsed ? 'center' : 'initial',
+                    alignItems: { xs: 'flex-start', md: 'center' },
                     px: collapsed ? 0 : 2,
+                    py: { xs: 1.25, md: 1 },
                   }}
                 >
                   <ListItemIcon
@@ -126,25 +144,63 @@ function NavigationContent({
                       width: collapsed ? 24 : 'auto',
                       mr: collapsed ? 0 : 1,
                       ml: 0,
+                      mt: { xs: 0.25, md: 0 },
                       justifyContent: 'center',
                     }}
                   >
                     {icon}
                   </ListItemIcon>
                   <ListItemText
-                    primary={label}
+                    primary={
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          flexDirection: { xs: 'column', md: 'row' },
+                          alignItems: { xs: 'flex-start', md: 'center' },
+                          gap: { xs: 0.5, md: 1 },
+                          minWidth: 0,
+                        }}
+                      >
+                        <Typography
+                          component='span'
+                          noWrap
+                          variant='body2'
+                          sx={{ order: { xs: 0, md: 1 } }}
+                        >
+                          {label}
+                        </Typography>
+                        {code ? (
+                          <Chip
+                            label={code}
+                            size='small'
+                            color={code.startsWith('C') ? 'success' : 'default'}
+                            variant='outlined'
+                            sx={{
+                              order: { xs: 1, md: 0 },
+                              height: 22,
+                              flexShrink: 0,
+                              fontWeight: 700,
+                              fontSize: '0.7rem',
+                              letterSpacing: 0.4,
+                            }}
+                          />
+                        ) : null}
+                      </Box>
+                    }
                     sx={{
                       display: collapsed ? 'none' : 'block',
                       opacity: collapsed ? 0 : 1,
                       overflow: 'hidden',
                       whiteSpace: 'nowrap',
                       transition: 'opacity 180ms ease',
+                      my: 0,
                     }}
                   />
                 </ListItemButton>
               </Tooltip>
             </Box>
-        ))}
+          );
+        })}
       </List>
       <Box
         sx={{
@@ -156,7 +212,9 @@ function NavigationContent({
         }}
       >
         <Typography variant='caption' color='text.secondary' noWrap>
-          {collapsed ? `v${VERSION}` : `Version ${VERSION}`}
+          {collapsed
+            ? t('app.versionShort', { version: VERSION })
+            : t('app.version', { version: VERSION })}
         </Typography>
       </Box>
     </Box>
@@ -164,11 +222,14 @@ function NavigationContent({
 }
 
 function AppSidebar({ open, onClose }: AppSidebarProps) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
   return (
     <>
       <Drawer
         variant='temporary'
-        open={open}
+        open={isMobile && open}
         onClose={onClose}
         ModalProps={{ keepMounted: true }}
         sx={{

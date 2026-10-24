@@ -1,5 +1,6 @@
 import dayjs, { type Dayjs } from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
+import 'dayjs/locale/my';
 
 dayjs.extend(customParseFormat);
 
@@ -7,14 +8,33 @@ export const DISPLAY_DATE_FORMAT = 'DD-MMM-YYYY';
 export const INPUT_DATE_FORMAT = 'YYYY-MM-DD';
 
 export type DateInput = Dayjs | Date | string;
+export type DateDisplayLocale = 'en' | 'mm';
+
+const MYANMAR_DIGITS = '၀၁၂၃၄၅၆၇၈၉';
 
 export function toDayjs(value: DateInput): Dayjs {
   return dayjs(value).startOf('day');
 }
 
-/** Format as DD-MMM-YYYY (e.g. 24-Oct-2026). */
-export function formatDdMmmYyyy(value: DateInput): string {
-  return toDayjs(value).format(DISPLAY_DATE_FORMAT);
+/** Convert Western digits to Myanmar digits (၀–၉). */
+export function toMyanmarDigits(value: string): string {
+  return value.replace(/\d/g, (digit) => MYANMAR_DIGITS[Number(digit)] ?? digit);
+}
+
+/**
+ * Format date for display.
+ * - en: 24-Oct-2026 (short month)
+ * - mm: ၂၄-အောက်တိုဘာ-၂၀၂၆ (full month name + Myanmar digits)
+ */
+export function formatDdMmmYyyy(
+  value: DateInput,
+  locale: DateDisplayLocale = 'en',
+): string {
+  const dayjsLocale = locale === 'mm' ? 'my' : 'en';
+  const format = locale === 'mm' ? 'DD-MMMM-YYYY' : DISPLAY_DATE_FORMAT;
+  const formatted = toDayjs(value).locale(dayjsLocale).format(format);
+
+  return locale === 'mm' ? toMyanmarDigits(formatted) : formatted;
 }
 
 /** Parse YYYY-MM-DD from `<input type="date">`. */
@@ -27,12 +47,17 @@ export function toIsoDate(value: DateInput = dayjs()): string {
   return toDayjs(value).format(INPUT_DATE_FORMAT);
 }
 
+export type EligibilitySummaryKey =
+  | 'ageForVaccination.summaryNone'
+  | 'ageForVaccination.summaryNoBcg'
+  | 'ageForVaccination.summaryAllowed';
+
 export type VaccinationEligibility = {
   allowVaccination: boolean;
   allowBcg: boolean;
   noVaccineCutoff: Dayjs;
   noBcgCutoff: Dayjs;
-  summary: string;
+  summaryKey: EligibilitySummaryKey;
 };
 
 /**
@@ -46,7 +71,7 @@ export function getVaccinationEligibility(
   const asOfDay = toDayjs(asOf);
   const dobDay = toDayjs(dob);
   const noVaccineCutoff = asOfDay.subtract(60, 'month');
-  const noBcgCutoff = asOfDay.subtract(12, 'month');
+  const noBcgCutoff = asOfDay.subtract(12, 'month').add(1, 'day');
 
   if (dobDay.isSame(noVaccineCutoff) || dobDay.isBefore(noVaccineCutoff)) {
     return {
@@ -54,7 +79,7 @@ export function getVaccinationEligibility(
       allowBcg: false,
       noVaccineCutoff,
       noBcgCutoff,
-      summary: 'No vaccination — DOB is on or before today minus 60 months.',
+      summaryKey: 'ageForVaccination.summaryNone',
     };
   }
 
@@ -64,7 +89,7 @@ export function getVaccinationEligibility(
       allowBcg: false,
       noVaccineCutoff,
       noBcgCutoff,
-      summary: 'No BCG — DOB is on or before today minus 12 months.',
+      summaryKey: 'ageForVaccination.summaryNoBcg',
     };
   }
 
@@ -73,6 +98,6 @@ export function getVaccinationEligibility(
     allowBcg: true,
     noVaccineCutoff,
     noBcgCutoff,
-    summary: 'Vaccination allowed, including BCG.',
+    summaryKey: 'ageForVaccination.summaryAllowed',
   };
 }

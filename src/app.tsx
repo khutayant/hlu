@@ -3,8 +3,8 @@ import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import HomeLayout from './layouts/home.layout';
 
-const AgeVacinationPage = lazy(
-  () => import('./pages/home/age-vacination/age-vacination'),
+const AgeForVaccinationPage = lazy(
+  () => import('./pages/home/age-for-vaccination/age-for-vaccination'),
 );
 
 function App() {
@@ -18,7 +18,11 @@ function App() {
     >
       <Routes>
         <Route element={<HomeLayout />}>
-          <Route path='/' element={<AgeVacinationPage />} />
+          <Route path='/' element={<AgeForVaccinationPage />} />
+          <Route
+            path='/age-for-vaccination'
+            element={<Navigate to='/' replace />}
+          />
           <Route
             path='/age-vacination'
             element={<Navigate to='/' replace />}

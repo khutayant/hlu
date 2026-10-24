@@ -1,7 +1,16 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
+import { readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
+
+const rootDir = dirname(fileURLToPath(import.meta.url));
+const packageJson = JSON.parse(
+  readFileSync(join(rootDir, 'package.json'), 'utf8'),
+) as { version?: string };
+const appVersion = packageJson.version ?? '0.0.0';
 
 /** Nest serves UI at /ui/hlu/; Vercel static root uses VITE_BASE=/ */
 function normalizeBase(value: string | undefined): string {
@@ -16,6 +25,9 @@ const base = normalizeBase(process.env.VITE_BASE ?? '/ui/hlu');
 // https://vite.dev/config/
 export default defineConfig({
   base,
+  define: {
+    'import.meta.env.VITE_VERSION': JSON.stringify(appVersion),
+  },
   plugins: [
     react(),
     tailwindcss(),
