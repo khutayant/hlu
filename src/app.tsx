@@ -1,9 +1,11 @@
 import { Box, CircularProgress } from '@mui/material';
 import { lazy, Suspense } from 'react';
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import HomeLayout from './layouts/home.layout';
 
-const HomePage = lazy(() => import('./pages/home/home'));
+const AgeVacinationPage = lazy(
+  () => import('./pages/home/age-vacination/age-vacination'),
+);
 
 function App() {
   return (
@@ -16,7 +18,11 @@ function App() {
     >
       <Routes>
         <Route element={<HomeLayout />}>
-          <Route path='/' element={<HomePage />} />
+          <Route path='/' element={<AgeVacinationPage />} />
+          <Route
+            path='/age-vacination'
+            element={<Navigate to='/' replace />}
+          />
         </Route>
       </Routes>
     </Suspense>

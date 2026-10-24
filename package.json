@@ -9,7 +9,6 @@
     "build:vc": "tsc -b && VITE_BASE=/ vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-
     "git:push": "bash scripts/git-push.sh",
     "publish:patch": "bash scripts/publish.sh patch",
     "publish:minor": "bash scripts/publish.sh minor",
@@ -24,6 +23,7 @@
     "@mui/icons-material": "^9.5.0",
     "@mui/material": "^9.5.0",
     "@tailwindcss/vite": "^4.3.3",
+    "dayjs": "^1.11.23",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "react-router-dom": "^7.18.4",

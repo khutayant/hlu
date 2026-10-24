@@ -1,4 +1,4 @@
-import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
+import VaccinesOutlinedIcon from '@mui/icons-material/VaccinesOutlined';
 import {
   Box,
   Drawer,
@@ -12,6 +12,15 @@ import {
 import { Link, useLocation } from 'react-router-dom';
 import { publicUrl, VERSION } from '../config';
 import { AppEnv } from '../resources/env/app.env';
+
+const NAV_ITEMS = [
+  {
+    label: 'Age vaccination',
+    path: '/',
+    icon: <VaccinesOutlinedIcon />,
+  },
+] as const;
+
 
 const BRAND_LOGO = publicUrl('assets/icons/android-chrome-192x192.png');
 
@@ -96,8 +105,7 @@ function NavigationContent({
     >
       <BrandSection collapsed={collapsed} />
       <List sx={{ flexGrow: 1 }}>
-        {[{ label: 'Home', path: '/', icon: <HomeOutlinedIcon /> }].map(
-          ({ label, path, icon }) => (
+        {NAV_ITEMS.map(({ label, path, icon }) => (
             <Box key={path} sx={{ display: 'block', width: '100%' }}>
               <Tooltip title={collapsed ? label : ''} placement='right'>
                 <ListItemButton
@@ -136,8 +144,7 @@ function NavigationContent({
                 </ListItemButton>
               </Tooltip>
             </Box>
-          ),
-        )}
+        ))}
       </List>
       <Box
         sx={{
@@ -164,7 +171,13 @@ function AppSidebar({ open, onClose }: AppSidebarProps) {
         open={open}
         onClose={onClose}
         ModalProps={{ keepMounted: true }}
-        sx={{ display: { xs: 'block', md: 'none' } }}
+        sx={{
+          display: { xs: 'block', md: 'none' },
+          '& .MuiDrawer-paper': {
+            width: '80vw',
+            boxSizing: 'border-box',
+          },
+        }}
       >
         <NavigationContent onClose={onClose} />
       </Drawer>
