@@ -6,7 +6,7 @@ React + TypeScript + Vite + MUI + Tailwind CSS starter.
 
 ```bash
 npm install
-npm run start:dev     # start dev server (port 5191)
+npm run start:dev     # start dev server (port 5173)
 npm run build         # production build (base /ui/hlu/ for Nest)
 npm run build:vc      # production build (base / for Vercel static)
 npm run preview       # preview production build

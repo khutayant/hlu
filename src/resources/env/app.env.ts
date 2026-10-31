@@ -5,7 +5,7 @@ const API_BASE_PATH = `/api/${BASE}`;
 const UI_BASE_PATH = `/ui/${BASE}`;
 
 const isDev = () => {
-  return location.port.startsWith('5191');
+  return location.port.startsWith('5173');
 };
 
 const getApiUrl = () => {
@@ -18,7 +18,7 @@ const getApiUrl = () => {
 };
 
 export const AppEnv = {
-  APP_NAME: 'Heartland Union',
+  APP_NAME: 'HLU',
   BASE,
   BASE_URL,
   API_BASE_PATH,

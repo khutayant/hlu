@@ -1,6 +1,6 @@
 const en = {
   app: {
-    name: 'Heartland Union',
+    name: 'HLU',
     version: 'Version {{version}}',
     versionShort: 'v{{version}}',
   },
@@ -21,8 +21,12 @@ const en = {
       "Compare the child's date of birth with today (or a selected date) to help decide whether BCG and MMR vaccines should be given.",
     todayCardTitle: 'Vaccination Date',
     todayChip: 'Today',
-    todayCardHint: 'You can change the vaccination date.',
+    todayCardHint: 'You can change the date.',
     askTrueDob: "Ask for the child's true date of birth.",
+    minus60Lead: "If the child's date of birth is",
+    minus60Rule: 'earlier than this day,',
+    minus60Warning:
+      "The child's age exceeds the age specified for age-based vaccination. Please recheck the age.",
     minus12Lead: "If the child's date of birth is",
     minus12Rule: 'earlier than this day, do not give BCG.',
     myanmarEraTitle: 'မြန်မာသက္ကရာဇ်',
@@ -40,8 +44,7 @@ const en = {
       'Cutoffs as of {{asOf}}: no BCG on/before {{noBcg}}; no vaccination on/before {{noVaccine}}.',
     bcgLabel: 'BCG: {{status}}',
     vaccinationLabel: 'Vaccination: {{status}}',
-    summaryNone:
-      'No vaccination — DOB is on or before today minus 60 months.',
+    summaryNone: 'No vaccination — DOB is on or before today minus 60 months.',
     summaryNoBcg: 'No BCG — DOB is on or before today minus 12 months.',
     summaryAllowed: 'Vaccination allowed, including BCG.',
   },

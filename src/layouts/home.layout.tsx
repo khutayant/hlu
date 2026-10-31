@@ -17,7 +17,10 @@ function HomeLayout() {
       <Box sx={{ flexGrow: 1, minWidth: 0 }}>
         <AppToolbar onMenuClick={toggleSidebar} />
         <Box component='main'>
-          <Container maxWidth='lg' sx={{ py: { xs: 5, md: 8 } }}>
+          <Container
+            maxWidth='lg'
+            sx={{ pt: { xs: 5, md: 8 }, pb: { xs: 16, md: 24 } }}
+          >
             <Outlet />
           </Container>
         </Box>

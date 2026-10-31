@@ -32,7 +32,9 @@ const NAV_ITEMS: {
 ];
 
 
-const BRAND_LOGO = publicUrl('assets/icons/android-chrome-192x192.png');
+const BRAND_LOGO = publicUrl(
+  'assets/icons/epi-logo/android-chrome-192x192.png',
+);
 
 type AppSidebarProps = {
   open: boolean;

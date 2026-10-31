@@ -14,7 +14,11 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import dayjs, { type Dayjs } from 'dayjs';
-import { useMemo, useState, type MouseEvent } from 'react';
+import { useMemo, useState, type MouseEvent, type ReactNode } from 'react';
+import feedingChildIcon from '../../../assets/svgs/feeding-child.svg';
+import infantIcon from '../../../assets/svgs/infant.svg';
+import noVaccinationIcon from '../../../assets/svgs/no-vaccination.svg';
+import vaccinationIcon from '../../../assets/svgs/vaccination.svg';
 import { useDialog } from '../../../providers/dialog.provider';
 import { useI18n } from '../../../providers/i18n.provider';
 import {
@@ -26,6 +30,86 @@ import {
 } from './age-for-vaccination.tool';
 
 const PAGE_CODE = 'C001';
+
+const CARD_ICON_SX = { width: 44, height: 44, flexShrink: 0 } as const;
+
+const myanmarEraChipSx = {
+  position: 'absolute',
+  top: 8,
+  right: 8,
+  zIndex: 1,
+  height: 24,
+  fontWeight: 600,
+  fontSize: '0.75rem',
+} as const;
+
+const dateValueSx = {
+  fontWeight: 700,
+  fontSize: '1.25rem',
+  lineHeight: 1.2,
+} as const;
+
+const cutoffDateValueSx = {
+  ...dateValueSx,
+  color: 'primary.main',
+} as const;
+
+const myanmarDateChipSx = {
+  height: 'auto',
+  py: 0.75,
+  maxWidth: '100%',
+  '& .MuiChip-label': {
+    display: 'block',
+    whiteSpace: 'normal',
+    fontWeight: 700,
+    lineHeight: 1.4,
+    fontSize: '0.95rem',
+  },
+} as const;
+
+/** Lead line stays above; icon top-left spans the two content lines. */
+function CardIconBody({
+  iconSrc,
+  children,
+}: {
+  iconSrc: string;
+  children: ReactNode;
+}) {
+  return (
+    <Stack direction='row' spacing={1.5} sx={{ alignItems: 'flex-start' }}>
+      <Box
+        component='img'
+        src={iconSrc}
+        alt=''
+        aria-hidden
+        sx={CARD_ICON_SX}
+      />
+      <Stack spacing={0.25} sx={{ minWidth: 0, flex: 1 }}>
+        {children}
+      </Stack>
+    </Stack>
+  );
+}
+
+function MyanmarEraChip({
+  onClick,
+  'aria-label': ariaLabel,
+}: {
+  onClick: () => void;
+  'aria-label': string;
+}) {
+  return (
+    <Chip
+      label='သက္ကရာဇ်'
+      size='small'
+      variant='outlined'
+      clickable
+      onClick={onClick}
+      aria-label={ariaLabel}
+      sx={myanmarEraChipSx}
+    />
+  );
+}
 
 function AgeForVaccinationPage() {
   const { t, locale } = useI18n();
@@ -98,18 +182,17 @@ function AgeForVaccinationPage() {
     });
   };
 
-  const myanmarDateChipSx = {
-    height: 'auto',
-    py: 0.75,
-    maxWidth: '100%',
-    '& .MuiChip-label': {
-      display: 'block',
-      whiteSpace: 'normal',
-      fontWeight: 700,
-      lineHeight: 1.4,
-      fontSize: '0.95rem',
-    },
-  } as const;
+  const openMinus60MyanmarDate = () => {
+    openDialog({
+      title: t('ageForVaccination.myanmarEraTitle'),
+      content: (
+        <Typography variant='h6' sx={{ fontWeight: 700 }}>
+          {formatMyanmarCalendarDate(minus60Date)}
+        </Typography>
+      ),
+      width: 360,
+    });
+  };
 
   const openMmrMyanmarDate = () => {
     const fromLabel = formatMyanmarCalendarDate(minus60Date);
@@ -223,22 +306,9 @@ function AgeForVaccinationPage() {
           bgcolor: 'background.paper',
         }}
       >
-        <Chip
-          label='သက္ကရာဇ်'
-          size='small'
-          variant='outlined'
-          clickable
+        <MyanmarEraChip
           onClick={openSelectedMyanmarDate}
           aria-label={t('ageForVaccination.showMyanmarDate')}
-          sx={{
-            position: 'absolute',
-            top: 8,
-            right: 8,
-            zIndex: 1,
-            height: 24,
-            fontWeight: 600,
-            fontSize: '0.75rem',
-          }}
         />
         {/* Date Picker Trigger */}
         <IconButton
@@ -320,19 +390,47 @@ function AgeForVaccinationPage() {
               />
             ) : null}
           </Stack>
-          {/* Today Value */}
-          <Typography variant='h5' sx={{ fontWeight: 700, lineHeight: 1.2 }}>
-            {todayDisplay}
-          </Typography>
-          {/* Today Hint */}
-          <Typography variant='caption' color='text.secondary'>
-            {t('ageForVaccination.todayCardHint')}
-          </Typography>
+          <CardIconBody iconSrc={vaccinationIcon}>
+            <Typography sx={dateValueSx}>{todayDisplay}</Typography>
+            <Typography variant='caption' color='text.secondary'>
+              {t('ageForVaccination.todayCardHint')}
+            </Typography>
+          </CardIconBody>
         </Stack>
       </Paper>
 
       {/* Alert - ask true DOB */}
       <Alert severity='info'>{t('ageForVaccination.askTrueDob')}</Alert>
+
+      {/* Card - no vaccination (today − 60 month + 1 day) */}
+      <Paper
+        variant='outlined'
+        sx={{
+          p: 2.5,
+          position: 'relative',
+          borderColor: 'divider',
+          bgcolor: 'background.paper',
+        }}
+      >
+        <MyanmarEraChip
+          onClick={openMinus60MyanmarDate}
+          aria-label={t('ageForVaccination.showMyanmarDate')}
+        />
+        <Stack spacing={1}>
+          <Typography color='text.secondary'>
+            {t('ageForVaccination.minus60Lead')}
+          </Typography>
+          <CardIconBody iconSrc={noVaccinationIcon}>
+            <Typography sx={cutoffDateValueSx}>{minus60Display}</Typography>
+            <Typography color='text.secondary'>
+              {t('ageForVaccination.minus60Rule')}
+            </Typography>
+          </CardIconBody>
+          <Alert severity='warning'>
+            {t('ageForVaccination.minus60Warning')}
+          </Alert>
+        </Stack>
+      </Paper>
 
       {/* Card - do not give BCG vaccination */}
       <Paper
@@ -344,36 +442,20 @@ function AgeForVaccinationPage() {
           bgcolor: 'background.paper',
         }}
       >
-        <Chip
-          label='သက္ကရာဇ်'
-          size='small'
-          variant='outlined'
-          clickable
+        <MyanmarEraChip
           onClick={openMinus12MyanmarDate}
           aria-label={t('ageForVaccination.showMyanmarDate')}
-          sx={{
-            position: 'absolute',
-            top: 8,
-            right: 8,
-            zIndex: 1,
-            height: 24,
-            fontWeight: 600,
-            fontSize: '0.75rem',
-          }}
         />
         <Stack spacing={1}>
           <Typography color='text.secondary'>
             {t('ageForVaccination.minus12Lead')}
           </Typography>
-          <Typography
-            variant='h5'
-            sx={{ fontWeight: 700, lineHeight: 1.2, color: 'primary.main' }}
-          >
-            {minus12Display}
-          </Typography>
-          <Typography color='text.secondary'>
-            {t('ageForVaccination.minus12Rule')}
-          </Typography>
+          <CardIconBody iconSrc={infantIcon}>
+            <Typography sx={cutoffDateValueSx}>{minus12Display}</Typography>
+            <Typography color='text.secondary'>
+              {t('ageForVaccination.minus12Rule')}
+            </Typography>
+          </CardIconBody>
         </Stack>
       </Paper>
 
@@ -388,71 +470,60 @@ function AgeForVaccinationPage() {
           bgcolor: 'background.paper',
         }}
       >
-        <Chip
-          label='သက္ကရာဇ်'
-          size='small'
-          variant='outlined'
-          clickable
+        <MyanmarEraChip
           onClick={openMmrMyanmarDate}
           aria-label={t('ageForVaccination.showMyanmarDate')}
-          sx={{
-            position: 'absolute',
-            top: 8,
-            right: 8,
-            zIndex: 1,
-            height: 24,
-            fontWeight: 600,
-            fontSize: '0.75rem',
-          }}
         />
         <Stack spacing={1}>
           <Typography color='text.secondary'>
             {t('ageForVaccination.mmrLead')}
           </Typography>
           {/* EN: from [−60m+1d] until [−9m] | MM: [−60m+1d] မှ [−9m] နေ့အထိ */}
-          <Typography
-            component='p'
-            sx={{
-              m: 0,
-              lineHeight: 1.6,
-              color: 'text.secondary',
-              '& .mmr-date': {
-                fontWeight: 700,
-                fontSize: '1.25rem',
-                color: 'primary.main',
-                whiteSpace: 'nowrap',
-              },
-            }}
-          >
-            {locale === 'en' ? (
-              <>
-                {t('ageForVaccination.mmrFrom')}{' '}
-                <Box component='span' className='mmr-date'>
-                  {minus60Display}
-                </Box>{' '}
-                {t('ageForVaccination.mmrWithin')}{' '}
-                <Box component='span' className='mmr-date'>
-                  {minus9Display}
-                </Box>
-              </>
-            ) : (
-              <>
-                <Box component='span' className='mmr-date'>
-                  {/* MMR Start Date */}
-                  {minus60Display}
-                </Box>{' '}
-                {t('ageForVaccination.mmrFrom')}{' '}
-                <Box component='span' className='mmr-date'>
-                  {/* MMR End Date */}
-                  {minus9Display}
-                </Box>{' '}
-                {t('ageForVaccination.mmrWithin')}
-              </>
-            )}
-          </Typography>
-          <Typography color='text.secondary'>
-            {t('ageForVaccination.mmrRule')}
-          </Typography>
+          <CardIconBody iconSrc={feedingChildIcon}>
+            <Typography
+              component='p'
+              sx={{
+                m: 0,
+                lineHeight: 1.6,
+                color: 'text.secondary',
+                '& .mmr-date': {
+                  fontWeight: 700,
+                  fontSize: '1.25rem',
+                  color: 'primary.main',
+                  whiteSpace: 'nowrap',
+                },
+              }}
+            >
+              {locale === 'en' ? (
+                <>
+                  {t('ageForVaccination.mmrFrom')}{' '}
+                  <Box component='span' className='mmr-date'>
+                    {minus60Display}
+                  </Box>{' '}
+                  {t('ageForVaccination.mmrWithin')}{' '}
+                  <Box component='span' className='mmr-date'>
+                    {minus9Display}
+                  </Box>
+                </>
+              ) : (
+                <>
+                  <Box component='span' className='mmr-date'>
+                    {/* MMR Start Date */}
+                    {minus60Display}
+                  </Box>{' '}
+                  {t('ageForVaccination.mmrFrom')}{' '}
+                  <Box component='span' className='mmr-date'>
+                    {/* MMR End Date */}
+                    {minus9Display}
+                  </Box>{' '}
+                  {t('ageForVaccination.mmrWithin')}
+                </>
+              )}
+            </Typography>
+            <Typography color='text.secondary'>
+              {t('ageForVaccination.mmrRule')}
+            </Typography>
+          </CardIconBody>
         </Stack>
       </Paper>
     </Stack>
