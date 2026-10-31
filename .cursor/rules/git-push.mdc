@@ -16,18 +16,28 @@ Do **not** use a separate `hlu-server` remote/repo.
 
 ## Commands
 
-- **`git push`** (no branch named): push **both** branches (`ui` + `server`) to `khutayant/hlu`. Prefer `bash /Users/aungminoo/Projects/HLU/scripts/git-push-all.sh`.
-- **`git push ui`**: push only `ui` from `hlu/` via `npm run git:push`.
-- **`git push server`**: push only `server` from `hlu-server/` via `npm run git:push`.
+- **`git push`** (no branch named): **must** run  
+  `bash /Users/aungminoo/Projects/HLU/scripts/git-push-all.sh`  
+  Do **not** run plain `git push`, `git push origin HEAD`, or `gh` for this — they fail (wrong account / no PAT).
+- **`git push ui`**: from `hlu/`, run `npm run git:push` only.
+- **`git push server`**: from `hlu-server/`, run `npm run git:push` only.
+- **`deploy ui` / `deploy:ui`**: from `hlu/`, run `npm run deploy:ui` (`scripts/deploy-ui.sh`).  
+  Pushes local **`ui` → `origin/deploy-ui`** via refspec only — **do not** create or check out `deploy-ui` locally. Work stays on `ui`.
 
-## Before push
+## Agent execution
 
-- Commit pending changes in each working tree that will be pushed.
-- Both folders’ `origin` must be `https://github.com/khutayant/hlu.git`.
-- Use PAT from `/Users/aungminoo/Projects/HLU/.github-pat` (never put the token in chat or in the remote URL).
-- Do not print or log the PAT.
+- Run the script with Shell `required_permissions: ["all"]` (it updates `remote.origin.url` and reads the PAT).
+- If Auto-review blocks it, retry the **same** command with `request_smart_mode_approval: true` and the given block reason.
+- Commit pending changes in each tree that should be pushed **before** invoking the script (script pushes HEAD only; it does not commit).
+
+## Auth
+
+- PAT lookup order (first file wins): `hlu/scripts/.github-pat`, `hlu/.github-pat`, `/Users/aungminoo/Projects/HLU/.github-pat`, or env `GITHUB_TOKEN` / `GH_TOKEN`.
+- Never put the token in chat, logs, or the remote URL. `scripts/git-push.sh` injects it via `http.extraHeader` only.
 
 ## After push — always show these tables
+
+`git-push-all.sh` already prints them; surface the same in the reply:
 
 **Commit table**
 

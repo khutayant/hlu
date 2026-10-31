@@ -10,6 +10,7 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "git:push": "bash scripts/git-push.sh",
+    "deploy:ui": "bash scripts/deploy-ui.sh",
     "publish:patch": "bash scripts/publish.sh patch",
     "publish:minor": "bash scripts/publish.sh minor",
     "publish:main": "bash scripts/publish.sh major",

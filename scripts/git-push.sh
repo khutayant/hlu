@@ -17,7 +17,10 @@ load_pat() {
   fi
 
   local candidate
-  for candidate in "$ROOT/.github-pat" "$ROOT/../.github-pat"; do
+  for candidate in \
+    "$ROOT/scripts/.github-pat" \
+    "$ROOT/.github-pat" \
+    "$ROOT/../.github-pat"; do
     if [[ -f "$candidate" ]]; then
       tr -d '[:space:]' <"$candidate"
       return 0
@@ -45,6 +48,7 @@ fi
 if ! TOKEN="$(load_pat)"; then
   echo "GitHub PAT not found."
   echo "Create a gitignored file with the token only (one line):"
+  echo "  $ROOT/scripts/.github-pat"
   echo "  $ROOT/.github-pat"
   echo "or shared:"
   echo "  $ROOT/../.github-pat"
