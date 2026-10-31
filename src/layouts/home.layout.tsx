@@ -29,5 +29,4 @@ function HomeLayout() {
   );
 }
 
-// Test push UI
 export default HomeLayout;

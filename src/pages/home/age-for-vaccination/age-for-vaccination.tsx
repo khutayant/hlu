@@ -31,7 +31,17 @@ import {
 
 const PAGE_CODE = 'C001';
 
+/** TEMP test — set false to show cards again */
+const HIDE_CARDS = true;
+
 const CARD_ICON_SX = { width: 44, height: 44, flexShrink: 0 } as const;
+
+const cardPaperSx = {
+  p: 2.5,
+  position: 'relative',
+  bgcolor: 'background.paper',
+  ...(HIDE_CARDS ? { display: 'none' } : {}),
+} as const;
 
 const myanmarEraChipSx = {
   position: 'absolute',
@@ -299,12 +309,7 @@ function AgeForVaccinationPage() {
       {/* Today Card */}
       <Paper
         variant='outlined'
-        sx={{
-          p: 2.5,
-          position: 'relative',
-          borderColor: 'primary.light',
-          bgcolor: 'background.paper',
-        }}
+        sx={{ ...cardPaperSx, borderColor: 'primary.light' }}
       >
         <MyanmarEraChip
           onClick={openSelectedMyanmarDate}
@@ -405,12 +410,7 @@ function AgeForVaccinationPage() {
       {/* Card - no vaccination (today − 60 month + 1 day) */}
       <Paper
         variant='outlined'
-        sx={{
-          p: 2.5,
-          position: 'relative',
-          borderColor: 'divider',
-          bgcolor: 'background.paper',
-        }}
+        sx={{ ...cardPaperSx, borderColor: 'divider' }}
       >
         <MyanmarEraChip
           onClick={openMinus60MyanmarDate}
@@ -435,12 +435,7 @@ function AgeForVaccinationPage() {
       {/* Card - do not give BCG vaccination */}
       <Paper
         variant='outlined'
-        sx={{
-          p: 2.5,
-          position: 'relative',
-          borderColor: 'divider',
-          bgcolor: 'background.paper',
-        }}
+        sx={{ ...cardPaperSx, borderColor: 'divider' }}
       >
         <MyanmarEraChip
           onClick={openMinus12MyanmarDate}
@@ -463,12 +458,7 @@ function AgeForVaccinationPage() {
       {/* Formula - today − 60 month + 1 day → today − 9 month */}
       <Paper
         variant='outlined'
-        sx={{
-          p: 2.5,
-          position: 'relative',
-          borderColor: 'divider',
-          bgcolor: 'background.paper',
-        }}
+        sx={{ ...cardPaperSx, borderColor: 'divider' }}
       >
         <MyanmarEraChip
           onClick={openMmrMyanmarDate}
