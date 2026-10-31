@@ -46,6 +46,12 @@ if ! git rev-parse HEAD >/dev/null 2>&1; then
   exit 1
 fi
 
+if [[ -n "$(git status --porcelain)" ]]; then
+  echo "Working tree is dirty. Commit all changes first, then re-run deploy:ui."
+  git status -sb
+  exit 1
+fi
+
 if ! TOKEN="$(load_pat)"; then
   echo "GitHub PAT not found."
   echo "Create a gitignored file with the token only (one line):"
@@ -69,6 +75,9 @@ if git show-ref --verify --quiet "refs/heads/${DEPLOY_BRANCH}"; then
   git branch -D "$DEPLOY_BRANCH"
 fi
 
+echo "=== version patch (required before deploy) ==="
+bash "$ROOT/scripts/version.sh" patch
+
 # Keep origin clean (never store the PAT in the remote URL)
 ORIGIN_URL="$(git remote get-url origin)"
 CLEAN_URL="$(printf '%s' "$ORIGIN_URL" | sed -E 's#https://[^/@]+@#https://#')"
@@ -77,11 +86,13 @@ git remote set-url origin "$CLEAN_URL"
 REPO="$CLEAN_URL"
 HASH="$(git rev-parse --short HEAD)"
 MESSAGE="$(git log -1 --pretty=%s)"
+VERSION="$(node -p "require('./package.json').version")"
 
-echo "Deploying '${SOURCE_BRANCH}' → origin/${DEPLOY_BRANCH} (no local ${DEPLOY_BRANCH})..."
-# Refspec push updates remote deploy-ui only; do not set upstream (-u).
+echo "=== Deploying '${SOURCE_BRANCH}' → origin/${SOURCE_BRANCH} and origin/${DEPLOY_BRANCH} ==="
+# Push versioned ui to both remotes; do not set upstream to deploy-ui.
 AUTH_HEADER="Authorization: Basic $(printf 'x-access-token:%s' "$TOKEN" | base64 | tr -d '\n')"
 git -c "http.extraHeader=${AUTH_HEADER}" push origin \
+  "refs/heads/${SOURCE_BRANCH}:refs/heads/${SOURCE_BRANCH}" \
   "refs/heads/${SOURCE_BRANCH}:refs/heads/${DEPLOY_BRANCH}"
 
 max() {
@@ -89,29 +100,31 @@ max() {
   ((a > b)) && echo "$a" || echo "$b"
 }
 
-REFSPEC_LABEL='ui -> deploy-ui'
+REFSPEC_LABEL='ui -> ui + deploy-ui'
 w1=$(max 4 ${#REPO})
 w2=$(max 7 ${#REFSPEC_LABEL})
 w3=$(max 7 ${#MESSAGE})
 w4=$(max 4 ${#HASH})
+w5=$(max 7 ${#VERSION})
 
 print_sep() {
-  printf '+-%s-+-%s-+-%s-+-%s-+\n' \
+  printf '+-%s-+-%s-+-%s-+-%s-+-%s-+\n' \
     "$(printf '%*s' "$w1" '' | tr ' ' '-')" \
     "$(printf '%*s' "$w2" '' | tr ' ' '-')" \
+    "$(printf '%*s' "$w5" '' | tr ' ' '-')" \
     "$(printf '%*s' "$w4" '' | tr ' ' '-')" \
     "$(printf '%*s' "$w3" '' | tr ' ' '-')"
 }
 
 print_row() {
-  printf '| %-*s | %-*s | %-*s | %-*s |\n' \
-    "$w1" "$1" "$w2" "$2" "$w4" "$3" "$w3" "$4"
+  printf '| %-*s | %-*s | %-*s | %-*s | %-*s |\n' \
+    "$w1" "$1" "$w2" "$2" "$w5" "$3" "$w4" "$4" "$w3" "$5"
 }
 
 echo
 echo 'Deploy'
 print_sep
-print_row 'repo' 'refspec' 'hash' 'message'
+print_row 'repo' 'refspec' 'version' 'hash' 'message'
 print_sep
-print_row "$REPO" "$REFSPEC_LABEL" "$HASH" "$MESSAGE"
+print_row "$REPO" "$REFSPEC_LABEL" "$VERSION" "$HASH" "$MESSAGE"
 print_sep

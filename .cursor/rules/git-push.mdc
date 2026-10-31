@@ -22,13 +22,14 @@ Do **not** use a separate `hlu-server` remote/repo.
 - **`git push ui`**: from `hlu/`, run `npm run git:push` only.
 - **`git push server`**: from `hlu-server/`, run `npm run git:push` only.
 - **`deploy ui` / `deploy:ui`**: from `hlu/`, run `npm run deploy:ui` (`scripts/deploy-ui.sh`).  
-  Pushes local **`ui` → `origin/deploy-ui`** via refspec only — **do not** create or check out `deploy-ui` locally. Work stays on `ui`.
+  Always: **version patch** → push **`ui` → `origin/ui`** and **`ui` → `origin/deploy-ui`**.  
+  Do **not** create or check out `deploy-ui` locally. Work stays on `ui`. Working tree must be clean first.
 
 ## Agent execution
 
 - Run the script with Shell `required_permissions: ["all"]` (it updates `remote.origin.url` and reads the PAT).
 - If Auto-review blocks it, retry the **same** command with `request_smart_mode_approval: true` and the given block reason.
-- Commit pending changes in each tree that should be pushed **before** invoking the script (script pushes HEAD only; it does not commit).
+- Commit pending changes **before** `deploy:ui` (script requires a clean tree, then runs `version:patch` itself).
 
 ## Auth
 

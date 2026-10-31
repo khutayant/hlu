@@ -36,4 +36,5 @@ When the user says **version patch**, **version minor**, or **version main**, bu
 ## Not the same as publish / deploy
 
 - UI `publish:*` builds and copies to `hlu-server/ui/` — only when user says **publish**.
-- Server `deploy` — only when user says **deploy**.
+- UI `deploy:ui` **always runs version patch**, then pushes `ui` + `deploy-ui` — only when user says **deploy ui**.
+- Server `deploy` — only when user says **deploy** (server).
