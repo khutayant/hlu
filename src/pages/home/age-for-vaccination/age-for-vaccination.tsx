@@ -31,16 +31,12 @@ import {
 
 const PAGE_CODE = 'C001';
 
-/** TEMP test — set false to show cards again */
-const HIDE_CARDS = true;
-
 const CARD_ICON_SX = { width: 44, height: 44, flexShrink: 0 } as const;
 
 const cardPaperSx = {
   p: 2.5,
   position: 'relative',
   bgcolor: 'background.paper',
-  ...(HIDE_CARDS ? { display: 'none' } : {}),
 } as const;
 
 const myanmarEraChipSx = {
