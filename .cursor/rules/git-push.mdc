@@ -11,8 +11,9 @@ One GitHub repo for both apps: `https://github.com/khutayant/hlu.git`
 |--------------|--------|
 | `hlu/` | `ui` |
 | `hlu-server/` | `server` |
+| `hlu-work/` | `hlu-work` |
 
-Do **not** use a separate `hlu-server` remote/repo.
+Do **not** use a separate remote/repo per app.
 
 ## Commands
 
@@ -21,6 +22,7 @@ Do **not** use a separate `hlu-server` remote/repo.
   Do **not** run plain `git push`, `git push origin HEAD`, or `gh` for this — they fail (wrong account / no PAT).
 - **`git push ui`**: from `hlu/`, run `npm run git:push` only.
 - **`git push server`**: from `hlu-server/`, run `npm run git:push` only.
+- **`git push hlu-work`**: from `hlu-work/`, run `npm run git:push` only.
 - **`deploy ui` / `deploy:ui`**: from `hlu/`, run `npm run deploy:ui` (`scripts/deploy-ui.sh`).  
   Always: **version patch** → push **`ui` → `origin/ui`** and **`ui` → `origin/deploy-ui`**.  
   Do **not** create or check out `deploy-ui` locally. Work stays on `ui`. Working tree must be clean first.

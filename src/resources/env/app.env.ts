@@ -5,7 +5,7 @@ const API_BASE_PATH = `/api/${BASE}`;
 const UI_BASE_PATH = `/ui/${BASE}`;
 
 const isDev = () => {
-  return location.port.startsWith('5173');
+  return location.port.startsWith('5191');
 };
 
 const getApiUrl = () => {

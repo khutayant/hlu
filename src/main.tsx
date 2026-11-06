@@ -37,5 +37,3 @@ createRoot(document.getElementById('root')!).render(
     </BrowserRouter>
   </StrictMode>,
 );
-
-// Test push UI
