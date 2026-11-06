@@ -1,10 +1,10 @@
+import { entities } from '../../libs/entity/src/index.js';
 import { DataSource, type DataSourceOptions } from 'typeorm';
 import { AppEnv } from '../resources/env/app.env.js';
 
 export const DATABASE_CONNECTION = 'default';
 export const DATABASE_MIGRATION_TABLE_NAME = 'database_migration';
 
-const entities = ['dist/src/entities/**/*.entity.js'];
 const migrations = ['dist/migrations/**/*.js'];
 
 export const DatabaseConfig: DataSourceOptions = {

@@ -14,6 +14,17 @@ export type AppEnvDto = {
   // database
   DATABASE_URL: string;
 
+  // storage
+  STORAGE_DIR: string;
+  TEMP_DIR: string;
+
+  // keycloak
+  KEYCLOAK_URL: string;
+  KEYCLOAK_REALM: string;
+  KEYCLOAK_CLIENT_ID: string;
+  KEYCLOAK_CLIENT_SECRET: string;
+  KEYCLOAK_REDIRECT_URIS: string[];
+
   // allows
   ALLOW_ORIGINS: string[];
   ALLOW_METHODS: string[];

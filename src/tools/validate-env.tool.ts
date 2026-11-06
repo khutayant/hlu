@@ -5,6 +5,12 @@ const REQUIRED_KEYS: (keyof AppEnvDto)[] = [
   'PORT',
   'BASE',
   'DATABASE_URL',
+  'STORAGE_DIR',
+  'TEMP_DIR',
+  'KEYCLOAK_URL',
+  'KEYCLOAK_REALM',
+  'KEYCLOAK_CLIENT_ID',
+  'KEYCLOAK_CLIENT_SECRET',
 ];
 
 export function validateEnv(env: AppEnvDto) {

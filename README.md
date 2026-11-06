@@ -20,8 +20,24 @@ npm run start:dev
 | `/health` | Liveness `{ status: "ok" }` |
 | `/api/hlu/ping` | `{ status: "pong", timestamp }` |
 | `/api/hlu/version` | App version info |
+| `POST /api/hlu/v1/auth/login` | Keycloak login (`username` + `password`) |
+| `POST /api/hlu/v1/auth/refresh` | Refresh tokens |
+| `POST /api/hlu/v1/auth/logout` | Invalidate refresh token |
+| `GET /api/hlu/v1/auth/me` | Current user (Bearer token) |
 
 Default port: **3300** (`PORT` in `.env`).
+
+## Auth (Keycloak)
+
+Local Keycloak is expected at `http://localhost:3100` (admin / admin).
+
+```bash
+npm run keycloak:setup   # creates realm hlu, client hlu-server, user test/test
+```
+
+Env vars: `KEYCLOAK_URL`, `KEYCLOAK_REALM`, `KEYCLOAK_CLIENT_ID`, `KEYCLOAK_CLIENT_SECRET`.
+
+Entities live under `libs/entity/src/` (`bases/`, `enums/`, `entities/`).
 
 ## Migrations (normal DB)
 
@@ -35,7 +51,7 @@ npm run migration:ts:auto       # generate + run
 npm run migration:run           # run compiled migrations from dist/
 ```
 
-Entities live in `src/entities/`. Migration files go under `migrations/`.
+Entities live in `libs/entity/src/`. Migration files go under `migrations/`.
 
 ## Scripts
 

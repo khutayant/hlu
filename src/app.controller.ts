@@ -10,6 +10,7 @@ import {
 import type { Request, Response } from 'express';
 import { join, resolve, sep } from 'node:path';
 import { AppService } from './app.service.js';
+import { Public } from './decorators/public.decorator.js';
 import { AppEnv } from './resources/env/app.env.js';
 
 const UI_ROUTE = AppEnv.UI_BASE_URL.replace(/^\/|\/$/g, '');
@@ -20,6 +21,7 @@ export class AppController {
 
   constructor(private readonly appService: AppService) {}
 
+  @Public()
   @Get()
   @Version(VERSION_NEUTRAL)
   getApp(@Res() response: Response) {
@@ -27,6 +29,7 @@ export class AppController {
   }
 
   /** Bare `/ui/hlu` → `/ui/hlu/` so relative asset URLs resolve under the base. */
+  @Public()
   @Get(UI_ROUTE)
   @Version(VERSION_NEUTRAL)
   redirectUiRoot(@Req() request: Request, @Res() response: Response) {
@@ -37,6 +40,7 @@ export class AppController {
     return response.redirect(301, AppEnv.UI_BASE_URL);
   }
 
+  @Public()
   @Get(`${UI_ROUTE}/{*pathname}`)
   @Version(VERSION_NEUTRAL)
   serveUi(
@@ -50,18 +54,21 @@ export class AppController {
     return this.sendUiFile(relativePath, response);
   }
 
+  @Public()
   @Get('version')
   @Version(VERSION_NEUTRAL)
   getVersion() {
     return this.appService.getVersion();
   }
 
+  @Public()
   @Get('health')
   @Version(VERSION_NEUTRAL)
   getHealth() {
     return { status: 'ok' };
   }
 
+  @Public()
   @Get('ping')
   @Version(VERSION_NEUTRAL)
   ping() {
