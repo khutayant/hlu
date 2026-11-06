@@ -8,6 +8,8 @@ const mm = {
     mainPage: 'ပင်မစာမျက်နှာ',
   },
   common: {
+    home: 'ပင်မ',
+    locator: 'လက်ရှိတည်နေရာ',
     language: 'ဘာသာစကား',
     english: 'အင်္ဂလိပ်',
     myanmar: 'မြန်မာ',

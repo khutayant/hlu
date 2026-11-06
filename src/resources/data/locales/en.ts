@@ -8,6 +8,8 @@ const en = {
     mainPage: 'Main page',
   },
   common: {
+    home: 'Home',
+    locator: 'Current location',
     language: 'Language',
     english: 'English',
     myanmar: 'Myanmar',

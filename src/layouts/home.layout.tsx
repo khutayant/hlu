@@ -1,6 +1,7 @@
 import { Layout } from 'antd';
 import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
+import AppLocator from '../components/locator';
 import AppSidebar from '../components/sidebar';
 import AppToolbar from '../components/toolbar';
 
@@ -21,6 +22,7 @@ function HomeLayout() {
       />
       <Layout style={{ background: '#f5f7fa' }}>
         <AppToolbar onMenuClick={toggleSidebar} />
+        <AppLocator />
         <Content
           style={{
             maxWidth: 960,
