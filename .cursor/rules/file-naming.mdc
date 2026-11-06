@@ -1,0 +1,10 @@
+---
+description: Lowercase kebab-case for source files
+alwaysApply: true
+---
+
+# File naming
+
+- Use **lowercase kebab-case** for project source files and folders.
+- Examples: `app.tsx`, `sample-page.tsx`, `home.layout.tsx`
+- Do not use PascalCase filenames.

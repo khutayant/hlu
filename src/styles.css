@@ -1,0 +1,19 @@
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/utilities.css' layer(utilities);
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background: #f5f7fa;
+  font-family: 'Roboto', Helvetica, Arial, sans-serif;
+}
+
+a {
+  color: inherit;
+}

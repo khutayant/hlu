@@ -1,0 +1,25 @@
+---
+description: Mirror HLU src folder structure (antd stack)
+alwaysApply: true
+---
+
+# `src` folder structure
+
+```
+src/
+  app.tsx
+  main.tsx
+  config.ts
+  styles.css
+  vite-env.d.ts
+  components/
+  layouts/        # e.g. home.layout.tsx
+  pages/          # e.g. pages/home/sample-page/
+  providers/
+  resources/
+  tools/
+```
+
+- Use lowercase kebab-case filenames.
+- Prefer `*.layout.tsx`, `*.provider.tsx`, `*.tool.ts` suffixes.
+- UI library: **antd** (not MUI).
