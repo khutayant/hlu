@@ -1,10 +1,25 @@
-import { MenuOutlined } from '@ant-design/icons';
-import { Button, Dropdown, Flex, Layout, Space, Typography } from 'antd';
-import { Link } from 'react-router-dom';
+import {
+  LogoutOutlined,
+  MenuOutlined,
+  UserOutlined,
+} from '@ant-design/icons';
+import {
+  Avatar,
+  Button,
+  Dropdown,
+  Flex,
+  Grid,
+  Layout,
+  Space,
+  Typography,
+} from 'antd';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../providers/auth.provider';
 import { useI18n } from '../providers/i18n.provider';
 import { LOCALE_OPTIONS, type LocaleCode } from '../resources/data/locales';
 
 const { Header } = Layout;
+const { useBreakpoint } = Grid;
 
 type AppToolbarProps = {
   onMenuClick: () => void;
@@ -39,9 +54,18 @@ function LocaleFlag({
 
 function AppToolbar({ onMenuClick }: AppToolbarProps) {
   const { t, locale, setLocale } = useI18n();
+  const { user, displayName, signOut } = useAuth();
+  const navigate = useNavigate();
+  const screens = useBreakpoint();
+  const isMobile = !screens.md;
   const selectedLocale =
     LOCALE_OPTIONS.find((option) => option.code === locale) ??
     LOCALE_OPTIONS[0];
+
+  const onSignOut = async () => {
+    await signOut();
+    navigate('/auth/login', { replace: true });
+  };
 
   return (
     <Header
@@ -108,6 +132,64 @@ function AppToolbar({ onMenuClick }: AppToolbarProps) {
             </Space>
           </Button>
         </Dropdown>
+
+        {!isMobile ? (
+          <Dropdown
+            menu={{
+              items: [
+                {
+                  key: 'profile',
+                  disabled: true,
+                  label: (
+                    <div style={{ minWidth: 160 }}>
+                      <Typography.Text strong style={{ display: 'block' }}>
+                        {displayName}
+                      </Typography.Text>
+                      {user?.email ? (
+                        <Typography.Text
+                          type='secondary'
+                          style={{ fontSize: 12 }}
+                        >
+                          {user.email}
+                        </Typography.Text>
+                      ) : null}
+                    </div>
+                  ),
+                },
+                { type: 'divider' },
+                {
+                  key: 'logout',
+                  icon: <LogoutOutlined />,
+                  label: t('auth.signOut'),
+                  onClick: () => {
+                    void onSignOut();
+                  },
+                },
+              ],
+            }}
+            trigger={['click']}
+          >
+            <Button
+              type='text'
+              aria-label={t('auth.account')}
+              style={{ height: 40, paddingInline: 8 }}
+            >
+              <Space size={8}>
+                <Avatar
+                  size={28}
+                  icon={<UserOutlined />}
+                  style={{ background: '#1565c0' }}
+                />
+                <span
+                  style={{ fontWeight: 600, maxWidth: 120 }}
+                  className='truncate'
+                >
+                  {displayName}
+                </span>
+              </Space>
+            </Button>
+          </Dropdown>
+        ) : null}
       </Flex>
     </Header>
   );
