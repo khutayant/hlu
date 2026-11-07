@@ -2,7 +2,7 @@ import { Flex, Spin } from 'antd';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../providers/auth.provider';
 
-function RequireAuth() {
+function RequireAuthGuard() {
   const { isAuthenticated, isBootstrapping } = useAuth();
   const location = useLocation();
 
@@ -23,4 +23,4 @@ function RequireAuth() {
   return <Outlet />;
 }
 
-export default RequireAuth;
+export default RequireAuthGuard;

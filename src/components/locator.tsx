@@ -6,30 +6,74 @@ import { useI18n } from '../providers/i18n.provider';
 /** Known app routes → i18n label keys (longest prefix wins). */
 const ROUTE_LABELS: { path: string; labelKey: string }[] = [
   { path: '/', labelKey: 'nav.mainPage' },
+  { path: '/test', labelKey: 'nav.testPage' },
+  { path: '/profile', labelKey: 'nav.profilePage' },
+  { path: '/profile/profile', labelKey: 'profilePage.menu.profile' },
+  { path: '/profile/security', labelKey: 'profilePage.menu.security' },
+  { path: '/admin', labelKey: 'nav.adminPage' },
+  { path: '/admin/user-role', labelKey: 'nav.userRolePage' },
+  { path: '/admin/user-role/:id', labelKey: 'nav.userRoleDetail' },
+  {
+    path: '/admin/user-role/:id/users',
+    labelKey: 'userRolePage.menu.users',
+  },
+  {
+    path: '/admin/user-role/:id/permissions',
+    labelKey: 'userRolePage.menu.permissions',
+  },
+  {
+    path: '/admin/user-role/:id/modules',
+    labelKey: 'userRolePage.menu.modules',
+  },
 ];
 
-function resolveRouteLabel(pathname: string) {
-  const normalized =
-    pathname.length > 1 && pathname.endsWith('/')
-      ? pathname.slice(0, -1)
-      : pathname;
+function normalizePath(pathname: string) {
+  return pathname.length > 1 && pathname.endsWith('/')
+    ? pathname.slice(0, -1)
+    : pathname;
+}
 
-  const exact = ROUTE_LABELS.find((route) => route.path === normalized);
-  if (exact) {
-    return exact;
+function routeMatches(routePath: string, pathname: string) {
+  if (routePath.includes(':')) {
+    const routeParts = routePath.split('/');
+    const pathParts = pathname.split('/');
+    if (pathParts.length < routeParts.length) {
+      return false;
+    }
+    return routeParts.every(
+      (part, index) => part.startsWith(':') || part === pathParts[index],
+    );
   }
 
-  return (
-    [...ROUTE_LABELS]
-      .filter((route) => route.path !== '/' && normalized.startsWith(route.path))
-      .sort((a, b) => b.path.length - a.path.length)[0] ?? null
-  );
+  return pathname === routePath || pathname.startsWith(`${routePath}/`);
+}
+
+function resolveRouteHref(routePath: string, pathname: string) {
+  if (!routePath.includes(':')) {
+    return routePath;
+  }
+  const routeParts = routePath.split('/');
+  const pathParts = pathname.split('/');
+  return routeParts
+    .map((part, index) => (part.startsWith(':') ? pathParts[index] : part))
+    .join('/');
+}
+
+function resolveRouteChain(pathname: string) {
+  const normalized = normalizePath(pathname);
+  if (normalized === '/' || normalized === '') {
+    return [];
+  }
+
+  return ROUTE_LABELS.filter(
+    (route) => route.path !== '/' && routeMatches(route.path, normalized),
+  ).sort((a, b) => a.path.length - b.path.length);
 }
 
 function AppLocator() {
   const { t } = useI18n();
   const { pathname } = useLocation();
-  const current = resolveRouteLabel(pathname);
+  const chain = resolveRouteChain(pathname);
   const isHome = pathname === '/' || pathname === '';
 
   const items = [
@@ -49,20 +93,26 @@ function AppLocator() {
         </Link>
       ),
     },
-    ...(current && !isHome
+    ...(isHome
       ? [
           {
-            key: current.path,
-            title: t(current.labelKey),
+            key: 'main',
+            title: t('nav.mainPage'),
           },
         ]
-      : isHome
-        ? [
-            {
-              key: 'main',
-              title: t('nav.mainPage'),
-            },
-          ]
+      : chain.length > 0
+        ? chain.map((route, index) => {
+            const isLast = index === chain.length - 1;
+            const href = resolveRouteHref(route.path, pathname);
+            return {
+              key: href,
+              title: isLast ? (
+                t(route.labelKey)
+              ) : (
+                <Link to={href}>{t(route.labelKey)}</Link>
+              ),
+            };
+          })
         : [
             {
               key: pathname,
@@ -73,26 +123,22 @@ function AppLocator() {
 
   return (
     <div
-      style={{
-        position: 'sticky',
-        insetBlockStart: 64,
-        zIndex: 9,
-        background: '#fff',
-        borderBottom: '1px solid rgba(5, 5, 5, 0.06)',
-        paddingBlock: 10,
-        paddingInline: 16,
-      }}
       aria-label={t('common.locator')}
+      style={{
+        flex: 1,
+        minWidth: 0,
+        lineHeight: 1.4,
+        overflow: 'hidden',
+      }}
     >
-      <div
+      <Breadcrumb
+        items={items}
         style={{
-          maxWidth: 960,
-          marginInline: 'auto',
-          width: '100%',
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
         }}
-      >
-        <Breadcrumb items={items} />
-      </div>
+      />
     </div>
   );
 }

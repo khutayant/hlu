@@ -5,7 +5,9 @@ import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './app';
 import { BASE_URL } from './config';
-import { I18nProvider } from './providers';
+import { DialogProvider } from './providers/dialog.provider';
+import { I18nProvider } from './providers/i18n.provider';
+import { ToastProvider } from './providers/toast.provider';
 import './pwa';
 import './styles.css';
 
@@ -25,7 +27,11 @@ createRoot(document.getElementById('root')!).render(
         }}
       >
         <I18nProvider>
-          <App />
+          <ToastProvider>
+            <DialogProvider>
+              <App />
+            </DialogProvider>
+          </ToastProvider>
         </I18nProvider>
       </ConfigProvider>
     </BrowserRouter>

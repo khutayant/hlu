@@ -1,4 +1,5 @@
 import {
+  IdcardOutlined,
   LogoutOutlined,
   MenuOutlined,
   UserOutlined,
@@ -13,13 +14,19 @@ import {
   Space,
   Typography,
 } from 'antd';
-import { Link, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { fetchAuthorizedFileUrl } from '../handlers/file.handler';
 import { useAuth } from '../providers/auth.provider';
 import { useI18n } from '../providers/i18n.provider';
 import { LOCALE_OPTIONS, type LocaleCode } from '../resources/data/locales';
+import AppLocator from './locator';
 
 const { Header } = Layout;
 const { useBreakpoint } = Grid;
+
+/** Shared with ribbon sticky offset. */
+export const TOOLBAR_HEIGHT_PX = 44;
 
 type AppToolbarProps = {
   onMenuClick: () => void;
@@ -52,6 +59,56 @@ function LocaleFlag({
   );
 }
 
+function ProfileAvatar({ uuidName }: { uuidName?: string | null }) {
+  const [src, setSrc] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    let objectUrl: string | null = null;
+    setSrc(null);
+
+    if (!uuidName) {
+      return;
+    }
+
+    void (async () => {
+      try {
+        const url = await fetchAuthorizedFileUrl(uuidName);
+        if (cancelled) {
+          URL.revokeObjectURL(url);
+          return;
+        }
+        objectUrl = url;
+        setSrc(url);
+      } catch {
+        if (!cancelled) {
+          setSrc(null);
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      if (objectUrl) {
+        URL.revokeObjectURL(objectUrl);
+      }
+    };
+  }, [uuidName]);
+
+  return (
+    <Avatar
+      size={22}
+      src={src || undefined}
+      icon={<UserOutlined />}
+      style={{ background: src ? undefined : '#1565c0' }}
+      onError={() => {
+        setSrc(null);
+        return true;
+      }}
+    />
+  );
+}
+
 function AppToolbar({ onMenuClick }: AppToolbarProps) {
   const { t, locale, setLocale } = useI18n();
   const { user, displayName, signOut } = useAuth();
@@ -75,33 +132,23 @@ function AppToolbar({ onMenuClick }: AppToolbarProps) {
         zIndex: 10,
         display: 'flex',
         alignItems: 'center',
-        paddingInline: 16,
+        paddingInline: 12,
+        paddingBlock: 0,
         background: '#fff',
         borderBottom: '1px solid rgba(5, 5, 5, 0.06)',
-        height: 64,
-        lineHeight: '64px',
+        height: TOOLBAR_HEIGHT_PX,
+        lineHeight: `${TOOLBAR_HEIGHT_PX}px`,
       }}
     >
-      <Flex align='center' style={{ width: '100%' }} gap={8}>
+      <Flex align='center' style={{ width: '100%', minHeight: 0 }} gap={4}>
         <Button
           type='text'
+          size='small'
           icon={<MenuOutlined />}
           onClick={onMenuClick}
           aria-label='toggle sidebar'
         />
-        <Link to='/' style={{ flex: 1, textDecoration: 'none' }}>
-          <Typography.Title
-            level={4}
-            style={{
-              margin: 0,
-              color: '#1565c0',
-              fontWeight: 800,
-              lineHeight: 1.2,
-            }}
-          >
-            {t('app.name')}
-          </Typography.Title>
-        </Link>
+        <AppLocator />
         <Dropdown
           menu={{
             selectedKeys: [locale],
@@ -112,7 +159,7 @@ function AppToolbar({ onMenuClick }: AppToolbarProps) {
                   <LocaleFlag
                     src={option.flag}
                     label={option.label}
-                    size={22}
+                    size={18}
                   />
                   {option.label}
                 </Space>
@@ -122,13 +169,16 @@ function AppToolbar({ onMenuClick }: AppToolbarProps) {
           }}
           trigger={['click']}
         >
-          <Button type='text' aria-label={t('common.language')}>
-            <Space>
+          <Button type='text' size='small' aria-label={t('common.language')}>
+            <Space size={4}>
               <LocaleFlag
                 src={selectedLocale.flag}
                 label={selectedLocale.label}
+                size={16}
               />
-              <span style={{ fontWeight: 600 }}>{selectedLocale.label}</span>
+              <span style={{ fontWeight: 600, fontSize: 13 }}>
+                {selectedLocale.label}
+              </span>
             </Space>
           </Button>
         </Dropdown>
@@ -138,7 +188,7 @@ function AppToolbar({ onMenuClick }: AppToolbarProps) {
             menu={{
               items: [
                 {
-                  key: 'profile',
+                  key: 'account-info',
                   disabled: true,
                   label: (
                     <div style={{ minWidth: 160 }}>
@@ -158,6 +208,14 @@ function AppToolbar({ onMenuClick }: AppToolbarProps) {
                 },
                 { type: 'divider' },
                 {
+                  key: 'my-profile',
+                  icon: <IdcardOutlined />,
+                  label: t('nav.profilePage'),
+                  onClick: () => {
+                    navigate('/profile/profile');
+                  },
+                },
+                {
                   key: 'logout',
                   icon: <LogoutOutlined />,
                   label: t('auth.signOut'),
@@ -171,17 +229,14 @@ function AppToolbar({ onMenuClick }: AppToolbarProps) {
           >
             <Button
               type='text'
+              size='small'
               aria-label={t('auth.account')}
-              style={{ height: 40, paddingInline: 8 }}
+              style={{ height: 32, paddingInline: 6 }}
             >
-              <Space size={8}>
-                <Avatar
-                  size={28}
-                  icon={<UserOutlined />}
-                  style={{ background: '#1565c0' }}
-                />
+              <Space size={6}>
+                <ProfileAvatar uuidName={user?.profileImage?.uuidName} />
                 <span
-                  style={{ fontWeight: 600, maxWidth: 120 }}
+                  style={{ fontWeight: 600, maxWidth: 120, fontSize: 13 }}
                   className='truncate'
                 >
                   {displayName}

@@ -1,4 +1,5 @@
 import {
+  createContext,
   useCallback,
   useContext,
   useEffect,
@@ -21,14 +22,33 @@ import {
   refreshRequest,
   type AuthUser,
 } from '../handlers/auth.handler';
-import { AuthContext, type AuthContextValue } from './auth.context';
+
+type AuthContextValue = {
+  user: AuthUser | null;
+  isAuthenticated: boolean;
+  isBootstrapping: boolean;
+  displayName: string | null;
+  /** Redirect browser to Keycloak login (password + MFA screens). */
+  signIn: (returnTo?: string) => Promise<void>;
+  /** Open Keycloak's update-password screen, then return to Security. */
+  changePassword: () => Promise<void>;
+  /** Finish login after Keycloak redirects back with code + state. */
+  completeSignIn: (code: string, state: string) => Promise<string>;
+  signOut: () => Promise<void>;
+  /** Replace the in-memory + persisted user (e.g. after profile image update). */
+  setUser: (next: AuthUser) => void;
+  /** Re-fetch `/auth/me` and refresh session user. */
+  refreshUser: () => Promise<AuthUser | null>;
+};
+
+const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(() => getStoredUser());
+  const [user, setUserState] = useState<AuthUser | null>(() => getStoredUser());
   const [isBootstrapping, setIsBootstrapping] = useState(true);
 
   const applySession = useCallback((nextUser: AuthUser | null) => {
-    setUser(nextUser);
+    setUserState(nextUser);
     if (nextUser) {
       persistUser(nextUser);
     }
@@ -92,6 +112,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     window.location.assign(authorizeUrl);
   }, []);
 
+  const changePassword = useCallback(async () => {
+    const { authorizeUrl } = await beginLoginRequest(
+      '/profile/security',
+      'UPDATE_PASSWORD',
+    );
+    window.location.assign(authorizeUrl);
+  }, []);
+
   const completeSignIn = useCallback(
     async (code: string, state: string) => {
       const tokens = await completeLoginRequest(code, state);
@@ -109,6 +137,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     applySession(null);
   }, [applySession]);
 
+  const setUser = useCallback(
+    (next: AuthUser) => {
+      applySession(next);
+    },
+    [applySession],
+  );
+
+  const refreshUser = useCallback(async () => {
+    const accessToken = getAccessToken();
+    if (!accessToken) {
+      applySession(null);
+      return null;
+    }
+    const me = await meRequest(accessToken);
+    applySession(me);
+    return me;
+  }, [applySession]);
+
   const value = useMemo<AuthContextValue>(
     () => ({
       user,
@@ -116,10 +162,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isBootstrapping,
       displayName: user ? formatDisplayName(user) : null,
       signIn,
+      changePassword,
       completeSignIn,
       signOut,
+      setUser,
+      refreshUser,
     }),
-    [user, isBootstrapping, signIn, completeSignIn, signOut],
+    [
+      user,
+      isBootstrapping,
+      signIn,
+      changePassword,
+      completeSignIn,
+      signOut,
+      setUser,
+      refreshUser,
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

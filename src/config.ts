@@ -12,7 +12,8 @@ export const VERSION = import.meta.env.VITE_VERSION ?? '0.0.0';
 const API_BASE = 'hlu';
 const API_BASE_PATH = `/api/${API_BASE}`;
 
-function isDev() {
+/** Local Vite port for hlu-work (matches hlu AppEnv.TEST_MODE pattern). */
+export function isDev() {
   return location.port.startsWith('5192');
 }
 
@@ -24,6 +25,7 @@ function getApiUrl() {
 }
 
 export const API_URL = getApiUrl();
+export const TEST_MODE = isDev();
 
 /** Public asset URL under Vite `base`. */
 export function publicUrl(path: string) {

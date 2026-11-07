@@ -2,7 +2,7 @@ import { Flex, Spin } from 'antd';
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../providers/auth.provider';
 
-function GuestOnly() {
+function GuestOnlyGuard() {
   const { isAuthenticated, isBootstrapping } = useAuth();
 
   if (isBootstrapping) {
@@ -20,4 +20,4 @@ function GuestOnly() {
   return <Outlet />;
 }
 
-export default GuestOnly;
+export default GuestOnlyGuard;

@@ -5,6 +5,7 @@ html,
 body,
 #root {
   min-height: 100%;
+  overscroll-behavior: none;
 }
 
 body {
@@ -16,4 +17,21 @@ body {
 
 a {
   color: inherit;
+}
+
+/* Main page apps: 2 (mobile) → 3 (~14") → 4 (large), max 4 */
+.main-page-apps-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (min-width: 1024px) {
+  .main-page-apps-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1440px) {
+  .main-page-apps-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }

@@ -1,6 +1,9 @@
 import {
+  ExperimentOutlined,
   HomeOutlined,
+  IdcardOutlined,
   LogoutOutlined,
+  TeamOutlined,
   UserOutlined,
 } from '@ant-design/icons';
 import {
@@ -15,23 +18,20 @@ import {
 import type { ReactNode } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { publicUrl, VERSION } from '../config';
+import { useModule } from '../providers/module.provider';
 import { useAuth } from '../providers/auth.provider';
 import { useI18n } from '../providers/i18n.provider';
+import { resolveSidebarMenu } from '../resources/data/sidebar-menu/resolve-sidebar-menu.tool';
+import type { SidebarMenuIcon } from '../resources/data/sidebar-menu/sidebar-menu.interface';
 
 const { Sider } = Layout;
 const { useBreakpoint } = Grid;
 
-const NAV_ITEMS: {
-  labelKey: string;
-  path: string;
-  icon: ReactNode;
-}[] = [
-  {
-    labelKey: 'nav.mainPage',
-    path: '/',
-    icon: <HomeOutlined />,
-  },
-];
+const MENU_ICONS: Record<SidebarMenuIcon, ReactNode> = {
+  home: <HomeOutlined />,
+  test: <ExperimentOutlined />,
+  userRole: <TeamOutlined />,
+};
 
 const BRAND_LOGO = publicUrl(
   'assets/icons/hlu-logo/android-chrome-192x192.png',
@@ -194,6 +194,15 @@ function AccountFooter({
       menu={{
         items: [
           {
+            key: 'my-profile',
+            icon: <IdcardOutlined />,
+            label: t('nav.profilePage'),
+            onClick: () => {
+              onClose();
+              navigate('/profile/profile');
+            },
+          },
+          {
             key: 'logout',
             icon: <LogoutOutlined />,
             label: t('auth.signOut'),
@@ -233,6 +242,26 @@ function AccountFooter({
   );
 }
 
+function DeveloperMark({ collapsed }: { collapsed: boolean }) {
+  return (
+    <div
+      style={{
+        flexShrink: 0,
+        borderTop: '1px solid rgba(5, 5, 5, 0.06)',
+        padding: collapsed ? '10px 4px' : '12px 16px',
+        textAlign: collapsed ? 'center' : 'left',
+      }}
+    >
+      <Typography.Text
+        type='secondary'
+        style={{ fontSize: 12, letterSpacing: '0.06em' }}
+      >
+        LW
+      </Typography.Text>
+    </div>
+  );
+}
+
 function NavigationContent({
   onClose,
   collapsed = false,
@@ -246,34 +275,53 @@ function NavigationContent({
 }) {
   const location = useLocation();
   const { t } = useI18n();
+  const { ready, hasModule } = useModule();
+  const navItems = resolveSidebarMenu(location.pathname).filter(
+    (item) => !item.moduleCode || (ready && hasModule(item.moduleCode)),
+  );
 
+  const pathname =
+    location.pathname.length > 1 && location.pathname.endsWith('/')
+      ? location.pathname.slice(0, -1)
+      : location.pathname;
   const selected =
-    NAV_ITEMS.find((item) => item.path === location.pathname)?.path ?? '/';
+    [...navItems]
+      .filter(
+        (item) =>
+          pathname === item.path || pathname.startsWith(`${item.path}/`),
+      )
+      .sort((a, b) => b.path.length - a.path.length)[0]?.path ??
+    navItems[0]?.path ??
+    '/';
 
   return (
     <div
       style={{
         height: '100%',
+        minHeight: 0,
         display: 'flex',
         flexDirection: 'column',
+        overflow: 'hidden',
       }}
     >
       <BrandSection collapsed={collapsed} compact={compact} />
-      <Menu
-        mode='inline'
-        selectedKeys={[selected]}
-        inlineCollapsed={collapsed}
-        style={{ flex: 1, borderInlineEnd: 'none' }}
-        items={NAV_ITEMS.map(({ labelKey, path, icon }) => ({
-          key: path,
-          icon,
-          label: (
-            <Link to={path} onClick={onClose}>
-              {t(labelKey)}
-            </Link>
-          ),
-        }))}
-      />
+      <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', overflowX: 'hidden' }}>
+        <Menu
+          mode='inline'
+          selectedKeys={[selected]}
+          inlineCollapsed={collapsed}
+          style={{ borderInlineEnd: 'none' }}
+          items={navItems.map(({ labelKey, path, icon }) => ({
+            key: path,
+            icon: MENU_ICONS[icon],
+            label: (
+              <Link to={path} onClick={onClose}>
+                {t(labelKey)}
+              </Link>
+            ),
+          }))}
+        />
+      </div>
       {showAccount ? (
         <AccountFooter
           collapsed={collapsed}
@@ -281,6 +329,7 @@ function NavigationContent({
           onClose={onClose}
         />
       ) : null}
+      <DeveloperMark collapsed={collapsed} />
     </div>
   );
 }
@@ -297,7 +346,15 @@ function AppSidebar({ open, onClose }: AppSidebarProps) {
         onClose={onClose}
         closable={false}
         width='80vw'
-        styles={{ body: { padding: 0 } }}
+        styles={{
+          body: {
+            padding: 0,
+            height: '100%',
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+          },
+        }}
       >
         <NavigationContent onClose={onClose} compact showAccount />
       </Drawer>
@@ -311,7 +368,7 @@ function AppSidebar({ open, onClose }: AppSidebarProps) {
       collapsedWidth={collapsedWidth}
       collapsed={!open}
       style={{
-        overflow: 'auto',
+        overflow: 'hidden',
         height: '100vh',
         position: 'sticky',
         insetBlockStart: 0,

@@ -1,5 +1,11 @@
 import { API_URL, BASE_URL } from '../config';
 
+export type AuthUserImage = {
+  id: string;
+  uuidName: string;
+  mimeType: string;
+};
+
 export type AuthUser = {
   id: string;
   keycloakId: string;
@@ -10,6 +16,8 @@ export type AuthUser = {
   lastName?: string | null;
   role: string;
   lastLoginAt?: string | null;
+  profileImage?: AuthUserImage | null;
+  coverImage?: AuthUserImage | null;
 };
 
 export type AuthTokens = {
@@ -52,11 +60,15 @@ export function getAuthRedirectUri() {
 
 export async function beginLoginRequest(
   returnTo = '/',
+  kcAction?: 'UPDATE_PASSWORD',
 ): Promise<{ authorizeUrl: string; state: string }> {
   const params = new URLSearchParams({
     redirectUri: getAuthRedirectUri(),
     returnTo,
   });
+  if (kcAction) {
+    params.set('kcAction', kcAction);
+  }
   const response = await fetch(`${API_URL}v1/auth/login?${params.toString()}`);
 
   if (!response.ok) {

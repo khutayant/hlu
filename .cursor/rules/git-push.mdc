@@ -12,30 +12,39 @@ One GitHub repo: `https://github.com/khutayant/hlu.git`
 | `hlu/` | `ui` |
 | `hlu-server/` | `server` |
 | `hlu-work/` | `hlu-work` |
+| `tickets/` | `ticket` |
+| `discussions/` | `discussion` |
 
 ## Commands
 
 - **`git push`** (no branch named): run  
-  `bash /Users/aungminoo/Projects/HLU/scripts/git-push-all.sh`
-- **`git push hlu-work`** / push this app only: from `hlu-work/`, run `npm run git:push`
+  `bash /Users/aungminoo/Projects/HLU/scripts/git-push-all.sh`  
+  Pushes **all** branches above.
+- **`git push hlu-work`**: from `hlu-work/`, run `npm run git:push`
+- **`git push ticket`**: from `tickets/`, run `npm run git:push`
+- **`git push discussion`**: from `discussions/`, run `npm run git:push`
 
 ## Agent execution
 
-- Run push scripts with Shell `required_permissions: ["all"]`.
-- If Auto-review blocks, retry with `request_smart_mode_approval: true` and the given block reason.
 - Commit pending changes before pushing.
+- Shell `required_permissions: ["all"]`.
+- If Auto-review blocks, retry with `request_smart_mode_approval: true` and the given block reason.
 
 ## Auth
 
-- PAT lookup: `hlu-work/scripts/.github-pat`, `hlu-work/.github-pat`, `/Users/aungminoo/Projects/HLU/.github-pat`, or `GITHUB_TOKEN` / `GH_TOKEN`.
+- PAT: `hlu-work/scripts/.github-pat`, `hlu-work/.github-pat`, `/Users/aungminoo/Projects/HLU/.github-pat`, or `GITHUB_TOKEN` / `GH_TOKEN`.
 - Never put the token in chat, logs, or the remote URL.
 
-## After push
+## After push — always show these tables (exact labels)
 
-| Branch | Commit Message |
-|--------|----------------|
-| hlu-work | latest subject |
+**Messages**
 
 | Branch | Message |
 |--------|---------|
-| hlu-work | `<short-hash> pushed ok` |
+| ui / server / hlu-work / ticket / discussion | latest commit subject |
+
+**Results**
+
+| Branch | Result |
+|--------|--------|
+| ui / server / hlu-work / ticket / discussion | `<short-hash> pushed ok` or `<short-hash> push failed` |
