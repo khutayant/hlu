@@ -44,5 +44,5 @@
 
 | Item | Owner | Ticket |
 | --- | --- | --- |
-| Wire git-push for ticket/discussion branches if needed | — | follow-up |
+| Wire git-push for ticket/discussion branches if needed | draungminoo | **TICK-016** (done) |
 | Confirm ADMIN seed on next server restart | draungminoo | **TICK-014** |

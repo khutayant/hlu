@@ -25,4 +25,4 @@
 
 | Item | Owner | Ticket |
 | --- | --- | --- |
-| Push board branches when remotes ready | draungminoo | **TICK-015** |
+| Push board branches when remotes ready | draungminoo | **TICK-015** (done) · push-all → **TICK-016** |
