@@ -22,7 +22,7 @@ Local markdown board: `tickets/` branch `ticket`, `discussions/` branch `discuss
 
 ## Out of scope
 
-- git-push-all wiring for these branches (optional follow-up)
+- git-push-all wiring → **TICK-016** (done)
 
 ## Done when
 

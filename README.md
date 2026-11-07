@@ -30,7 +30,7 @@ Remote: `https://github.com/khutayant/hlu.git` (same as ui/server/hlu-work).
 
 `YYYY-MM-DD-TICK-NNN-short-slug.md`
 
-Ticket No is sequential (`TICK-001`, `TICK-002`, …). Copy `_template.md`. Next number after existing: **TICK-016**.
+Ticket No is sequential (`TICK-001`, `TICK-002`, …). Copy `_template.md`. Next number after existing: **TICK-017**.
 
 October 2026 tickets are archived under `done/2026-10/`. Current-month tickets stay flat in `done/`.
 

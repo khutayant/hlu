@@ -13,14 +13,28 @@ One GitHub repo: `https://github.com/khutayant/hlu.git`
 
 ## Commands
 
-- **`git push`** (no branch): `bash /Users/aungminoo/Projects/HLU/scripts/git-push-all.sh`
+- **`git push`** (no branch): `bash /Users/aungminoo/Projects/HLU/scripts/git-push-all.sh` (all HLU branches including ticket/discussion)
 - **`git push ticket`**: from `tickets/`, run `npm run git:push` only.
 
 ## Agent execution
 
-- Shell `required_permissions: ["all"]`.
 - Commit pending changes before pushing.
+- Shell `required_permissions: ["all"]`.
 
 ## Auth
 
 - PAT: `tickets/scripts/.github-pat`, `tickets/.github-pat`, `/Users/aungminoo/Projects/HLU/.github-pat`, or `GITHUB_TOKEN` / `GH_TOKEN`.
+
+## After push — always show these tables (exact labels)
+
+**Messages**
+
+| Branch | Message |
+|--------|---------|
+| … | latest commit subject |
+
+**Results**
+
+| Branch | Result |
+|--------|--------|
+| … | `<short-hash> pushed ok` or failure / skipped |
