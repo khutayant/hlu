@@ -5,13 +5,15 @@ alwaysApply: true
 
 # Git push
 
-One GitHub repo for both apps: `https://github.com/khutayant/hlu.git`
+One GitHub repo for all apps: `https://github.com/khutayant/hlu.git`
 
 | Local folder | Branch |
 |--------------|--------|
 | `hlu/` | `ui` |
 | `hlu-server/` | `server` |
 | `hlu-work/` | `hlu-work` |
+| `tickets/` | `ticket` |
+| `discussions/` | `discussion` |
 
 Do **not** use a separate remote/repo per app.
 
@@ -19,39 +21,39 @@ Do **not** use a separate remote/repo per app.
 
 - **`git push`** (no branch named): **must** run  
   `bash /Users/aungminoo/Projects/HLU/scripts/git-push-all.sh`  
-  Do **not** run plain `git push`, `git push origin HEAD`, or `gh` for this — they fail (wrong account / no PAT).
+  That script pushes **all** branches above. Do **not** run plain `git push`, `git push origin HEAD`, or `gh`.
 - **`git push ui`**: from `hlu/`, run `npm run git:push` only.
 - **`git push server`**: from `hlu-server/`, run `npm run git:push` only.
 - **`git push hlu-work`**: from `hlu-work/`, run `npm run git:push` only.
+- **`git push ticket`**: from `tickets/`, run `npm run git:push` only.
+- **`git push discussion`**: from `discussions/`, run `npm run git:push` only.
 - **`deploy ui` / `deploy:ui`**: from `hlu/`, run `npm run deploy:ui` (`scripts/deploy-ui.sh`).  
   Always: **version patch** → push **`ui` → `origin/ui`** and **`ui` → `origin/deploy-ui`**.  
   Do **not** create or check out `deploy-ui` locally. Work stays on `ui`. Working tree must be clean first.
 
 ## Agent execution
 
-- Run the script with Shell `required_permissions: ["all"]` (it updates `remote.origin.url` and reads the PAT).
+- Commit pending changes in each dirty tree that should be pushed **before** invoking the script.
+- Run the script with Shell `required_permissions: ["all"]`.
 - If Auto-review blocks it, retry the **same** command with `request_smart_mode_approval: true` and the given block reason.
-- Commit pending changes **before** `deploy:ui` (script requires a clean tree, then runs `version:patch` itself).
 
 ## Auth
 
-- PAT lookup order (first file wins): `hlu/scripts/.github-pat`, `hlu/.github-pat`, `/Users/aungminoo/Projects/HLU/.github-pat`, or env `GITHUB_TOKEN` / `GH_TOKEN`.
+- PAT lookup order (first file wins): `<repo>/scripts/.github-pat`, `<repo>/.github-pat`, `/Users/aungminoo/Projects/HLU/.github-pat`, or env `GITHUB_TOKEN` / `GH_TOKEN`.
 - Never put the token in chat, logs, or the remote URL. `scripts/git-push.sh` injects it via `http.extraHeader` only.
 
-## After push — always show these tables
+## After push — always show these tables (exact labels)
 
-`git-push-all.sh` already prints them; surface the same in the reply:
-
-**Commit table**
-
-| Branch | Commit Message |
-|--------|----------------|
-| ui / server | latest commit subject |
-
-**Result**
+**Messages**
 
 | Branch | Message |
 |--------|---------|
-| ui / server | `<short-hash> pushed ok` or `<short-hash> push failed` |
+| ui / server / hlu-work / ticket / discussion | latest commit subject |
 
-Example: `31112a6 pushed ok`
+**Results**
+
+| Branch | Result |
+|--------|--------|
+| ui / server / hlu-work / ticket / discussion | `<short-hash> pushed ok` or `<short-hash> push failed` (or skipped / no commits) |
+
+Example result cell: `31112a6 pushed ok`
