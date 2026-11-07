@@ -1,0 +1,7 @@
+[
+  {
+    "roleCode": "ADMIN",
+    "moduleCodes": ["ALL_SYSTEM"],
+    "permissionCodes": ["PERM_ALL_MANAGE"]
+  }
+]

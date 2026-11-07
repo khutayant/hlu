@@ -29,4 +29,7 @@ export type AppEnvDto = {
   ALLOW_ORIGINS: string[];
   ALLOW_METHODS: string[];
   ALLOW_HEADERS: string[];
+
+  /** Keycloak username that is assigned the ADMIN user role on login. */
+  SYSTEM_ADMIN_USERNAME: string;
 };

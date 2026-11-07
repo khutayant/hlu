@@ -1,0 +1,9 @@
+[
+  {
+    "code": "ADMIN",
+    "name": "Admin",
+    "description": "Full administrator role",
+    "deletedToken": "NA",
+    "active": true
+  }
+]

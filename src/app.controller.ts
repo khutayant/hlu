@@ -1,6 +1,4 @@
 import {
-  Controller,
-  Get,
   Param,
   Req,
   Res,
@@ -10,19 +8,27 @@ import {
 import type { Request, Response } from 'express';
 import { join, resolve, sep } from 'node:path';
 import { AppService } from './app.service.js';
+import {
+  ApiController,
+  ApiGet,
+} from './decorators/api.decorator.js';
 import { Public } from './decorators/public.decorator.js';
 import { AppEnv } from './resources/env/app.env.js';
 
 const UI_ROUTE = AppEnv.UI_BASE_URL.replace(/^\/|\/$/g, '');
 
-@Controller()
+@ApiController({ code: 'APP' })
 export class AppController {
   private readonly uiDirectory = resolve(AppEnv.CWD, 'ui');
 
   constructor(private readonly appService: AppService) {}
 
   @Public()
-  @Get()
+  @ApiGet({
+    code: 'APP_ROOT',
+    name: 'Redirect to UI',
+    permission: null,
+  })
   @Version(VERSION_NEUTRAL)
   getApp(@Res() response: Response) {
     return response.redirect(AppEnv.UI_BASE_URL);
@@ -30,7 +36,12 @@ export class AppController {
 
   /** Bare `/ui/hlu` → `/ui/hlu/` so relative asset URLs resolve under the base. */
   @Public()
-  @Get(UI_ROUTE)
+  @ApiGet({
+    code: 'APP_UI_ROOT',
+    name: 'UI root redirect',
+    args: UI_ROUTE,
+    permission: null,
+  })
   @Version(VERSION_NEUTRAL)
   redirectUiRoot(@Req() request: Request, @Res() response: Response) {
     const pathOnly = request.originalUrl.split('?')[0] ?? '';
@@ -41,7 +52,12 @@ export class AppController {
   }
 
   @Public()
-  @Get(`${UI_ROUTE}/{*pathname}`)
+  @ApiGet({
+    code: 'APP_UI_ASSET',
+    name: 'Serve UI asset',
+    args: `${UI_ROUTE}/{*pathname}`,
+    permission: null,
+  })
   @Version(VERSION_NEUTRAL)
   serveUi(
     @Param('pathname') pathname: string | string[] | undefined,
@@ -55,21 +71,36 @@ export class AppController {
   }
 
   @Public()
-  @Get('version')
+  @ApiGet({
+    code: 'APP_VERSION',
+    name: 'App version',
+    args: 'version',
+    permission: null,
+  })
   @Version(VERSION_NEUTRAL)
   getVersion() {
     return this.appService.getVersion();
   }
 
   @Public()
-  @Get('health')
+  @ApiGet({
+    code: 'APP_HEALTH',
+    name: 'Health check',
+    args: 'health',
+    permission: null,
+  })
   @Version(VERSION_NEUTRAL)
   getHealth() {
     return { status: 'ok' };
   }
 
   @Public()
-  @Get('ping')
+  @ApiGet({
+    code: 'APP_PING',
+    name: 'Ping',
+    args: 'ping',
+    permission: null,
+  })
   @Version(VERSION_NEUTRAL)
   ping() {
     return { status: 'pong', timestamp: Date.now() };

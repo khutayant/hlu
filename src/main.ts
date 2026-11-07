@@ -7,6 +7,8 @@ import {
 import { NestFactory } from '@nestjs/core';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import dayjs from 'dayjs';
+import type { NextFunction, Request, Response } from 'express';
+import { v7 as uuidv7 } from 'uuid';
 import { AppModule } from './app.module.js';
 import { AppEnv } from './resources/env/app.env.js';
 
@@ -21,6 +23,12 @@ async function bootstrap() {
   });
 
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+  app.use((req: Request, res: Response, next: NextFunction) => {
+    req.id = uuidv7();
+    res.setHeader('X-Request-Id', req.id);
+    next();
+  });
 
   app.set('trust proxy', 1);
 
@@ -49,9 +57,9 @@ async function bootstrap() {
     },
     methods: AppEnv.ALLOW_METHODS,
     allowedHeaders: AppEnv.ALLOW_HEADERS,
+    exposedHeaders: ['X-Request-Id'],
     credentials: true,
   });
-
 
   app.setGlobalPrefix(`/api/${AppEnv.BASE}`, {
     exclude: [

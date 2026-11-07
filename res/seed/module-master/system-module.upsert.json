@@ -1,0 +1,16 @@
+[
+  {
+    "code": "ALL_SYSTEM",
+    "name": "All Systems",
+    "sequenceNo": 0,
+    "description": "Wildcard — grants access to every system",
+    "isGroup": true
+  },
+  {
+    "code": "ADMIN_SYSTEM",
+    "name": "Admin System",
+    "sequenceNo": 1,
+    "description": "System",
+    "isGroup": true
+  }
+]

@@ -1,6 +1,7 @@
-import { Column, Entity, Index, Unique } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, ManyToOne, Unique } from 'typeorm';
 import { BaseEntityWithUuid } from '../../bases/entity.base.js';
 import { UserRoleEnum } from '../../enums/user-role.enum.js';
+import { FileInfo } from '../info/file-info.entity.js';
 
 @Entity()
 @Unique(['keycloakId'])
@@ -34,4 +35,14 @@ export class UserMaster extends BaseEntityWithUuid {
 
   @Column({ type: 'timestamptz', nullable: true })
   lastLoginAt?: Date | null;
+
+  /** Account-owner profile avatar (`FileInfo`). */
+  @ManyToOne(() => FileInfo, { nullable: true })
+  @JoinColumn()
+  profileImage?: FileInfo | null;
+
+  /** Account-owner cover image (`FileInfo`). */
+  @ManyToOne(() => FileInfo, { nullable: true })
+  @JoinColumn()
+  coverImage?: FileInfo | null;
 }

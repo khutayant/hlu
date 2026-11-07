@@ -1,7 +1,15 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  Unique,
+} from 'typeorm';
 import { BaseEntityWithUuid } from '../../bases/entity.base.js';
 
 @Entity()
+@Unique(['code'])
 export class CategoryMaster extends BaseEntityWithUuid {
   @Column({ type: 'varchar', length: 125, nullable: false })
   name!: string;

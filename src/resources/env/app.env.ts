@@ -72,6 +72,8 @@ export const AppEnv: AppEnvDto = {
     .split(',')
     .map((header) => header.trim())
     .filter(Boolean),
+
+  SYSTEM_ADMIN_USERNAME: (process.env.SYSTEM_ADMIN_USERNAME ?? '').trim(),
 };
 
 validateEnv(AppEnv);

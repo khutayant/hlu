@@ -29,6 +29,10 @@ export class FileInfo extends BaseEntityWithUuid {
   @Column({ type: 'varchar', length: 64, nullable: false })
   checksum!: string;
 
+  /** Storage subfolder under uploads, `YYYY-MM` of upload date. */
+  @Column({ type: 'varchar', length: 7, nullable: false })
+  folder!: string;
+
   @Column({ type: 'varchar', length: 512, nullable: true })
   description?: string | null;
 }

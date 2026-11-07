@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import type { Request } from 'express';
-import { AuthService } from '../apps/auth/auth.service.js';
+import { AuthService } from '../apps/modules/auth/auth.service.js';
 import { extractBearerToken } from '../tools/extract-token.tool.js';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator.js';
 
