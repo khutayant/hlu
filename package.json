@@ -1,0 +1,7 @@
+{
+  "name": "hlu-docs",
+  "private": true,
+  "scripts": {
+    "git:push": "bash scripts/git-push.sh"
+  }
+}

@@ -1,0 +1,40 @@
+---
+description: Git push for HLU docs
+alwaysApply: true
+---
+
+# Git push
+
+One GitHub repo: `https://github.com/khutayant/hlu.git`
+
+| Local folder | Branch |
+|--------------|--------|
+| `docs/` | `docs` |
+
+## Commands
+
+- **`git push`** (no branch): `bash /Users/aungminoo/Projects/HLU/scripts/git-push-all.sh` (all HLU branches including docs)
+- **`git push docs`**: from `docs/`, run `npm run git:push` only.
+
+## Agent execution
+
+- Commit pending changes before pushing.
+- Shell `required_permissions: ["all"]`.
+
+## Auth
+
+- PAT: `docs/scripts/.github-pat`, `docs/.github-pat`, `/Users/aungminoo/Projects/HLU/.github-pat`, or `GITHUB_TOKEN` / `GH_TOKEN`.
+
+## After push — always show these tables (exact labels)
+
+**Messages**
+
+| Branch | Message |
+|--------|---------|
+| … | latest commit subject |
+
+**Results**
+
+| Branch | Result |
+|--------|--------|
+| … | `<short-hash> pushed ok` or failure / skipped |
