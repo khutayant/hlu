@@ -13,7 +13,7 @@ One GitHub repo: `https://github.com/khutayant/hlu.git`
 
 ## Commands
 
-- **`git push`** (no branch): `bash /Users/aungminoo/Projects/HLU/scripts/git-push-all.sh` (all HLU branches including ticket/discussion)
+- **`git push`** (no branch): `bash /Users/aungminoo/Projects/HLU/scripts/git-push-all.sh` (all HLU branches including ticket/discussion/docs)
 - **`git push ticket`**: from `tickets/`, run `npm run git:push` only.
 
 ## Agent execution
