@@ -14,6 +14,7 @@ One GitHub repo for all apps: `https://github.com/khutayant/hlu.git`
 | `hlu-work/` | `hlu-work` |
 | `tickets/` | `ticket` |
 | `discussions/` | `discussion` |
+| `docs/` | `docs` |
 
 Do **not** use a separate remote/repo per app.
 
@@ -27,6 +28,7 @@ Do **not** use a separate remote/repo per app.
 - **`git push hlu-work`**: from `hlu-work/`, run `npm run git:push` only.
 - **`git push ticket`**: from `tickets/`, run `npm run git:push` only.
 - **`git push discussion`**: from `discussions/`, run `npm run git:push` only.
+- **`git push docs`**: from `docs/`, run `npm run git:push` only.
 - **`deploy ui` / `deploy:ui`**: from `hlu/`, run `npm run deploy:ui` (`scripts/deploy-ui.sh`).  
   Always: **version patch** → push **`ui` → `origin/ui`** and **`ui` → `origin/deploy-ui`**.  
   Do **not** create or check out `deploy-ui` locally. Work stays on `ui`. Working tree must be clean first.
@@ -48,12 +50,12 @@ Do **not** use a separate remote/repo per app.
 
 | Branch | Message |
 |--------|---------|
-| ui / server / hlu-work / ticket / discussion | latest commit subject |
+| ui / server / hlu-work / ticket / discussion / docs | latest commit subject |
 
 **Results**
 
 | Branch | Result |
 |--------|--------|
-| ui / server / hlu-work / ticket / discussion | `<short-hash> pushed ok` or `<short-hash> push failed` (or skipped / no commits) |
+| ui / server / hlu-work / ticket / discussion / docs | `<short-hash> pushed ok` or `<short-hash> push failed` (or skipped / no commits) |
 
 Example result cell: `31112a6 pushed ok`
