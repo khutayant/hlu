@@ -14,6 +14,7 @@ One GitHub repo: `https://github.com/khutayant/hlu.git`
 | `hlu-work/` | `hlu-work` |
 | `tickets/` | `ticket` |
 | `discussions/` | `discussion` |
+| `docs/` | `docs` |
 
 ## Commands
 
@@ -23,6 +24,7 @@ One GitHub repo: `https://github.com/khutayant/hlu.git`
 - **`git push hlu-work`**: from `hlu-work/`, run `npm run git:push`
 - **`git push ticket`**: from `tickets/`, run `npm run git:push`
 - **`git push discussion`**: from `discussions/`, run `npm run git:push`
+- **`git push docs`**: from `docs/`, run `npm run git:push`
 
 ## Agent execution
 
@@ -41,10 +43,10 @@ One GitHub repo: `https://github.com/khutayant/hlu.git`
 
 | Branch | Message |
 |--------|---------|
-| ui / server / hlu-work / ticket / discussion | latest commit subject |
+| ui / server / hlu-work / ticket / discussion / docs | latest commit subject |
 
 **Results**
 
 | Branch | Result |
 |--------|--------|
-| ui / server / hlu-work / ticket / discussion | `<short-hash> pushed ok` or `<short-hash> push failed` |
+| ui / server / hlu-work / ticket / discussion / docs | `<short-hash> pushed ok` or `<short-hash> push failed` |
