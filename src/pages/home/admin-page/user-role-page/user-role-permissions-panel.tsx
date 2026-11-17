@@ -115,6 +115,8 @@ function AddPermissionDialogBody({
   const [loading, setLoading] = useState(true);
   const [searchInput, setSearchInput] = useState('');
   const [q, setQ] = useState('');
+  const [subjectInput, setSubjectInput] = useState('');
+  const [subject, setSubject] = useState('');
   const [selectedRowKeys, setSelectedRowKeys] = useState<Key[]>([]);
 
   useEffect(() => {
@@ -125,6 +127,7 @@ function AddPermissionDialogBody({
       try {
         const result = await listUserRolePermissionCandidatesRequest(roleId, {
           q: q || undefined,
+          subject: subject || undefined,
           page,
           limit: CANDIDATE_PAGE_SIZE,
         });
@@ -154,10 +157,15 @@ function AddPermissionDialogBody({
     return () => {
       cancelled = true;
     };
-  }, [roleId, q, page, showToast, t]);
+  }, [roleId, q, subject, page, showToast, t]);
 
   const onSearch = (value: string) => {
     setQ(value.trim());
+    setPage(1);
+  };
+
+  const onSubjectSearch = (value: string) => {
+    setSubject(value.trim());
     setPage(1);
   };
 
@@ -297,17 +305,30 @@ function AddPermissionDialogBody({
         align='center'
         style={{ flexShrink: 0 }}
       >
-        <Input.Search
-          allowClear
-          value={searchInput}
-          placeholder={t(
-            'userRolePage.rolePermissions.searchPermissionPlaceholder',
-          )}
-          prefix={<SearchOutlined />}
-          onChange={(event) => setSearchInput(event.target.value)}
-          onSearch={onSearch}
-          style={{ width: 320, maxWidth: '100%' }}
-        />
+        <Flex wrap gap={8} style={{ flex: 1, minWidth: 0 }}>
+          <Input.Search
+            allowClear
+            value={searchInput}
+            placeholder={t(
+              'userRolePage.rolePermissions.searchPermissionPlaceholder',
+            )}
+            prefix={<SearchOutlined />}
+            onChange={(event) => setSearchInput(event.target.value)}
+            onSearch={onSearch}
+            style={{ width: 280, maxWidth: '100%' }}
+          />
+          <Input.Search
+            allowClear
+            value={subjectInput}
+            placeholder={t(
+              'userRolePage.rolePermissions.searchSubjectPlaceholder',
+            )}
+            prefix={<SearchOutlined />}
+            onChange={(event) => setSubjectInput(event.target.value)}
+            onSearch={onSubjectSearch}
+            style={{ width: 220, maxWidth: '100%' }}
+          />
+        </Flex>
         <Typography.Text type='secondary'>
           {t('userRolePage.rolePermissions.selectedCount', {
             count: selectedRowKeys.length,
@@ -360,6 +381,8 @@ export function UserRolePermissionsPanel({
   const [reloadKey, setReloadKey] = useState(0);
   const [searchInput, setSearchInput] = useState('');
   const [q, setQ] = useState('');
+  const [subjectInput, setSubjectInput] = useState('');
+  const [subject, setSubject] = useState('');
   const [removingId, setRemovingId] = useState<string | null>(null);
 
   const reloadList = () => {
@@ -368,6 +391,11 @@ export function UserRolePermissionsPanel({
 
   const onSearch = (value: string) => {
     setQ(value.trim());
+    setPage(1);
+  };
+
+  const onSubjectSearch = (value: string) => {
+    setSubject(value.trim());
     setPage(1);
   };
 
@@ -430,6 +458,7 @@ export function UserRolePermissionsPanel({
       try {
         const result = await listUserRolePermissionsRequest(roleId, {
           q: q || undefined,
+          subject: subject || undefined,
           page,
           limit: pageSize,
         });
@@ -460,7 +489,7 @@ export function UserRolePermissionsPanel({
     return () => {
       cancelled = true;
     };
-  }, [roleId, q, page, pageSize, reloadKey, showToast, t]);
+  }, [roleId, q, subject, page, pageSize, reloadKey, showToast, t]);
 
   const columns: ColumnsType<UserRoleAssignedPermission> = [
     {
@@ -498,7 +527,7 @@ export function UserRolePermissionsPanel({
     {
       title: t('userRolePage.columns.actions'),
       key: 'actions',
-      width: 100,
+      width: 80,
       fixed: 'right',
       align: 'center',
       render: (_value, row) => (
@@ -529,15 +558,28 @@ export function UserRolePermissionsPanel({
         align='center'
         style={{ marginBottom: 16 }}
       >
-        <Input.Search
-          allowClear
-          value={searchInput}
-          placeholder={t('userRolePage.rolePermissions.searchPlaceholder')}
-          prefix={<SearchOutlined />}
-          onChange={(event) => setSearchInput(event.target.value)}
-          onSearch={onSearch}
-          style={{ width: 280, maxWidth: '100%' }}
-        />
+        <Flex wrap gap={8} style={{ flex: 1, minWidth: 0 }}>
+          <Input.Search
+            allowClear
+            value={searchInput}
+            placeholder={t('userRolePage.rolePermissions.searchPlaceholder')}
+            prefix={<SearchOutlined />}
+            onChange={(event) => setSearchInput(event.target.value)}
+            onSearch={onSearch}
+            style={{ width: 280, maxWidth: '100%' }}
+          />
+          <Input.Search
+            allowClear
+            value={subjectInput}
+            placeholder={t(
+              'userRolePage.rolePermissions.searchSubjectPlaceholder',
+            )}
+            prefix={<SearchOutlined />}
+            onChange={(event) => setSubjectInput(event.target.value)}
+            onSearch={onSubjectSearch}
+            style={{ width: 220, maxWidth: '100%' }}
+          />
+        </Flex>
         <Button type='primary' icon={<PlusOutlined />} onClick={openAdd}>
           {t('userRolePage.rolePermissions.addNew')}
         </Button>

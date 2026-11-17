@@ -77,6 +77,7 @@ export default defineConfig({
         'assets/icons/hlu-logo/favicon-16x16.png',
         'assets/icons/hlu-logo/favicon-32x32.png',
         'assets/icons/hlu-logo/apple-touch-icon.png',
+        'fonts/Noto_Sans_Myanmar/NotoSansMyanmar-VariableFont_wdth,wght.ttf',
       ],
       manifest: {
         name: 'HLU Work',
@@ -107,7 +108,7 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,webmanifest}'],
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,ttf,webmanifest}'],
       },
       devOptions: {
         enabled: true,

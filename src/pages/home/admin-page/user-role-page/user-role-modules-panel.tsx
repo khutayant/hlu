@@ -220,15 +220,6 @@ function AddModuleDialogBody({
       width: 180,
     },
     {
-      title: t('userRolePage.roleModules.columns.type'),
-      key: 'type',
-      width: 120,
-      render: (_value, row) =>
-        row.isGroup
-          ? t('userRolePage.roleModules.columns.group')
-          : t('userRolePage.roleModules.columns.module'),
-    },
-    {
       title: t('userRolePage.columns.description'),
       dataIndex: 'description',
       key: 'description',
@@ -470,7 +461,7 @@ export function UserRoleModulesPanel({ roleId }: UserRoleModulesPanelProps) {
     {
       title: t('userRolePage.columns.actions'),
       key: 'actions',
-      width: 100,
+      width: 80,
       fixed: 'right',
       align: 'center',
       render: (_value, row) => (

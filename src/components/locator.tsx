@@ -13,18 +13,27 @@ const ROUTE_LABELS: { path: string; labelKey: string }[] = [
   { path: '/admin', labelKey: 'nav.adminPage' },
   { path: '/admin/user', labelKey: 'nav.userPage' },
   { path: '/admin/user-role', labelKey: 'nav.userRolePage' },
+  { path: '/staff', labelKey: 'nav.staffPage' },
+  { path: '/staff/employee', labelKey: 'nav.employeePage' },
+  { path: '/staff/employee/import', labelKey: 'nav.employeeImportPage' },
+  { path: '/staff/employee/:id', labelKey: 'nav.employeeProfilePage' },
+  { path: '/masters', labelKey: 'nav.mastersPage' },
+  { path: '/masters/location', labelKey: 'nav.locationMasterPage' },
+  { path: '/masters/category', labelKey: 'nav.categoryMasterPage' },
+  { path: '/masters/project', labelKey: 'nav.projectMasterPage' },
+  { path: '/masters/session', labelKey: 'nav.sessionMasterPage' },
   { path: '/admin/user-role/:id', labelKey: 'nav.userRoleDetail' },
   {
     path: '/admin/user-role/:id/users',
     labelKey: 'userRolePage.menu.users',
   },
   {
-    path: '/admin/user-role/:id/permissions',
-    labelKey: 'userRolePage.menu.permissions',
-  },
-  {
     path: '/admin/user-role/:id/modules',
     labelKey: 'userRolePage.menu.modules',
+  },
+  {
+    path: '/admin/user-role/:id/permissions',
+    labelKey: 'userRolePage.menu.permissions',
   },
 ];
 
@@ -60,15 +69,44 @@ function resolveRouteHref(routePath: string, pathname: string) {
     .join('/');
 }
 
+/** Static paths that must win over param routes (e.g. `import` vs `:id`). */
+const STATIC_ROUTE_PATHS = new Set(
+  ROUTE_LABELS.filter((route) => !route.path.includes(':')).map(
+    (route) => route.path,
+  ),
+);
+
 function resolveRouteChain(pathname: string) {
   const normalized = normalizePath(pathname);
   if (normalized === '/' || normalized === '') {
     return [];
   }
 
-  return ROUTE_LABELS.filter(
+  const matches = ROUTE_LABELS.filter(
     (route) => route.path !== '/' && routeMatches(route.path, normalized),
   ).sort((a, b) => a.path.length - b.path.length);
+
+  // Drop param routes that collide with a real static path (e.g. /staff/employee/import).
+  const withoutStaticCollisions = matches.filter((route) => {
+    if (!route.path.includes(':')) {
+      return true;
+    }
+    const href = resolveRouteHref(route.path, normalized);
+    return !STATIC_ROUTE_PATHS.has(href);
+  });
+
+  // Unique breadcrumb keys by resolved href (static preferred via filter above).
+  const seenHrefs = new Set<string>();
+  const chain: typeof ROUTE_LABELS = [];
+  for (const route of withoutStaticCollisions) {
+    const href = resolveRouteHref(route.path, normalized);
+    if (seenHrefs.has(href)) {
+      continue;
+    }
+    seenHrefs.add(href);
+    chain.push(route);
+  }
+  return chain;
 }
 
 function AppLocator() {

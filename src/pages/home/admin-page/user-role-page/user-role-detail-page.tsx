@@ -29,7 +29,7 @@ const CONTENT_PAD_BOTTOM = 32;
 
 const { useBreakpoint } = Grid;
 
-const ROLE_SECTIONS = ['users', 'permissions', 'modules'] as const;
+const ROLE_SECTIONS = ['users', 'modules', 'permissions'] as const;
 
 type RoleSection = (typeof ROLE_SECTIONS)[number];
 
@@ -65,7 +65,7 @@ function UserRoleDetailPage() {
     <>
       <RibbonTitle title={title} description={description} />
       <Button
-        onClick={() => navigate(-1)}
+        onClick={() => navigate('/admin/user-role')}
         style={{ marginInlineStart: 'auto', flexShrink: 0 }}
       >
         {t('common.close')}
@@ -136,10 +136,10 @@ function UserRoleDetailPage() {
   const mainContent =
     section === 'users' ? (
       <UserRoleUsersPanel roleId={id} />
-    ) : section === 'permissions' ? (
-      <UserRolePermissionsPanel roleId={id} />
-    ) : (
+    ) : section === 'modules' ? (
       <UserRoleModulesPanel roleId={id} />
+    ) : (
+      <UserRolePermissionsPanel roleId={id} />
     );
 
   const shellHeight = `calc(100vh - ${TOOLBAR_HEIGHT_PX + RIBBON_MIN_HEIGHT_PX}px)`;
@@ -197,14 +197,14 @@ function UserRoleDetailPage() {
               label: t('userRolePage.menu.users'),
             },
             {
-              key: 'permissions',
-              icon: <SafetyOutlined />,
-              label: t('userRolePage.menu.permissions'),
-            },
-            {
               key: 'modules',
               icon: <AppstoreOutlined />,
               label: t('userRolePage.menu.modules'),
+            },
+            {
+              key: 'permissions',
+              icon: <SafetyOutlined />,
+              label: t('userRolePage.menu.permissions'),
             },
           ]}
         />

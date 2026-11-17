@@ -1,8 +1,12 @@
 import {
+  AppstoreOutlined,
+  CalendarOutlined,
+  EnvironmentOutlined,
   ExperimentOutlined,
   HomeOutlined,
   IdcardOutlined,
   LogoutOutlined,
+  ProjectOutlined,
   SolutionOutlined,
   TeamOutlined,
   UserOutlined,
@@ -33,6 +37,11 @@ const MENU_ICONS: Record<SidebarMenuIcon, ReactNode> = {
   test: <ExperimentOutlined />,
   userRole: <SolutionOutlined />,
   users: <TeamOutlined />,
+  employee: <IdcardOutlined />,
+  location: <EnvironmentOutlined />,
+  category: <AppstoreOutlined />,
+  project: <ProjectOutlined />,
+  session: <CalendarOutlined />,
 };
 
 const BRAND_LOGO = publicUrl(

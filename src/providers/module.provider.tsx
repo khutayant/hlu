@@ -13,14 +13,23 @@ import {
 } from '../handlers/user-role.handler';
 import { useAuth } from './auth.provider';
 
-/** System code required to open user role. */
+/** Wildcard system — grants access to every system/module code. */
+export const ALL_SYSTEM_CODE = 'ALL_SYSTEM';
+
+/** System code required to open admin pages. */
 export const ADMIN_SYSTEM_CODE = 'ADMIN_SYSTEM';
+
+/** System code required to open staff employee pages. */
+export const EMPLOYEE_MANAGEMENT_SYSTEM_CODE = 'EMPLOYEE_MANAGEMENT_SYSTEM';
 
 type ModuleContextValue = {
   modules: GrantedModule[];
   /** False while the one granted-module request is in flight. */
   ready: boolean;
-  /** True when `code` is present on the loaded module response. */
+  /**
+   * True when `code` is granted, or the user has {@link ALL_SYSTEM_CODE}
+   * (wildcard for every system).
+   */
   hasModule: (code: string) => boolean;
 };
 
@@ -69,7 +78,8 @@ export function ModuleProvider({ children }: { children: ReactNode }) {
   );
 
   const hasModule = useCallback(
-    (code: string) => codes.has(code.trim()),
+    (code: string) =>
+      codes.has(ALL_SYSTEM_CODE) || codes.has(code.trim()),
     [codes],
   );
 

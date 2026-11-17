@@ -3,8 +3,9 @@ import { Navigate, Outlet } from 'react-router-dom';
 import { useModule } from '../../providers/module.provider';
 
 /**
- * Opens the matched routes only when `code` is on the loaded module response.
- * Child routes (forward navigation) stay behind the same check.
+ * Opens the matched routes only when `code` is granted
+ * (or the user has `ALL_SYSTEM` wildcard).
+ * Child routes stay behind the same check.
  */
 function ModuleGate({ code }: { code: string }) {
   const { ready, hasModule } = useModule();

@@ -1,10 +1,4 @@
-export type MainPageAppIcon =
-  | 'experiment'
-  | 'team'
-  | 'file'
-  | 'setting'
-  | 'appstore'
-  | 'admin';
+export type MainPageAppIcon = 'team' | 'masters' | 'admin';
 
 export type MainPageApp = {
   id: string;
@@ -19,14 +13,6 @@ export type MainPageApp = {
 
 export const MAIN_PAGE_APPS: MainPageApp[] = [
   {
-    id: 'test',
-    titleKey: 'apps.test.title',
-    descriptionKey: 'apps.test.description',
-    path: '/test',
-    icon: 'experiment',
-    color: '#1565c0',
-  },
-  {
     id: 'admin',
     titleKey: 'apps.admin.title',
     descriptionKey: 'apps.admin.description',
@@ -39,32 +25,17 @@ export const MAIN_PAGE_APPS: MainPageApp[] = [
     id: 'staff',
     titleKey: 'apps.staff.title',
     descriptionKey: 'apps.staff.description',
-    path: '/',
+    path: '/staff/employee',
     icon: 'team',
     color: '#00897b',
+    moduleCode: 'EMPLOYEE_MANAGEMENT_SYSTEM',
   },
   {
-    id: 'files',
-    titleKey: 'apps.files.title',
-    descriptionKey: 'apps.files.description',
-    path: '/',
-    icon: 'file',
-    color: '#6a1b9a',
-  },
-  {
-    id: 'settings',
-    titleKey: 'apps.settings.title',
-    descriptionKey: 'apps.settings.description',
-    path: '/',
-    icon: 'setting',
-    color: '#ef6c00',
-  },
-  {
-    id: 'catalog',
-    titleKey: 'apps.catalog.title',
-    descriptionKey: 'apps.catalog.description',
-    path: '/',
-    icon: 'appstore',
+    id: 'masters',
+    titleKey: 'apps.masters.title',
+    descriptionKey: 'apps.masters.description',
+    path: '/masters/location',
+    icon: 'masters',
     color: '#c62828',
   },
 ];

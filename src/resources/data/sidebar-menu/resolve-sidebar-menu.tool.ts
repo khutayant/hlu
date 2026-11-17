@@ -1,6 +1,8 @@
 import { isDev } from '../../../config';
 import { ADMIN_PAGE_MENU } from './admin-page.menu';
 import { MAIN_PAGE_MENU } from './main-page.menu';
+import { MASTERS_PAGE_MENU } from './masters-page.menu';
+import { STAFF_PAGE_MENU } from './staff-page.menu';
 import type { SidebarMenuItem } from './sidebar-menu.interface';
 
 function filterDevItems(items: SidebarMenuItem[]) {
@@ -9,8 +11,10 @@ function filterDevItems(items: SidebarMenuItem[]) {
 
 /**
  * Pick sidebar items for the current route area.
- * - `/admin*` → admin menu (user role + test in dev)
- * - otherwise → main menu (home + test in dev)
+ * - `/admin*` → admin menu
+ * - `/staff*` → staff (HR) menu
+ * - `/masters*` → masters menu (reference data)
+ * - otherwise → main menu (home; Test only on `/` and `/test`, and only in dev)
  */
 export function resolveSidebarMenu(pathname: string): SidebarMenuItem[] {
   const normalized =
@@ -22,5 +26,17 @@ export function resolveSidebarMenu(pathname: string): SidebarMenuItem[] {
     return filterDevItems(ADMIN_PAGE_MENU);
   }
 
-  return filterDevItems(MAIN_PAGE_MENU);
+  if (normalized === '/staff' || normalized.startsWith('/staff/')) {
+    return filterDevItems(STAFF_PAGE_MENU);
+  }
+
+  if (normalized === '/masters' || normalized.startsWith('/masters/')) {
+    return filterDevItems(MASTERS_PAGE_MENU);
+  }
+
+  const onHomeOrTest = normalized === '/' || normalized === '/test';
+  const mainItems = MAIN_PAGE_MENU.filter(
+    (item) => item.id !== 'test' || onHomeOrTest,
+  );
+  return filterDevItems(mainItems);
 }

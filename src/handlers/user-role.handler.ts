@@ -315,11 +315,14 @@ export type UserRolePermissionCandidateListResult = {
 
 export async function listUserRolePermissionsRequest(
   roleId: string,
-  options?: { q?: string; page?: number; limit?: number },
+  options?: { q?: string; subject?: string; page?: number; limit?: number },
 ): Promise<UserRolePermissionListResult> {
   const params = new URLSearchParams();
   if (options?.q) {
     params.set('q', options.q);
+  }
+  if (options?.subject) {
+    params.set('subject', options.subject);
   }
   if (options?.page) {
     params.set('page', String(options.page));
@@ -343,11 +346,14 @@ export async function listUserRolePermissionsRequest(
 
 export async function listUserRolePermissionCandidatesRequest(
   roleId: string,
-  options?: { q?: string; page?: number; limit?: number },
+  options?: { q?: string; subject?: string; page?: number; limit?: number },
 ): Promise<UserRolePermissionCandidateListResult> {
   const params = new URLSearchParams();
   if (options?.q) {
     params.set('q', options.q);
+  }
+  if (options?.subject) {
+    params.set('subject', options.subject);
   }
   if (options?.page) {
     params.set('page', String(options.page));

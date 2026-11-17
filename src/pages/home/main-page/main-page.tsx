@@ -1,9 +1,6 @@
 import {
-  AppstoreOutlined,
   ControlOutlined,
-  ExperimentOutlined,
-  FileOutlined,
-  SettingOutlined,
+  DatabaseOutlined,
   TeamOutlined,
 } from '@ant-design/icons';
 import { Card, Typography } from 'antd';
@@ -21,11 +18,8 @@ import {
 } from '../../../resources/data/apps/main-page-apps.data';
 
 const APP_ICONS: Record<MainPageAppIcon, ReactNode> = {
-  experiment: <ExperimentOutlined />,
   team: <TeamOutlined />,
-  file: <FileOutlined />,
-  setting: <SettingOutlined />,
-  appstore: <AppstoreOutlined />,
+  masters: <DatabaseOutlined />,
   admin: <ControlOutlined />,
 };
 

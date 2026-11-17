@@ -21,6 +21,8 @@ export type ProfilePickerProps = {
   avatarUrl?: string | null;
   displayName?: string | null;
   username?: string | null;
+  /** When false, only the avatar picker is shown (no cover). Default true. */
+  showCover?: boolean;
   coverLabel?: string;
   avatarLabel?: string;
   pickProfileLabel?: string;
@@ -50,6 +52,7 @@ function ProfilePicker({
   avatarUrl = null,
   displayName,
   username,
+  showCover = true,
   coverLabel = 'Cover photo',
   avatarLabel = 'Profile photo',
   pickProfileLabel = 'Pick profile',
@@ -146,152 +149,165 @@ function ProfilePicker({
 
   const coverSize = coverOutputSize(coverAspect);
 
-  return (
-    <div style={{ width: '100%', marginBottom: 8 }}>
+  const avatarBlock = (
+    <div
+      style={{
+        position: showCover ? 'absolute' : 'relative',
+        insetInlineStart: showCover ? 20 : undefined,
+        insetBlockEnd: showCover ? -40 : undefined,
+        zIndex: 3,
+        width: 96,
+        height: 96,
+      }}
+    >
       <div
         style={{
-          position: 'relative',
-          marginBottom: 52,
+          width: 96,
+          height: 96,
+          borderRadius: '50%',
+          border: '3px solid #fff',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+          background: 'linear-gradient(145deg, #1976d2 0%, #0d47a1 100%)',
+          color: '#fff',
+          overflow: 'hidden',
         }}
       >
-        <div
-          ref={coverRef}
-          style={{
-            width: '100%',
-            height: COVER_DISPLAY_HEIGHT,
-            borderRadius: 16,
-            overflow: 'hidden',
-            background: coverUrl
-              ? '#f0f2f5'
-              : 'linear-gradient(145deg, #e8eef5 0%, #d7dee8 100%)',
-            border: '1px solid rgba(5, 5, 5, 0.08)',
-            position: 'relative',
-          }}
-        >
-          {coverUrl ? (
-            <Image
-              src={coverUrl}
-              alt={coverLabel}
-              width='100%'
-              height={COVER_DISPLAY_HEIGHT}
-              style={{
-                objectFit: 'cover',
-                display: 'block',
-              }}
-              styles={{
-                root: { width: '100%', height: '100%', display: 'block' },
-              }}
-            />
-          ) : (
-            <div
-              style={{
-                height: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 6,
-                color: 'rgba(0,0,0,0.45)',
-              }}
-            >
-              <PictureOutlined style={{ fontSize: 28 }} />
-              <Typography.Text style={{ fontSize: 12, color: 'inherit' }}>
-                {coverLabel}
-              </Typography.Text>
-            </div>
-          )}
-          <Button
-            type='primary'
-            size='small'
-            shape='round'
-            icon={<CameraOutlined />}
-            disabled={disabled}
-            aria-label={coverLabel}
+        {avatarUrl ? (
+          <Image
+            src={avatarUrl}
+            alt={avatarLabel}
+            width={90}
+            height={90}
             style={{
-              position: 'absolute',
-              insetInlineEnd: 10,
-              insetBlockEnd: 10,
-              zIndex: 2,
+              objectFit: 'cover',
+              borderRadius: '50%',
+              display: 'block',
             }}
-            onClick={openCoverView}
+            styles={{
+              root: {
+                width: '100%',
+                height: '100%',
+                display: 'block',
+              },
+            }}
           />
-        </div>
+        ) : (
+          <span
+            style={{
+              width: '100%',
+              height: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <UserOutlined style={{ fontSize: 32 }} />
+          </span>
+        )}
+      </div>
+      <Button
+        type='primary'
+        size='small'
+        shape='circle'
+        icon={<CameraOutlined />}
+        disabled={disabled}
+        aria-label={avatarLabel}
+        onClick={openAvatarView}
+        style={{
+          position: 'absolute',
+          insetInlineEnd: 0,
+          insetBlockEnd: 0,
+          zIndex: 2,
+        }}
+      />
+    </div>
+  );
 
+  return (
+    <div style={{ width: '100%', marginBottom: 8 }}>
+      {showCover ? (
         <div
           style={{
-            position: 'absolute',
-            insetInlineStart: 20,
-            insetBlockEnd: -40,
-            zIndex: 3,
-            width: 96,
-            height: 96,
+            position: 'relative',
+            marginBottom: 52,
           }}
         >
           <div
+            ref={coverRef}
             style={{
-              width: 96,
-              height: 96,
-              borderRadius: '50%',
-              border: '3px solid #fff',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
-              background: 'linear-gradient(145deg, #1976d2 0%, #0d47a1 100%)',
-              color: '#fff',
+              width: '100%',
+              height: COVER_DISPLAY_HEIGHT,
+              borderRadius: 16,
               overflow: 'hidden',
+              background: coverUrl
+                ? '#f0f2f5'
+                : 'linear-gradient(145deg, #e8eef5 0%, #d7dee8 100%)',
+              border: '1px solid rgba(5, 5, 5, 0.08)',
+              position: 'relative',
             }}
           >
-            {avatarUrl ? (
+            {coverUrl ? (
               <Image
-                src={avatarUrl}
-                alt={avatarLabel}
-                width={90}
-                height={90}
+                src={coverUrl}
+                alt={coverLabel}
+                width='100%'
+                height={COVER_DISPLAY_HEIGHT}
                 style={{
                   objectFit: 'cover',
-                  borderRadius: '50%',
                   display: 'block',
                 }}
                 styles={{
-                  root: {
-                    width: '100%',
-                    height: '100%',
-                    display: 'block',
-                  },
+                  root: { width: '100%', height: '100%', display: 'block' },
                 }}
               />
             ) : (
-              <span
+              <div
                 style={{
-                  width: '100%',
                   height: '100%',
                   display: 'flex',
+                  flexDirection: 'column',
                   alignItems: 'center',
                   justifyContent: 'center',
+                  gap: 6,
+                  color: 'rgba(0,0,0,0.45)',
                 }}
               >
-                <UserOutlined style={{ fontSize: 32 }} />
-              </span>
+                <PictureOutlined style={{ fontSize: 28 }} />
+                <Typography.Text style={{ fontSize: 12, color: 'inherit' }}>
+                  {coverLabel}
+                </Typography.Text>
+              </div>
             )}
+            <Button
+              type='primary'
+              size='small'
+              shape='round'
+              icon={<CameraOutlined />}
+              disabled={disabled}
+              aria-label={coverLabel}
+              style={{
+                position: 'absolute',
+                insetInlineEnd: 10,
+                insetBlockEnd: 10,
+                zIndex: 2,
+              }}
+              onClick={openCoverView}
+            />
           </div>
-          <Button
-            type='primary'
-            size='small'
-            shape='circle'
-            icon={<CameraOutlined />}
-            disabled={disabled}
-            aria-label={avatarLabel}
-            onClick={openAvatarView}
-            style={{
-              position: 'absolute',
-              insetInlineEnd: 0,
-              insetBlockEnd: 0,
-              zIndex: 2,
-            }}
-          />
+          {avatarBlock}
         </div>
-      </div>
+      ) : (
+        <div style={{ marginBottom: 16 }}>{avatarBlock}</div>
+      )}
 
       {(displayName || username) && (
-        <div style={{ paddingInlineStart: 128, minHeight: 44 }}>
+        <div
+          style={{
+            paddingInlineStart: showCover ? 128 : 0,
+            minHeight: 44,
+            marginBottom: showCover ? 0 : 8,
+          }}
+        >
           {displayName ? (
             <Typography.Title
               level={3}
@@ -302,7 +318,7 @@ function ProfilePicker({
           ) : null}
           {username ? (
             <Typography.Text type='secondary' style={{ fontSize: 15 }}>
-              @{username}
+              {username.startsWith('@') ? username : username}
             </Typography.Text>
           ) : null}
         </div>
@@ -324,21 +340,23 @@ function ProfilePicker({
         }}
       />
 
-      <CoverImageDialog
-        open={coverViewOpen}
-        imageUrl={coverUrl}
-        title={coverLabel}
-        pickLabel={pickCoverLabel}
-        removeLabel={removeCoverLabel}
-        invalidTypeMessage={invalidTypeMessage}
-        disabled={disabled}
-        onClose={() => setCoverViewOpen(false)}
-        onPickFile={(_file, objectUrl) => beginCrop('cover', objectUrl)}
-        onRemove={async () => {
-          await onCoverChange?.({ file: null, previewUrl: null });
-          setCoverViewOpen(false);
-        }}
-      />
+      {showCover ? (
+        <CoverImageDialog
+          open={coverViewOpen}
+          imageUrl={coverUrl}
+          title={coverLabel}
+          pickLabel={pickCoverLabel}
+          removeLabel={removeCoverLabel}
+          invalidTypeMessage={invalidTypeMessage}
+          disabled={disabled}
+          onClose={() => setCoverViewOpen(false)}
+          onPickFile={(_file, objectUrl) => beginCrop('cover', objectUrl)}
+          onRemove={async () => {
+            await onCoverChange?.({ file: null, previewUrl: null });
+            setCoverViewOpen(false);
+          }}
+        />
+      ) : null}
 
       <ImageCropModal
         open={cropOpen}

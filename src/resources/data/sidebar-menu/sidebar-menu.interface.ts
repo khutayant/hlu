@@ -1,4 +1,13 @@
-export type SidebarMenuIcon = 'home' | 'test' | 'userRole' | 'users';
+export type SidebarMenuIcon =
+  | 'home'
+  | 'test'
+  | 'userRole'
+  | 'users'
+  | 'employee'
+  | 'location'
+  | 'category'
+  | 'project'
+  | 'session';
 
 export type SidebarMenuItem = {
   id: string;

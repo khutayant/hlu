@@ -1,0 +1,10 @@
+---
+description: ALL_SYSTEM is a wildcard for every system/module code
+alwaysApply: true
+---
+
+# `ALL_SYSTEM` wildcard
+
+- `ALL_SYSTEM` is a **wildcard system code**. A user whose role includes `ALL_SYSTEM` may access **every** system (e.g. `ADMIN_SYSTEM`, `EMPLOYEE_MANAGEMENT_SYSTEM`, …).
+- UI checks (`hasModule` / `ModuleGate` / app tiles / sidebar) must treat `ALL_SYSTEM` as full system access — do not require listing each system code when the role already has `ALL_SYSTEM`.
+- Specific codes (e.g. `EMPLOYEE_MANAGEMENT_SYSTEM`) are only needed for roles **without** `ALL_SYSTEM`.

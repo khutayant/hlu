@@ -137,7 +137,7 @@ function UserPage() {
     <>
       <RibbonTitle title={title} description={description} />
       <Button
-        onClick={() => navigate(-1)}
+        onClick={() => navigate('/')}
         style={{ marginInlineStart: 'auto', flexShrink: 0 }}
       >
         {t('common.close')}

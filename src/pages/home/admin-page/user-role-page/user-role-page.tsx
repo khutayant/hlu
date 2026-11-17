@@ -256,7 +256,7 @@ function UserRolePage() {
     <>
       <RibbonTitle title={title} description={description} />
       <Button
-        onClick={() => navigate(-1)}
+        onClick={() => navigate('/')}
         style={{ marginInlineStart: 'auto', flexShrink: 0 }}
       >
         {t('common.close')}
@@ -395,7 +395,7 @@ function UserRolePage() {
     {
       title: t('userRolePage.columns.actions'),
       key: 'actions',
-      width: 72,
+      width: 80,
       fixed: 'right',
       align: 'center',
       render: (_: unknown, row: UserRole) => (

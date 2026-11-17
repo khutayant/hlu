@@ -1,6 +1,15 @@
 @import 'tailwindcss/theme.css' layer(theme);
 @import 'tailwindcss/utilities.css' layer(utilities);
 
+@font-face {
+  font-family: 'Noto Sans Myanmar';
+  src: url('/fonts/Noto_Sans_Myanmar/NotoSansMyanmar-VariableFont_wdth,wght.ttf')
+    format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 html,
 body,
 #root {
@@ -12,7 +21,7 @@ body {
   margin: 0;
   min-width: 320px;
   background: #f5f7fa;
-  font-family: 'Roboto', Helvetica, Arial, sans-serif;
+  font-family: 'Noto Sans Myanmar', Helvetica, Arial, sans-serif;
 }
 
 a {

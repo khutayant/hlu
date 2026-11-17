@@ -513,7 +513,7 @@ export function UserRoleUsersPanel({ roleId }: UserRoleUsersPanelProps) {
     {
       title: t('userRolePage.columns.actions'),
       key: 'actions',
-      width: 100,
+      width: 80,
       fixed: 'right',
       align: 'center',
       render: (_value, row) => (
