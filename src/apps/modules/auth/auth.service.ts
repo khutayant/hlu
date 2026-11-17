@@ -188,6 +188,12 @@ export class AuthService {
     });
 
     if (!user) {
+      const inactive = await this.userRepository.findOne({
+        where: { keycloakId: payload.sub, active: false },
+      });
+      if (inactive) {
+        throw new UnauthorizedException('User account is inactive');
+      }
       user = await this.upsertUserFromToken(payload);
     }
 
@@ -288,6 +294,9 @@ export class AuthService {
         active: true,
       });
     } else {
+      if (!user.active) {
+        throw new UnauthorizedException('User account is inactive');
+      }
       user.username = username;
       user.email = payload.email ?? user.email;
       user.emailVerified = payload.email_verified ?? user.emailVerified;
@@ -295,7 +304,10 @@ export class AuthService {
       user.lastName = payload.family_name ?? user.lastName;
       user.role = this.resolveRole(payload, user.role);
       user.lastLoginAt = new Date();
-      user.active = true;
+    }
+
+    if (this.isSystemAdmin(user.username)) {
+      user.role = UserRoleEnum.ADMIN;
     }
 
     const saved = await this.userRepository.save(user);

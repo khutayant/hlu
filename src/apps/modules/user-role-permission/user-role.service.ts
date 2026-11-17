@@ -666,6 +666,7 @@ export class UserRoleService {
     const qb = this.userRoleUserMappingRepository
       .createQueryBuilder('mapping')
       .innerJoinAndSelect('mapping.user', 'assignedUser')
+      .leftJoinAndSelect('assignedUser.profileImage', 'profileImage')
       .where('mapping.active = :active', { active: true })
       .andWhere('mapping.deletedToken = :deletedToken', {
         deletedToken: ACTIVE_DELETED_TOKEN,
@@ -705,6 +706,7 @@ export class UserRoleService {
 
     const qb = this.userRepository
       .createQueryBuilder('candidate')
+      .leftJoinAndSelect('candidate.profileImage', 'profileImage')
       .where('candidate.active = :active', { active: true })
       .andWhere((subQb) => {
         const existsSql = subQb
@@ -743,6 +745,7 @@ export class UserRoleService {
     const role = await this.requireActiveRole(roleId);
     const users = await this.userRepository.find({
       where: { id: In(dto.userIds), active: true },
+      relations: { profileImage: true },
     });
 
     if (users.length !== dto.userIds.length) {
@@ -1017,6 +1020,13 @@ export class UserRoleService {
       email: user.email ?? null,
       displayName: fullName || user.username,
       role: user.role,
+      profileImage: user.profileImage
+        ? {
+            id: user.profileImage.id,
+            uuidName: user.profileImage.uuidName,
+            mimeType: user.profileImage.mimeType,
+          }
+        : null,
     };
   }
 

@@ -6,6 +6,7 @@ import { AppService } from './app.service.js';
 import { DataSeedingEngineModule } from './apps/engines/data-seeding-engine/data-seeding-engine.module.js';
 import { AuthModule } from './apps/modules/auth/auth.module.js';
 import { FileModule } from './apps/modules/file/file.module.js';
+import { UserModule } from './apps/modules/user/user.module.js';
 import { UserProfileModule } from './apps/modules/user-profile/user-profile.module.js';
 import { UserRolePermissionModule } from './apps/modules/user-role-permission/user-role-permission.module.js';
 import { DatabaseConfig } from './database/database.config.js';
@@ -24,6 +25,7 @@ import { GenCodeModule } from './services/global/gen-code/gen-code.module.js';
     RbacGuardModule,
     GenCodeModule,
     FileModule,
+    UserModule,
     UserProfileModule,
     UserRolePermissionModule,
   ],

@@ -12,6 +12,7 @@ export const PERMISSION_SUBJECT = {
 
   AUTH: 'auth',
   FILE: 'file',
+  USER: 'user',
   USER_PROFILE: 'user-profile',
   USER_ROLE: 'user-role',
 } as const;
