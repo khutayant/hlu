@@ -1,0 +1,11 @@
+---
+description: ALL_SYSTEM is a wildcard for every system/module code
+alwaysApply: true
+---
+
+# `ALL_SYSTEM` wildcard
+
+- `ALL_SYSTEM` is a **wildcard system code** on `module_master`. A role with `ALL_SYSTEM` grants access to **every** active system.
+- `listGrantedModules` must expand `ALL_SYSTEM` to all active modules (already the case). Keep that behavior when changing RBAC / module APIs.
+- Seed / assign specific codes (e.g. `EMPLOYEE_MANAGEMENT_SYSTEM`) only for roles that do **not** have `ALL_SYSTEM`.
+- Admin seed typically links `ALL_SYSTEM` (+ `PERM_ALL_MANAGE`) — do not replace that with an incomplete per-system list unless intentional.

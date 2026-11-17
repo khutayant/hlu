@@ -1,7 +1,16 @@
-import { Column, Entity, Index, JoinColumn, ManyToOne, Unique } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  OneToOne,
+  Unique,
+} from 'typeorm';
 import { BaseEntityWithUuid } from '../../bases/entity.base.js';
 import { UserRoleEnum } from '../../enums/user-role.enum.js';
 import { FileInfo } from '../info/file-info.entity.js';
+import { EmployeeMaster } from './employee-master.entity.js';
 
 @Entity()
 @Unique(['keycloakId'])
@@ -45,4 +54,10 @@ export class UserMaster extends BaseEntityWithUuid {
   @ManyToOne(() => FileInfo, { nullable: true })
   @JoinColumn()
   coverImage?: FileInfo | null;
+
+  /**
+   * Linked HR employee (inverse). FK is on {@link EmployeeMaster.user}.
+   */
+  @OneToOne(() => EmployeeMaster, (employee) => employee.user)
+  employee?: EmployeeMaster | null;
 }

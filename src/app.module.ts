@@ -5,6 +5,7 @@ import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { DataSeedingEngineModule } from './apps/engines/data-seeding-engine/data-seeding-engine.module.js';
 import { AuthModule } from './apps/modules/auth/auth.module.js';
+import { EmployeeModule } from './apps/modules/employee/employee.module.js';
 import { FileModule } from './apps/modules/file/file.module.js';
 import { UserModule } from './apps/modules/user/user.module.js';
 import { UserProfileModule } from './apps/modules/user-profile/user-profile.module.js';
@@ -26,6 +27,7 @@ import { GenCodeModule } from './services/global/gen-code/gen-code.module.js';
     GenCodeModule,
     FileModule,
     UserModule,
+    EmployeeModule,
     UserProfileModule,
     UserRolePermissionModule,
   ],

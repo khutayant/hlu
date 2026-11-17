@@ -6,3 +6,4 @@ coverage
 *.log
 .DS_Store
 tsconfig.build.tsbuildinfo
+local-data/

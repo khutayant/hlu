@@ -251,13 +251,14 @@ export class UserRoleService {
    */
   async listRolePermissions(
     roleId: string,
-    options?: { page?: number; limit?: number; q?: string },
+    options?: { page?: number; limit?: number; q?: string; subject?: string },
   ) {
     await this.requireActiveRole(roleId);
 
     const page = Math.max(1, options?.page ?? 1);
     const limit = Math.min(100, Math.max(1, options?.limit ?? 20));
     const q = options?.q?.trim();
+    const subject = options?.subject?.trim();
 
     const qb = this.mappingRepository
       .createQueryBuilder('mapping')
@@ -272,6 +273,7 @@ export class UserRoleService {
       .take(limit);
 
     this.applyPermissionSearchFilter(qb, 'permission', q);
+    this.applyPermissionSubjectFilter(qb, 'permission', subject);
 
     const [mappings, total] = await qb.getManyAndCount();
 
@@ -290,13 +292,14 @@ export class UserRoleService {
    */
   async listPermissionCandidates(
     roleId: string,
-    options?: { page?: number; limit?: number; q?: string },
+    options?: { page?: number; limit?: number; q?: string; subject?: string },
   ) {
     await this.requireActiveRole(roleId);
 
     const page = Math.max(1, options?.page ?? 1);
     const limit = Math.min(100, Math.max(1, options?.limit ?? 20));
     const q = options?.q?.trim();
+    const subject = options?.subject?.trim();
 
     const qb = this.permissionRepository
       .createQueryBuilder('candidate')
@@ -321,6 +324,7 @@ export class UserRoleService {
       .take(limit);
 
     this.applyPermissionSearchFilter(qb, 'candidate', q);
+    this.applyPermissionSubjectFilter(qb, 'candidate', subject);
 
     const [items, total] = await qb.getManyAndCount();
 
@@ -1082,6 +1086,24 @@ export class UserRoleService {
         OR COALESCE(${alias}.description, '') ILIKE :permissionSearch ESCAPE '\\')`,
       { permissionSearch: this.toIlikeContainsPattern(q) },
     );
+  }
+
+  /**
+   * Case-insensitive exact match on permission subject.
+   * `alias` must be a fixed query-builder alias (never user input).
+   */
+  private applyPermissionSubjectFilter(
+    qb: SelectQueryBuilder<ObjectLiteral>,
+    alias: 'permission' | 'candidate',
+    subject?: string,
+  ) {
+    if (!subject) {
+      return;
+    }
+
+    qb.andWhere(`LOWER(${alias}.subject) = LOWER(:permissionSubject)`, {
+      permissionSubject: subject,
+    });
   }
 
   /**

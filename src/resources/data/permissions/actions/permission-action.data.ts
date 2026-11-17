@@ -5,6 +5,7 @@
  * Bypass:
  * - {@link PERMISSION_ACTION.MANAGE} satisfies **any** required action
  *   on a matching subject (including {@link PERMISSION_SUBJECT.ALL}).
+ * - Seeded for every subject (e.g. `employee` + `manage` = full employee access).
  */
 export const PERMISSION_ACTION = {
   /** Wildcard action — grants every action on the matched subject. */

@@ -46,4 +46,14 @@ export const CODE_STRUCTURE = {
     month: true,
     day: false,
   },
+  /** [H][4 digits] e.g. H0001 */
+  employeeNo: {
+    type: CODE_TYPE.EMPLOYEE_NO,
+    prefix: 'H',
+    padding: 4,
+    delimiter: null as CodeDelimiter,
+    year: false,
+    month: false,
+    day: false,
+  },
 } as const satisfies Record<string, CodeStructure>;

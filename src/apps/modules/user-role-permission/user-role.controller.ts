@@ -216,7 +216,7 @@ export class UserRoleController {
   /**
    * List permissions that can be added to a role.
    *
-   * `GET /user-role/:id/permissions/candidates?q=&page=&limit=`
+   * `GET /user-role/:id/permissions/candidates?q=&subject=&page=&limit=`
    */
   @ApiGet({
     code: 'USER_ROLE_PERMISSION_CANDIDATE_LIST',
@@ -231,11 +231,13 @@ export class UserRoleController {
   listPermissionCandidates(
     @Param('id') id: string,
     @Query('q') q?: string,
+    @Query('subject') subject?: string,
     @Query('page') page?: string,
     @Query('limit') limit?: string,
   ) {
     return this.userRoleService.listPermissionCandidates(id, {
       q: q?.trim() || undefined,
+      subject: subject?.trim() || undefined,
       page: page ? Number(page) : undefined,
       limit: limit ? Number(limit) : undefined,
     });
@@ -244,7 +246,7 @@ export class UserRoleController {
   /**
    * List permissions assigned to a role.
    *
-   * `GET /user-role/:id/permissions?q=&page=&limit=`
+   * `GET /user-role/:id/permissions?q=&subject=&page=&limit=`
    */
   @ApiGet({
     code: 'USER_ROLE_ROLE_PERMISSION_LIST',
@@ -259,11 +261,13 @@ export class UserRoleController {
   listRolePermissions(
     @Param('id') id: string,
     @Query('q') q?: string,
+    @Query('subject') subject?: string,
     @Query('page') page?: string,
     @Query('limit') limit?: string,
   ) {
     return this.userRoleService.listRolePermissions(id, {
       q: q?.trim() || undefined,
+      subject: subject?.trim() || undefined,
       page: page ? Number(page) : undefined,
       limit: limit ? Number(limit) : undefined,
     });

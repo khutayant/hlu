@@ -5,6 +5,7 @@
  * Bypass:
  * - {@link PERMISSION_SUBJECT.ALL} matches **any** required subject.
  * - Pair with {@link PERMISSION_ACTION.MANAGE} (`all` + `manage`) to allow everything.
+ * - Each subject also seeds `{subject}:manage` (full control of that subject only).
  */
 export const PERMISSION_SUBJECT = {
   /** Wildcard subject — grants the action on every subject. */
@@ -15,6 +16,7 @@ export const PERMISSION_SUBJECT = {
   USER: 'user',
   USER_PROFILE: 'user-profile',
   USER_ROLE: 'user-role',
+  EMPLOYEE: 'employee',
 } as const;
 
 export type PermissionSubjectCode =

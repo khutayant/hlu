@@ -12,5 +12,12 @@
     "sequenceNo": 1,
     "description": "System",
     "isGroup": true
+  },
+  {
+    "code": "EMPLOYEE_MANAGEMENT_SYSTEM",
+    "name": "Employee Management System",
+    "sequenceNo": 2,
+    "description": "Staff / HR employee management",
+    "isGroup": true
   }
 ]
