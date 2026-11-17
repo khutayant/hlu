@@ -3,6 +3,13 @@ import type { SidebarMenuItem } from './sidebar-menu.interface';
 /** Sidebar for the admin app area. */
 export const ADMIN_PAGE_MENU: SidebarMenuItem[] = [
   {
+    id: 'users',
+    labelKey: 'nav.userPage',
+    path: '/admin/user',
+    icon: 'users',
+    moduleCode: 'ADMIN_SYSTEM',
+  },
+  {
     id: 'user-role',
     labelKey: 'nav.userRolePage',
     path: '/admin/user-role',

@@ -11,6 +11,7 @@ const ROUTE_LABELS: { path: string; labelKey: string }[] = [
   { path: '/profile/profile', labelKey: 'profilePage.menu.profile' },
   { path: '/profile/security', labelKey: 'profilePage.menu.security' },
   { path: '/admin', labelKey: 'nav.adminPage' },
+  { path: '/admin/user', labelKey: 'nav.userPage' },
   { path: '/admin/user-role', labelKey: 'nav.userRolePage' },
   { path: '/admin/user-role/:id', labelKey: 'nav.userRoleDetail' },
   {

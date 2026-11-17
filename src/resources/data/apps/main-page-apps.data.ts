@@ -30,7 +30,7 @@ export const MAIN_PAGE_APPS: MainPageApp[] = [
     id: 'admin',
     titleKey: 'apps.admin.title',
     descriptionKey: 'apps.admin.description',
-    path: '/admin/user-role',
+    path: '/admin/user',
     icon: 'admin',
     color: '#455a64',
     moduleCode: 'ADMIN_SYSTEM',

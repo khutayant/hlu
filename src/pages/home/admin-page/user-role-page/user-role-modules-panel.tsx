@@ -26,6 +26,7 @@ import {
 import { useDialog } from '../../../../providers/dialog.provider';
 import { useI18n } from '../../../../providers/i18n.provider';
 import { useToast } from '../../../../providers/toast.provider';
+import { formatDisplayDateTime } from '../../../../tools/format-date.tool';
 
 const DEFAULT_PAGE_SIZE = 20;
 const ADD_BATCH_LIMIT = 20;
@@ -202,7 +203,7 @@ function AddModuleDialogBody({
       title: t('userRolePage.columns.name'),
       key: 'name',
       fixed: 'left',
-      width: 220,
+      width: 250,
       render: (_value, row) => (
         <div>
           <div>{row.name}</div>
@@ -430,6 +431,8 @@ export function UserRoleModulesPanel({ roleId }: UserRoleModulesPanelProps) {
     {
       title: t('userRolePage.columns.name'),
       key: 'name',
+      fixed: 'left',
+      width: 250,
       render: (_value, row) => (
         <div>
           <div>{row.name}</div>
@@ -462,15 +465,13 @@ export function UserRoleModulesPanel({ roleId }: UserRoleModulesPanelProps) {
       title: t('userRolePage.roleModules.columns.assignedDate'),
       dataIndex: 'assignedDate',
       key: 'assignedDate',
-      render: (value: string) => {
-        const date = new Date(value);
-        return Number.isNaN(date.getTime()) ? '—' : date.toLocaleString();
-      },
+      render: (value: string) => formatDisplayDateTime(value),
     },
     {
       title: t('userRolePage.columns.actions'),
       key: 'actions',
       width: 100,
+      fixed: 'right',
       align: 'center',
       render: (_value, row) => (
         <Button
@@ -519,6 +520,7 @@ export function UserRoleModulesPanel({ roleId }: UserRoleModulesPanelProps) {
         loading={loading}
         columns={columns}
         dataSource={items}
+        scroll={{ x: 'max-content' }}
         pagination={{
           current: page,
           pageSize,

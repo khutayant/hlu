@@ -1,6 +1,5 @@
 import { SafetyOutlined, UserOutlined } from '@ant-design/icons';
 import { Button, Grid, Menu, Typography, message } from 'antd';
-import dayjs from 'dayjs';
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import type { ImagePickerValue } from '../../../components/image-picker/image-picker';
@@ -18,24 +17,16 @@ import {
   RibbonTitle,
   useSetRibbon,
 } from '../../../providers/ribbon.provider';
+import { formatDisplayDateTime } from '../../../tools/format-date.tool';
 
 const { useBreakpoint } = Grid;
 
-const DATE_FORMAT = 'DD-MMM-YYYY hh:mm:ss A';
 const PROFILE_SECTIONS = ['profile', 'security'] as const;
 
 type ProfileSection = (typeof PROFILE_SECTIONS)[number];
 
 function isProfileSection(value: string | undefined): value is ProfileSection {
   return PROFILE_SECTIONS.includes(value as ProfileSection);
-}
-
-function formatDate(value?: string | null) {
-  if (!value) {
-    return '—';
-  }
-  const parsed = dayjs(value);
-  return parsed.isValid() ? parsed.format(DATE_FORMAT) : value;
 }
 
 function DetailRow({ label, value }: { label: string; value: ReactNode }) {
@@ -90,8 +81,16 @@ function ProfilePage() {
   const title = t('profilePage.title');
   const description = t('profilePage.description');
   useSetRibbon(
-    <RibbonTitle title={title} description={description} />,
-    [title, description],
+    <>
+      <RibbonTitle title={title} description={description} />
+      <Button
+        onClick={() => navigate(-1)}
+        style={{ marginInlineStart: 'auto', flexShrink: 0 }}
+      >
+        {t('common.close')}
+      </Button>
+    </>,
+    [title, description, navigate, t],
   );
 
   useEffect(() => {
@@ -264,7 +263,7 @@ function ProfilePage() {
         <DetailRow label={t('profilePage.fields.role')} value={user.role} />
         <DetailRow
           label={t('profilePage.fields.lastLoginAt')}
-          value={formatDate(user.lastLoginAt)}
+          value={formatDisplayDateTime(user.lastLoginAt)}
         />
       </section>
     </article>

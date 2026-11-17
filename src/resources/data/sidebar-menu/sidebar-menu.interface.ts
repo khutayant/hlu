@@ -1,4 +1,4 @@
-export type SidebarMenuIcon = 'home' | 'test' | 'userRole';
+export type SidebarMenuIcon = 'home' | 'test' | 'userRole' | 'users';
 
 export type SidebarMenuItem = {
   id: string;

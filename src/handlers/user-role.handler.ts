@@ -150,6 +150,12 @@ export async function updateUserRoleRequest(
   return (await response.json()) as UserRole;
 }
 
+export type UserRoleUserImage = {
+  id: string;
+  uuidName: string;
+  mimeType: string;
+};
+
 export type UserRoleUser = {
   id: string;
   username: string;
@@ -158,6 +164,7 @@ export type UserRoleUser = {
   role: string;
   mappingId: string;
   assignedDate: string;
+  profileImage: UserRoleUserImage | null;
 };
 
 export type UserRoleUserCandidate = {
@@ -166,6 +173,7 @@ export type UserRoleUserCandidate = {
   email: string | null;
   displayName: string;
   role: string;
+  profileImage: UserRoleUserImage | null;
 };
 
 export type UserRoleUserListResult = {

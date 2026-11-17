@@ -3,7 +3,7 @@ import {
   MoreOutlined,
   PlusOutlined,
   SearchOutlined,
-  TeamOutlined,
+  SolutionOutlined,
 } from '@ant-design/icons';
 import {
   Button,
@@ -15,11 +15,11 @@ import {
   Space,
   Table,
   Typography,
+  theme,
 } from 'antd';
 import type { ColumnsType, TablePaginationConfig } from 'antd/es/table';
-import dayjs from 'dayjs';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   createUserRoleRequest,
   listUserRolesRequest,
@@ -34,20 +34,15 @@ import {
   useSetRibbon,
 } from '../../../../providers/ribbon.provider';
 import { useToast } from '../../../../providers/toast.provider';
+import { formatDisplayDateTime } from '../../../../tools/format-date.tool';
 
 const DEFAULT_PAGE_SIZE = 20;
-const ACTOR_DATE_FORMAT = 'DD-MMM-YYYY hh:mm:ss A';
 
 type UserRoleFormValues = {
   name: string;
   code: string;
   description?: string;
 };
-
-function formatActorDate(value: string) {
-  const parsed = dayjs(value);
-  return parsed.isValid() ? parsed.format(ACTOR_DATE_FORMAT) : value;
-}
 
 function renderActorCell(
   actor: UserRoleActor | null | undefined,
@@ -59,7 +54,7 @@ function renderActorCell(
         {actor?.name || '—'}
       </Typography.Text>
       <Typography.Text type='secondary' style={{ fontSize: 12 }}>
-        {formatActorDate(date)}
+        {formatDisplayDateTime(date)}
       </Typography.Text>
     </div>
   );
@@ -241,8 +236,10 @@ function UserRoleFormDialogBody({
 
 function UserRolePage() {
   const { t } = useI18n();
+  const { token } = theme.useToken();
   const { showToast } = useToast();
   const { customDialog } = useDialog();
+  const navigate = useNavigate();
   const [items, setItems] = useState<UserRole[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -256,8 +253,16 @@ function UserRolePage() {
   const description = t('userRolePage.description');
 
   useSetRibbon(
-    <RibbonTitle title={title} description={description} />,
-    [title, description],
+    <>
+      <RibbonTitle title={title} description={description} />
+      <Button
+        onClick={() => navigate(-1)}
+        style={{ marginInlineStart: 'auto', flexShrink: 0 }}
+      >
+        {t('common.close')}
+      </Button>
+    </>,
+    [title, description, navigate, t],
   );
 
   const reloadList = () => {
@@ -424,55 +429,64 @@ function UserRolePage() {
   };
 
   return (
-    <Space direction='vertical' size={12} style={{ width: '100%' }}>
-      <Flex wrap gap={8} justify='space-between' align='center'>
-        <Input.Search
-          allowClear
-          size='middle'
-          value={searchInput}
-          placeholder={t('userRolePage.searchPlaceholder')}
-          prefix={<SearchOutlined />}
-          onChange={(event) => setSearchInput(event.target.value)}
-          onSearch={onSearch}
-          style={{ width: 280, maxWidth: '100%' }}
-        />
-        <Button type='primary' icon={<PlusOutlined />} onClick={openCreate}>
-          {t('userRolePage.addNew')}
-        </Button>
-      </Flex>
+    <div
+      style={{
+        width: '100%',
+        padding: token.paddingLG,
+        borderRadius: token.borderRadiusLG,
+        background: token.colorBgContainer,
+      }}
+    >
+      <Space direction='vertical' size={12} style={{ width: '100%' }}>
+        <Flex wrap gap={8} justify='space-between' align='center'>
+          <Input.Search
+            allowClear
+            size='middle'
+            value={searchInput}
+            placeholder={t('userRolePage.searchPlaceholder')}
+            prefix={<SearchOutlined />}
+            onChange={(event) => setSearchInput(event.target.value)}
+            onSearch={onSearch}
+            style={{ width: 280, maxWidth: '100%' }}
+          />
+          <Button type='primary' icon={<PlusOutlined />} onClick={openCreate}>
+            {t('userRolePage.addNew')}
+          </Button>
+        </Flex>
 
-      <Table<UserRole>
-        rowKey='id'
-        size='small'
-        loading={loading}
-        columns={columns}
-        dataSource={items}
-        onChange={onTableChange}
-        pagination={{
-          current: page,
-          pageSize,
-          total,
-          showSizeChanger: true,
-          showQuickJumper: true,
-          hideOnSinglePage: false,
-          pageSizeOptions: ['10', '20', '50', '100'],
-          position: ['bottomRight'],
-          showTotal: (count) => t('userRolePage.total', { count }),
-        }}
-        locale={{
-          emptyText: (
-            <Empty
-              image={
-                <TeamOutlined style={{ fontSize: 48, color: '#bfbfbf' }} />
-              }
-              styles={{ image: { height: 64 } }}
-              description={t('userRolePage.empty')}
-            />
-          ),
-        }}
-        scroll={{ x: true }}
-      />
-    </Space>
+        <Table<UserRole>
+          rowKey='id'
+          size='small'
+          loading={loading}
+          columns={columns}
+          dataSource={items}
+          onChange={onTableChange}
+          pagination={{
+            current: page,
+            pageSize,
+            total,
+            showSizeChanger: true,
+            showQuickJumper: true,
+            hideOnSinglePage: false,
+            pageSizeOptions: ['10', '20', '50', '100'],
+            position: ['bottomRight'],
+            showTotal: (count) => t('userRolePage.total', { count }),
+          }}
+          locale={{
+            emptyText: (
+              <Empty
+                image={
+                  <SolutionOutlined style={{ fontSize: 48, color: '#bfbfbf' }} />
+                }
+                styles={{ image: { height: 64 } }}
+                description={t('userRolePage.empty')}
+              />
+            ),
+          }}
+          scroll={{ x: true }}
+        />
+      </Space>
+    </div>
   );
 }
 

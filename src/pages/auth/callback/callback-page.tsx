@@ -4,6 +4,10 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../../providers/auth.provider';
 import { useI18n } from '../../../providers/i18n.provider';
 
+function isInactiveAccountError(message: string) {
+  return /account is inactive/i.test(message) || /inactive/i.test(message);
+}
+
 function CallbackPage() {
   const { t } = useI18n();
   const { completeSignIn } = useAuth();
@@ -24,7 +28,12 @@ function CallbackPage() {
     const oauthDescription = searchParams.get('error_description');
 
     if (oauthError) {
-      setError(oauthDescription || oauthError);
+      const detail = oauthDescription || oauthError;
+      setError(
+        isInactiveAccountError(detail)
+          ? t('auth.accountInactive')
+          : detail,
+      );
       return;
     }
 
@@ -38,7 +47,13 @@ function CallbackPage() {
         const returnTo = await completeSignIn(code, state);
         navigate(returnTo || '/', { replace: true });
       } catch (err) {
-        setError(err instanceof Error ? err.message : t('auth.loginFailed'));
+        const message =
+          err instanceof Error ? err.message : t('auth.loginFailed');
+        setError(
+          isInactiveAccountError(message)
+            ? t('auth.accountInactive')
+            : message || t('auth.loginFailed'),
+        );
       }
     })();
   }, [completeSignIn, navigate, searchParams, t]);
@@ -57,7 +72,12 @@ function CallbackPage() {
         <Typography.Title level={4} style={{ marginTop: 0 }}>
           {t('auth.loginFailed')}
         </Typography.Title>
-        <Alert type='error' showIcon message={error} style={{ marginBottom: 16 }} />
+        <Alert
+          type='error'
+          showIcon
+          message={error}
+          style={{ marginBottom: 16 }}
+        />
         <Button
           type='primary'
           block

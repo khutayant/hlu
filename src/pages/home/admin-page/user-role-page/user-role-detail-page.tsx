@@ -3,7 +3,7 @@ import {
   SafetyOutlined,
   TeamOutlined,
 } from '@ant-design/icons';
-import { Button, Empty, Grid, Menu, Spin } from 'antd';
+import { Button, Empty, Grid, Menu, Spin, theme } from 'antd';
 import { useEffect, useMemo, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import {
@@ -39,6 +39,7 @@ function isRoleSection(value: string | undefined): value is RoleSection {
 
 function UserRoleDetailPage() {
   const { t } = useI18n();
+  const { token } = theme.useToken();
   const { showToast } = useToast();
   const navigate = useNavigate();
   const screens = useBreakpoint();
@@ -64,8 +65,7 @@ function UserRoleDetailPage() {
     <>
       <RibbonTitle title={title} description={description} />
       <Button
-        type='text'
-        onClick={() => navigate('/admin/user-role')}
+        onClick={() => navigate(-1)}
         style={{ marginInlineStart: 'auto', flexShrink: 0 }}
       >
         {t('common.close')}
@@ -215,11 +215,23 @@ function UserRoleDetailPage() {
           flex: 1,
           minWidth: 0,
           minHeight: 0,
-          padding: isMobile ? 16 : 28,
+          padding: isMobile ? 16 : 20,
           overflow: 'auto',
+          boxSizing: 'border-box',
         }}
       >
-        {mainContent}
+        <div
+          style={{
+            width: '100%',
+            minHeight: '100%',
+            padding: token.paddingLG,
+            borderRadius: token.borderRadiusLG,
+            background: token.colorBgContainer,
+            boxSizing: 'border-box',
+          }}
+        >
+          {mainContent}
+        </div>
       </main>
     </div>
   );

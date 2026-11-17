@@ -10,6 +10,9 @@ const TestPage = lazy(() => import('../pages/home/test-page/test-page'));
 const ProfilePage = lazy(
   () => import('../pages/home/profile-page/profile-page'),
 );
+const UserPage = lazy(
+  () => import('../pages/home/admin-page/user-page/user-page'),
+);
 const UserRolePage = lazy(
   () => import('../pages/home/admin-page/user-role-page/user-role-page'),
 );
@@ -35,8 +38,9 @@ export function HomeRoutes() {
         <Route element={<ModuleGate code={ADMIN_SYSTEM_CODE} />}>
           <Route
             path='/admin'
-            element={<Navigate to='/admin/user-role' replace />}
+            element={<Navigate to='/admin/user' replace />}
           />
+          <Route path='/admin/user' element={<UserPage />} />
           <Route path='/admin/user-role' element={<UserRolePage />} />
           <Route path='/admin/user-role/:id' element={<UserRoleDetailPage />} />
           <Route

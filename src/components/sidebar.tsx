@@ -3,6 +3,7 @@ import {
   HomeOutlined,
   IdcardOutlined,
   LogoutOutlined,
+  SolutionOutlined,
   TeamOutlined,
   UserOutlined,
 } from '@ant-design/icons';
@@ -30,7 +31,8 @@ const { useBreakpoint } = Grid;
 const MENU_ICONS: Record<SidebarMenuIcon, ReactNode> = {
   home: <HomeOutlined />,
   test: <ExperimentOutlined />,
-  userRole: <TeamOutlined />,
+  userRole: <SolutionOutlined />,
+  users: <TeamOutlined />,
 };
 
 const BRAND_LOGO = publicUrl(

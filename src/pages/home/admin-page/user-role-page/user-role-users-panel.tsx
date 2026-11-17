@@ -2,11 +2,14 @@ import {
   DeleteOutlined,
   PlusOutlined,
   SearchOutlined,
+  UserOutlined,
 } from '@ant-design/icons';
 import {
+  Avatar,
   Button,
   Empty,
   Flex,
+  Image,
   Input,
   Space,
   Table,
@@ -15,6 +18,7 @@ import {
 import type { ColumnsType, TableRowSelection } from 'antd/es/table/interface';
 import type { Key } from 'react';
 import { useEffect, useRef, useState } from 'react';
+import { fetchAuthorizedFileUrl } from '../../../../handlers/file.handler';
 import {
   addUserRoleUsersRequest,
   listUserRoleUserCandidatesRequest,
@@ -26,10 +30,93 @@ import {
 import { useDialog } from '../../../../providers/dialog.provider';
 import { useI18n } from '../../../../providers/i18n.provider';
 import { useToast } from '../../../../providers/toast.provider';
+import { formatDisplayDateTime } from '../../../../tools/format-date.tool';
 
 const DEFAULT_PAGE_SIZE = 20;
 const ADD_BATCH_LIMIT = 20;
 const CANDIDATE_PAGE_SIZE = 20;
+const AVATAR_SIZE = 36;
+
+type UserNameSource = {
+  displayName: string;
+  username: string;
+  profileImage?: { uuidName: string } | null;
+};
+
+function UserNameCell({ user }: { user: UserNameSource }) {
+  const [src, setSrc] = useState<string | null>(null);
+  const uuidName = user.profileImage?.uuidName;
+
+  useEffect(() => {
+    let cancelled = false;
+    let objectUrl: string | null = null;
+
+    if (!uuidName) {
+      setSrc(null);
+      return;
+    }
+
+    void (async () => {
+      try {
+        const url = await fetchAuthorizedFileUrl(uuidName);
+        if (cancelled) {
+          URL.revokeObjectURL(url);
+          return;
+        }
+        objectUrl = url;
+        setSrc(url);
+      } catch {
+        if (!cancelled) {
+          setSrc(null);
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      if (objectUrl) {
+        URL.revokeObjectURL(objectUrl);
+      }
+    };
+  }, [uuidName]);
+
+  return (
+    <Flex align='center' gap={10} style={{ minWidth: 0 }}>
+      {src ? (
+        <Image
+          width={AVATAR_SIZE}
+          height={AVATAR_SIZE}
+          src={src}
+          alt={user.displayName}
+          preview={{ mask: false }}
+          style={{
+            flexShrink: 0,
+            borderRadius: '50%',
+            objectFit: 'cover',
+            cursor: 'pointer',
+          }}
+        />
+      ) : (
+        <Avatar
+          size={AVATAR_SIZE}
+          icon={<UserOutlined />}
+          style={{ flexShrink: 0, background: '#1565c0' }}
+        />
+      )}
+      <div style={{ lineHeight: 1.35, minWidth: 0 }}>
+        <Typography.Text
+          style={{ display: 'block', fontSize: 13 }}
+          ellipsis={{ tooltip: user.displayName }}
+        >
+          {user.displayName}
+        </Typography.Text>
+        <Typography.Text type='secondary' style={{ fontSize: 12 }}>
+          {user.username}
+        </Typography.Text>
+      </div>
+    </Flex>
+  );
+}
 
 type UserRoleUsersPanelProps = {
   roleId: string;
@@ -200,16 +287,10 @@ function AddUserDialogBody({
   const columns: ColumnsType<UserRoleUserCandidate> = [
     {
       title: t('userRolePage.users.columns.displayName'),
-      dataIndex: 'displayName',
       key: 'displayName',
       fixed: 'left',
-      width: 200,
-    },
-    {
-      title: t('userRolePage.users.columns.username'),
-      dataIndex: 'username',
-      key: 'username',
-      width: 160,
+      width: 250,
+      render: (_value, row) => <UserNameCell user={row} />,
     },
     {
       title: t('userRolePage.users.columns.email'),
@@ -412,13 +493,10 @@ export function UserRoleUsersPanel({ roleId }: UserRoleUsersPanelProps) {
   const columns: ColumnsType<UserRoleUser> = [
     {
       title: t('userRolePage.users.columns.displayName'),
-      dataIndex: 'displayName',
       key: 'displayName',
-    },
-    {
-      title: t('userRolePage.users.columns.username'),
-      dataIndex: 'username',
-      key: 'username',
+      fixed: 'left',
+      width: 250,
+      render: (_value, row) => <UserNameCell user={row} />,
     },
     {
       title: t('userRolePage.users.columns.email'),
@@ -430,15 +508,13 @@ export function UserRoleUsersPanel({ roleId }: UserRoleUsersPanelProps) {
       title: t('userRolePage.users.columns.assignedDate'),
       dataIndex: 'assignedDate',
       key: 'assignedDate',
-      render: (value: string) => {
-        const date = new Date(value);
-        return Number.isNaN(date.getTime()) ? '—' : date.toLocaleString();
-      },
+      render: (value: string) => formatDisplayDateTime(value),
     },
     {
       title: t('userRolePage.columns.actions'),
       key: 'actions',
       width: 100,
+      fixed: 'right',
       align: 'center',
       render: (_value, row) => (
         <Button
@@ -488,6 +564,7 @@ export function UserRoleUsersPanel({ roleId }: UserRoleUsersPanelProps) {
         loading={loading}
         columns={columns}
         dataSource={items}
+        scroll={{ x: 'max-content' }}
         pagination={{
           current: page,
           pageSize,
