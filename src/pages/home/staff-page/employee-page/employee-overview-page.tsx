@@ -2,6 +2,7 @@ import {
   FileExcelOutlined,
   FileImageOutlined,
   MoreOutlined,
+  TeamOutlined,
 } from '@ant-design/icons';
 import {
   Button,
@@ -28,12 +29,14 @@ import {
   type EmployeeOverviewMatrix,
   type EmployeeOverviewMatrixRow,
 } from '../../../../handlers/employee.handler';
+import { useDialog } from '../../../../providers/dialog.provider';
 import { useI18n } from '../../../../providers/i18n.provider';
 import {
   RibbonTitle,
   useSetRibbon,
 } from '../../../../providers/ribbon.provider';
 import { useToast } from '../../../../providers/toast.provider';
+import { TownshipEmployeesDialogBody } from './township-employees-dialog';
 
 const FILTER_ALL = 'ALL';
 
@@ -386,6 +389,7 @@ function EmployeeOverviewPage() {
   const { token } = theme.useToken();
   const navigate = useNavigate();
   const { showToast } = useToast();
+  const { customDialog } = useDialog();
   const [loading, setLoading] = useState(true);
   const [overview, setOverview] = useState<EmployeeOverview | null>(null);
   const [townships, setTownships] = useState<EmployeeFilterTownship[]>([]);
@@ -398,6 +402,15 @@ function EmployeeOverviewPage() {
 
   const title = t('employeeOverviewPage.title');
   const description = t('employeeOverviewPage.description');
+
+  const openTownshipEmployeesList = () => {
+    customDialog({
+      title: t('employeeOverviewPage.townshipList.title'),
+      size: 'fullscreen',
+      actions: null,
+      content: <TownshipEmployeesDialogBody townships={townships} />,
+    });
+  };
 
   useSetRibbon(
     <>
@@ -571,7 +584,7 @@ function EmployeeOverviewPage() {
         border: `1px solid ${token.colorBorderSecondary}`,
       }}
     >
-      <Flex wrap gap={8}>
+      <Flex wrap gap={8} align='center'>
         <Select
           showSearch
           optionFilterProp='label'
@@ -606,6 +619,26 @@ function EmployeeOverviewPage() {
             })),
           ]}
         />
+        <Dropdown
+          trigger={['click']}
+          menu={{
+            items: [
+              {
+                key: 'township-employees',
+                icon: <TeamOutlined />,
+                label: t('employeeOverviewPage.menu.townshipEmployeesList'),
+                onClick: openTownshipEmployeesList,
+              },
+            ],
+          }}
+        >
+          <Button
+            type='text'
+            icon={<MoreOutlined />}
+            aria-label={t('employeeOverviewPage.menu.actions')}
+            style={{ marginInlineStart: 'auto' }}
+          />
+        </Dropdown>
       </Flex>
     </div>
   );

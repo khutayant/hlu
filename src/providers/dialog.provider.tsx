@@ -274,7 +274,9 @@ export function DialogProvider({ children }: { children: ReactNode }) {
           body: {
             flex: 1,
             minHeight: 0,
-            overflow: 'auto',
+            display: isFullscreen ? 'flex' : undefined,
+            flexDirection: isFullscreen ? 'column' : undefined,
+            overflow: isFullscreen ? 'hidden' : 'auto',
             maxHeight: isFullscreen ? 'none' : 'calc(100vh - 200px)',
           },
           header: { flexShrink: 0 },

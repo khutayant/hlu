@@ -1,0 +1,14 @@
+---
+description: Distinguish Staff Overview ribbon vs dashboard header (filter bar)
+globs: src/pages/home/staff-page/**/*
+alwaysApply: false
+---
+
+# Dashboard header vs ribbon
+
+On Staff Overview (`employee-overview-page`) and similar dashboards:
+
+- **Ribbon** = top app chrome (`useSetRibbon` / `RibbonTitle` + Close). Page title only; do not put dashboard actions there unless the user explicitly says ribbon.
+- **Dashboard header** = the in-page bar that holds the township / position (and similar) filter selects.
+
+When the user says **header**, **dashboard header**, or **menu on the header**, put controls on that filter bar (right end), **not** in the ribbon.
