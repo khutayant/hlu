@@ -66,4 +66,24 @@ export const CODE_STRUCTURE = {
     month: false,
     day: false,
   },
+  /** [SEC][YYYY][4 digits] e.g. SEC20260001 */
+  sessionNo: {
+    type: CODE_TYPE.SESSION_NO,
+    prefix: 'SEC',
+    padding: 4,
+    delimiter: null as CodeDelimiter,
+    year: true,
+    month: false,
+    day: false,
+  },
+  /** [MT][YYYY][MM][4 digits] e.g. MT2026110001 */
+  meetingNo: {
+    type: CODE_TYPE.MEETING_NO,
+    prefix: 'MT',
+    padding: 4,
+    delimiter: null as CodeDelimiter,
+    year: true,
+    month: true,
+    day: false,
+  },
 } as const satisfies Record<string, CodeStructure>;

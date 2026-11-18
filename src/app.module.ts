@@ -8,6 +8,9 @@ import { AuthModule } from './apps/modules/auth/auth.module';
 import { CountryModule } from './apps/modules/country/country.module';
 import { EmployeeModule } from './apps/modules/employee/employee.module';
 import { FileModule } from './apps/modules/file/file.module';
+import { ImmunizationSessionModule } from './apps/modules/immunization-session/immunization-session.module';
+import { MeetingAttendanceModule } from './apps/modules/meeting-attendance/meeting-attendance.module';
+import { MeetingModule } from './apps/modules/meeting/meeting.module';
 import { ProjectModule } from './apps/modules/project/project.module';
 import { PositionModule } from './apps/modules/position/position.module';
 import { TitleModule } from './apps/modules/title/title.module';
@@ -36,6 +39,9 @@ import { GenCodeModule } from './services/global/gen-code/gen-code.module';
     CountryModule,
     TownshipModule,
     ProjectModule,
+    ImmunizationSessionModule,
+    MeetingModule,
+    MeetingAttendanceModule,
     TitleModule,
     PositionModule,
     UserProfileModule,

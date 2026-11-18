@@ -1,5 +1,6 @@
 import { CodeGenInfo } from '@app/entity/entities/info/code-gen-info.entity';
 import { FileInfo } from '@app/entity/entities/info/file-info.entity';
+import { MeetingAttendanceInfo } from '@app/entity/entities/info/meeting-attendance-info.entity';
 import { UserRoleModuleMapping } from '@app/entity/entities/mapping/user-role-module-mapping.entity';
 import { UserRolePermissionMapping } from '@app/entity/entities/mapping/user-role-permission-mapping.entity';
 import { UserUserRoleMapping } from '@app/entity/entities/mapping/user-user-role-mapping.entity';
@@ -9,6 +10,8 @@ import { EmployeeMaster } from '@app/entity/entities/master/employee-master.enti
 import { LocationMaster } from '@app/entity/entities/master/location-master.entity';
 import { ModuleMaster } from '@app/entity/entities/master/module-master.entity';
 import { PermissionMaster } from '@app/entity/entities/master/permission-master.entity';
+import { ImmunizationSessionMaster } from '@app/entity/entities/master/immunization-session-master.entity';
+import { MeetingMaster } from '@app/entity/entities/master/meeting-master.entity';
 import { ProjectMaster } from '@app/entity/entities/master/project-master.entity';
 import { SessionMaster } from '@app/entity/entities/master/session-master.entity';
 import { PositionMaster } from '@app/entity/entities/master/position-master.entity';
@@ -43,6 +46,9 @@ export const DatabaseConfig: DataSourceOptions = {
     PositionMaster,
     LocationMaster,
     ProjectMaster,
+    ImmunizationSessionMaster,
+    MeetingMaster,
+    MeetingAttendanceInfo,
     SessionMaster,
     CodeGenInfo,
     FileInfo,

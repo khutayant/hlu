@@ -4,6 +4,8 @@ export const CODE_TYPE = {
   FILE_NO: 'FILE_NO',
   EMPLOYEE_NO: 'EMPLOYEE_NO',
   PROJECT_NO: 'PROJECT_NO',
+  SESSION_NO: 'SESSION_NO',
+  MEETING_NO: 'MEETING_NO',
 } as const;
 
 export type CodeType = (typeof CODE_TYPE)[keyof typeof CODE_TYPE];
