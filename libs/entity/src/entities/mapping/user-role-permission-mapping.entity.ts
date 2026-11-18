@@ -1,7 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
-import { BaseEntityWithUuid } from '../../bases/entity.base.js';
-import { PermissionMaster } from '../master/permission-master.entity.js';
-import { UserRoleMaster } from '../master/user-role-master.entity.js';
+import { BaseEntityWithUuid } from '../../bases/entity.base';
+import { PermissionMaster } from '../master/permission-master.entity';
+import { UserRoleMaster } from '../master/user-role-master.entity';
 
 @Entity()
 export class UserRolePermissionMapping extends BaseEntityWithUuid {

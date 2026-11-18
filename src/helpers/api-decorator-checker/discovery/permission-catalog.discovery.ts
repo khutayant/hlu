@@ -7,15 +7,15 @@ import {
   APP_HTTP_ROUTE_KEY,
   type ApiControllerMeta,
   type ApiHttpRouteMeta,
-} from '../../../decorators/api.decorator.js';
+} from '../../../decorators/api.decorator';
 import {
   formatPermissionName,
   formatPermissionRef,
-} from '../tools/format-permission.tool.js';
+} from '../tools/format-permission.tool';
 import {
   resolveRoutePermissionCode,
   throwIfPermissionCatalogConflicts,
-} from '../tools/permission-code.tool.js';
+} from '../tools/permission-code.tool';
 
 /** One `@Api*` route contributing to a permission's attached API list. */
 export type DiscoveredRoutePermission = {

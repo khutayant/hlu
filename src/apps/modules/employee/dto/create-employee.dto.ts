@@ -1,14 +1,21 @@
-import type { GenderEnum } from '../../../../../libs/entity/src/index.js';
-import { parseFocalNo } from './focal-no.tool.js';
-import { parseGender } from './gender.tool.js';
+import type { GenderEnum } from '@app/entity/enums/gender.enum';
+import { parseFocalNo } from './focal-no.tool';
+import { parseGender } from './gender.tool';
 
 export type CreateEmployeeDto = {
   employeeNo?: string | null;
+  titleId?: string | null;
   displayName: string;
   focalNo: string;
   gender: GenderEnum;
-  townshipName: string;
-  position: string;
+  /** Preferred FK. */
+  townshipId?: string | null;
+  /** Import helper — resolved to township by exact name when `townshipId` omitted. */
+  townshipName?: string | null;
+  /** Preferred FK. */
+  positionId?: string | null;
+  /** Import helper — resolved by exact name when `positionId` omitted. */
+  positionName?: string | null;
   experience: string;
   email?: string | null;
   phone?: string | null;
@@ -72,16 +79,19 @@ export function parseCreateEmployeeDto(body: unknown): CreateEmployeeDto {
     throw new Error('gender is required');
   }
 
-  const townshipName =
-    typeof record.townshipName === 'string' ? record.townshipName.trim() : '';
-  if (!townshipName) {
-    throw new Error('townshipName is required');
+  const townshipId = optionalTrimmedString(record, 'townshipId');
+  const townshipName = optionalTrimmedString(record, 'townshipName');
+  if (!townshipId && !townshipName) {
+    throw new Error('townshipId or townshipName is required');
   }
 
-  const position =
-    typeof record.position === 'string' ? record.position.trim() : '';
-  if (!position) {
-    throw new Error('position is required');
+  const positionId = optionalTrimmedString(record, 'positionId');
+  // CSV / import still sends `position` as the name.
+  const positionName =
+    optionalTrimmedString(record, 'positionName') ??
+    optionalTrimmedString(record, 'position');
+  if (!positionId && !positionName) {
+    throw new Error('positionId or positionName is required');
   }
 
   const experience =
@@ -92,11 +102,14 @@ export function parseCreateEmployeeDto(body: unknown): CreateEmployeeDto {
 
   return {
     employeeNo: optionalTrimmedString(record, 'employeeNo'),
+    titleId: optionalTrimmedString(record, 'titleId'),
     displayName,
     focalNo,
     gender,
-    townshipName,
-    position,
+    townshipId: townshipId ?? null,
+    townshipName: townshipName ?? null,
+    positionId: positionId ?? null,
+    positionName: positionName ?? null,
     experience,
     email: optionalTrimmedString(record, 'email'),
     phone: optionalTrimmedString(record, 'phone'),

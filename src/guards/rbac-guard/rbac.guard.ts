@@ -10,11 +10,11 @@ import type { Request } from 'express';
 import {
   APP_HTTP_ROUTE_KEY,
   type ApiHttpRouteMeta,
-} from '../../decorators/api.decorator.js';
-import { IS_PUBLIC_KEY } from '../../decorators/public.decorator.js';
-import { formatPermissionRef } from '../../helpers/api-decorator-checker/tools/format-permission.tool.js';
-import { forbiddenPermissionException } from './forbidden-permission.tool.js';
-import { RbacPermissionResolveService } from '../../security/permissions/role-permission/rbac-permission-resolve.service.js';
+} from '../../decorators/api.decorator';
+import { IS_PUBLIC_KEY } from '../../decorators/public.decorator';
+import { formatPermissionRef } from '../../helpers/api-decorator-checker/tools/format-permission.tool';
+import { forbiddenPermissionException } from './forbidden-permission.tool';
+import { RbacPermissionResolveService } from '../../security/permissions/role-permission/rbac-permission-resolve.service';
 
 /**
  * Global guard after {@link AuthGuard}.

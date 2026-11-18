@@ -6,7 +6,7 @@ import {
   loadSeedDocuments,
   toEntityKey,
   type SeedDocument,
-} from './tools/seed-file.tool.js';
+} from './tools/seed-file.tool';
 
 const UPDATE_SKIP = new Set(['id', 'code', 'createdDate', 'createdBy']);
 

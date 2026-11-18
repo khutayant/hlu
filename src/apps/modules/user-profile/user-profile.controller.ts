@@ -6,14 +6,14 @@ import {
   ApiController,
   ApiDelete,
   ApiPatch,
-} from '../../../decorators/api.decorator.js';
-import { PERMISSION_ACTION } from '../../../resources/data/permissions/actions/permission-action.data.js';
-import { buildRoutePermission } from '../../../resources/data/permissions/permission-code.tool.js';
-import { PERMISSION_SUBJECT } from '../../../resources/data/permissions/subjects/permission-subject.data.js';
-import { CurrentUser } from '../../../decorators/current-user.decorator.js';
-import type { AuthUser } from '../../../interfaces/auth-user.interface.js';
-import { parseLinkProfileImageDto } from './dto/link-profile-image.dto.js';
-import { UserProfileService } from './user-profile.service.js';
+} from '../../../decorators/api.decorator';
+import { PERMISSION_ACTION } from '../../../resources/data/permissions/actions/permission-action.data';
+import { buildRoutePermission } from '../../../resources/data/permissions/permission-code.tool';
+import { PERMISSION_SUBJECT } from '../../../resources/data/permissions/subjects/permission-subject.data';
+import { CurrentUser } from '../../../decorators/current-user.decorator';
+import type { AuthUser } from '../../../interfaces/auth-user.interface';
+import { parseLinkProfileImageDto } from './dto/link-profile-image.dto';
+import { UserProfileService } from './user-profile.service';
 
 /**
  * Account-owner profile image APIs under `/api/{base}/v1/user/me`.

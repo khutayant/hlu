@@ -1,6 +1,6 @@
 import { Column, Entity, OneToMany, Unique } from 'typeorm';
-import { BaseEntityWithUuid } from '../../bases/entity.base.js';
-import { UserRolePermissionMapping } from '../mapping/user-role-permission-mapping.entity.js';
+import { BaseEntityWithUuid } from '../../bases/entity.base';
+import { UserRolePermissionMapping } from '../mapping/user-role-permission-mapping.entity';
 
 @Entity()
 @Unique(['code'])

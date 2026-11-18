@@ -8,8 +8,8 @@ import {
   Put,
   SetMetadata,
 } from '@nestjs/common';
-import type { PermissionActionCode } from '../resources/data/permissions/actions/permission-action.data.js';
-import type { PermissionSubjectCode } from '../resources/data/permissions/subjects/permission-subject.data.js';
+import type { PermissionActionCode } from '../resources/data/permissions/actions/permission-action.data';
+import type { PermissionSubjectCode } from '../resources/data/permissions/subjects/permission-subject.data';
 
 /**
  * Reflector metadata key for {@link ApiController}.

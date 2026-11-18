@@ -1,5 +1,5 @@
-import type { PermissionActionCode } from './actions/permission-action.data.js';
-import type { PermissionSubjectCode } from './subjects/permission-subject.data.js';
+import type { PermissionActionCode } from './actions/permission-action.data';
+import type { PermissionSubjectCode } from './subjects/permission-subject.data';
 
 /**
  * Canonical maintenance code: `PERM_{SUBJECT}_{ACTION}`

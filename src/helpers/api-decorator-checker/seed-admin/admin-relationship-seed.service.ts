@@ -1,14 +1,12 @@
-import {
-  ModuleMaster,
-  PermissionMaster,
-  UserRoleMaster,
-  UserRoleModuleMapping,
-  UserRolePermissionMapping,
-} from '@app/entity';
+import { ModuleMaster } from '@app/entity/entities/master/module-master.entity';
+import { PermissionMaster } from '@app/entity/entities/master/permission-master.entity';
+import { UserRoleMaster } from '@app/entity/entities/master/user-role-master.entity';
+import { UserRoleModuleMapping } from '@app/entity/entities/mapping/user-role-module-mapping.entity';
+import { UserRolePermissionMapping } from '@app/entity/entities/mapping/user-role-permission-mapping.entity';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import type { Repository } from 'typeorm';
-import { ADMIN_RELATIONSHIP_SEED_ROWS } from './admin-relationship-seed.data.js';
+import { ADMIN_RELATIONSHIP_SEED_ROWS } from './admin-relationship-seed.data';
 
 const ACTIVE_DELETED_TOKEN = 'NA';
 

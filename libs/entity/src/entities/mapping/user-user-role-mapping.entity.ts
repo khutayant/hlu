@@ -1,7 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToOne, Unique } from 'typeorm';
-import { BaseEntityWithUuid } from '../../bases/entity.base.js';
-import { UserMaster } from '../master/user-master.entity.js';
-import { UserRoleMaster } from '../master/user-role-master.entity.js';
+import { BaseEntityWithUuid } from '../../bases/entity.base';
+import { UserMaster } from '../master/user-master.entity';
+import { UserRoleMaster } from '../master/user-role-master.entity';
 
 @Entity()
 @Unique(['user', 'userRole', 'deletedToken'])

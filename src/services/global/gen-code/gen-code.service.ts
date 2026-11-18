@@ -1,4 +1,4 @@
-import { CodeGenInfo } from '../../../../libs/entity/src/index.js';
+import { CodeGenInfo } from '@app/entity/entities/info/code-gen-info.entity';
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import dayjs from 'dayjs';
@@ -6,7 +6,7 @@ import { DataSource, type Repository } from 'typeorm';
 import {
   type CodeDelimiter,
   type CodeStructure,
-} from '../../../resources/data/code-structure/code-structure.data.js';
+} from '../../../resources/data/code-structure/code-structure.data';
 
 @Injectable()
 export class GenCodeService {

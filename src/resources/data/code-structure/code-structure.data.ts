@@ -1,4 +1,4 @@
-import { CODE_TYPE, type CodeType } from './code-type.data.js';
+import { CODE_TYPE, type CodeType } from './code-type.data';
 
 export type CodeDelimiter = '-' | null;
 
@@ -53,6 +53,16 @@ export const CODE_STRUCTURE = {
     padding: 4,
     delimiter: null as CodeDelimiter,
     year: false,
+    month: false,
+    day: false,
+  },
+  /** [PJ][YYYY][4 digits] e.g. PJ20260001 */
+  projectNo: {
+    type: CODE_TYPE.PROJECT_NO,
+    prefix: 'PJ',
+    padding: 4,
+    delimiter: null as CodeDelimiter,
+    year: true,
     month: false,
     day: false,
   },

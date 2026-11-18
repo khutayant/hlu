@@ -1,8 +1,8 @@
 import { config } from 'dotenv';
 import { readFileSync } from 'fs';
 import { isAbsolute, join, resolve } from 'path';
-import { validateEnv } from '../../tools/validate-env.tool.js';
-import type { AppEnvDto } from './app-env.dto.js';
+import { validateEnv } from '../../tools/validate-env.tool';
+import type { AppEnvDto } from './app-env.dto';
 
 config({ override: true });
 

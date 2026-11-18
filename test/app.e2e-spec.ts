@@ -6,9 +6,9 @@ import {
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { App } from 'supertest/types.js';
-import { AppController } from './../src/app.controller.js';
-import { AppService } from './../src/app.service.js';
-import { AppEnv } from './../src/resources/env/app.env.js';
+import { AppController } from './../src/app.controller';
+import { AppService } from './../src/app.service';
+import { AppEnv } from './../src/resources/env/app.env';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication<App>;

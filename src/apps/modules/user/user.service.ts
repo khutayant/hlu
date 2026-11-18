@@ -1,5 +1,5 @@
-import { UserMaster } from '../../../../libs/entity/src/index.js';
-import { UserRoleEnum } from '../../../../libs/entity/src/enums/user-role.enum.js';
+import { UserMaster } from '@app/entity/entities/master/user-master.entity';
+import { UserRoleEnum } from '../../../../libs/entity/src/enums/user-role.enum';
 import {
   ForbiddenException,
   Injectable,
@@ -7,9 +7,9 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import type { AuthUser } from '../../../interfaces/auth-user.interface.js';
-import { AppEnv } from '../../../resources/env/app.env.js';
-import type { SetUserActiveDto } from './dto/set-user-active.dto.js';
+import type { AuthUser } from '../../../interfaces/auth-user.interface';
+import { AppEnv } from '../../../resources/env/app.env';
+import type { SetUserActiveDto } from './dto/set-user-active.dto';
 
 @Injectable()
 export class UserService {

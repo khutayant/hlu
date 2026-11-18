@@ -1,7 +1,5 @@
-import {
-  CategoryMaster,
-  FileInfo,
-} from '../../../../libs/entity/src/index.js';
+import { CategoryMaster } from '@app/entity/entities/master/category-master.entity';
+import { FileInfo } from '@app/entity/entities/info/file-info.entity';
 import {
   BadRequestException,
   Injectable,
@@ -27,14 +25,14 @@ import type { Readable } from 'stream';
 import { pipeline } from 'stream/promises';
 import { Repository } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
-import { CODE_STRUCTURE } from '../../../resources/data/code-structure/code-structure.data.js';
-import { AppEnv } from '../../../resources/env/app.env.js';
-import { GenCodeService } from '../../../services/global/gen-code/gen-code.service.js';
+import { CODE_STRUCTURE } from '../../../resources/data/code-structure/code-structure.data';
+import { AppEnv } from '../../../resources/env/app.env';
+import { GenCodeService } from '../../../services/global/gen-code/gen-code.service';
 import {
   FILE_CATEGORY,
   isFileCategoryCode,
-} from './data/file-category.data.js';
-import type { UploadFileDto } from './dto/upload-file.dto.js';
+} from './data/file-category.data';
+import type { UploadFileDto } from './dto/upload-file.dto';
 
 type ExtractedZipEntry = {
   name: string;

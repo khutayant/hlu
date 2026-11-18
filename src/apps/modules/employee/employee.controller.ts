@@ -11,17 +11,17 @@ import {
   ApiPatch,
   ApiPost,
   ApiPut,
-} from '../../../decorators/api.decorator.js';
-import { CurrentUser } from '../../../decorators/current-user.decorator.js';
-import type { AuthUser } from '../../../interfaces/auth-user.interface.js';
-import { PERMISSION_ACTION } from '../../../resources/data/permissions/actions/permission-action.data.js';
-import { buildRoutePermission } from '../../../resources/data/permissions/permission-code.tool.js';
-import { PERMISSION_SUBJECT } from '../../../resources/data/permissions/subjects/permission-subject.data.js';
-import { parseCreateEmployeeDto } from './dto/create-employee.dto.js';
-import { parseGender } from './dto/gender.tool.js';
-import { parseSetEmployeeActiveDto } from './dto/set-employee-active.dto.js';
-import { parseUpdateEmployeeDto } from './dto/update-employee.dto.js';
-import { EmployeeService } from './employee.service.js';
+} from '../../../decorators/api.decorator';
+import { CurrentUser } from '../../../decorators/current-user.decorator';
+import type { AuthUser } from '../../../interfaces/auth-user.interface';
+import { PERMISSION_ACTION } from '../../../resources/data/permissions/actions/permission-action.data';
+import { buildRoutePermission } from '../../../resources/data/permissions/permission-code.tool';
+import { PERMISSION_SUBJECT } from '../../../resources/data/permissions/subjects/permission-subject.data';
+import { parseCreateEmployeeDto } from './dto/create-employee.dto';
+import { parseGender } from './dto/gender.tool';
+import { parseSetEmployeeActiveDto } from './dto/set-employee-active.dto';
+import { parseUpdateEmployeeDto } from './dto/update-employee.dto';
+import { EmployeeService } from './employee.service';
 
 /**
  * Employee admin API under `/api/{base}/v1/employee`.
@@ -29,6 +29,31 @@ import { EmployeeService } from './employee.service.js';
 @ApiController({ code: 'EMPLOYEE', args: 'employee' })
 export class EmployeeController {
   constructor(private readonly employeeService: EmployeeService) {}
+
+  /**
+   * Aggregates for the staff employee overview dashboard.
+   *
+   * `GET /employee/overview?townshipId=&positionId=`
+   */
+  @ApiGet({
+    code: 'EMPLOYEE_OVERVIEW',
+    name: 'Employee overview',
+    args: 'overview',
+    permission: buildRoutePermission({
+      subject: PERMISSION_SUBJECT.EMPLOYEE,
+      action: PERMISSION_ACTION.LIST,
+      description: 'Employee overview aggregates',
+    }),
+  })
+  overview(
+    @Query('townshipId') townshipId?: string,
+    @Query('positionId') positionId?: string,
+  ) {
+    return this.employeeService.overview({
+      townshipId: townshipId?.trim() || undefined,
+      positionId: positionId?.trim() || undefined,
+    });
+  }
 
   /**
    * Distinct township / position values for list filters.

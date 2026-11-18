@@ -1,10 +1,10 @@
-import { PERMISSION_ACTION } from '../actions/permission-action.data.js';
-import { formatPermissionCode } from '../permission-code.tool.js';
+import { PERMISSION_ACTION } from '../actions/permission-action.data';
+import { formatPermissionCode } from '../permission-code.tool';
 import {
   PERMISSION_SUBJECT,
   PERMISSION_SUBJECT_CODES,
   type PermissionSubjectCode,
-} from '../subjects/permission-subject.data.js';
+} from '../subjects/permission-subject.data';
 
 function titleCaseSubject(subject: string): string {
   return subject

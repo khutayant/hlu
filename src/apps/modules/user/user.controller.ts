@@ -9,14 +9,14 @@ import {
   ApiController,
   ApiGet,
   ApiPatch,
-} from '../../../decorators/api.decorator.js';
-import { CurrentUser } from '../../../decorators/current-user.decorator.js';
-import type { AuthUser } from '../../../interfaces/auth-user.interface.js';
-import { PERMISSION_ACTION } from '../../../resources/data/permissions/actions/permission-action.data.js';
-import { buildRoutePermission } from '../../../resources/data/permissions/permission-code.tool.js';
-import { PERMISSION_SUBJECT } from '../../../resources/data/permissions/subjects/permission-subject.data.js';
-import { parseSetUserActiveDto } from './dto/set-user-active.dto.js';
-import { UserService } from './user.service.js';
+} from '../../../decorators/api.decorator';
+import { CurrentUser } from '../../../decorators/current-user.decorator';
+import type { AuthUser } from '../../../interfaces/auth-user.interface';
+import { PERMISSION_ACTION } from '../../../resources/data/permissions/actions/permission-action.data';
+import { buildRoutePermission } from '../../../resources/data/permissions/permission-code.tool';
+import { PERMISSION_SUBJECT } from '../../../resources/data/permissions/subjects/permission-subject.data';
+import { parseSetUserActiveDto } from './dto/set-user-active.dto';
+import { UserService } from './user.service';
 
 /**
  * User admin API under `/api/{base}/v1/user`.

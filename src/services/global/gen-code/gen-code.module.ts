@@ -1,7 +1,7 @@
-import { CodeGenInfo } from '../../../../libs/entity/src/index.js';
+import { CodeGenInfo } from '@app/entity/entities/info/code-gen-info.entity';
 import { Global, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { GenCodeService } from './gen-code.service.js';
+import { GenCodeService } from './gen-code.service';
 
 @Global()
 @Module({

@@ -1,6 +1,13 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, Unique } from 'typeorm';
-import { BaseEntityWithUuid } from '../../bases/entity.base.js';
-import { UserRoleModuleMapping } from '../mapping/user-role-module-mapping.entity.js';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  Unique,
+} from 'typeorm';
+import { BaseEntityWithUuid } from '../../bases/entity.base';
+import { UserRoleModuleMapping } from '../mapping/user-role-module-mapping.entity';
 
 @Entity()
 @Unique(['code'])
@@ -22,25 +29,18 @@ export class ModuleMaster extends BaseEntityWithUuid {
   @Column({ type: 'boolean', nullable: false })
   isGroup!: boolean;
 
-  @ManyToOne(
-    () => ModuleMaster,
-    (parentModule) => parentModule.childModules,
-    { nullable: true },
-  )
+  @ManyToOne(() => ModuleMaster, (parentModule) => parentModule.childModules, {
+    nullable: true,
+  })
   @JoinColumn()
   parentModule?: ModuleMaster | null;
 
   // child modules
-  @OneToMany(
-    () => ModuleMaster,
-    (childModule) => childModule.parentModule,
-    { nullable: true },
-  )
+  @OneToMany(() => ModuleMaster, (childModule) => childModule.parentModule, {
+    nullable: true,
+  })
   childModules?: ModuleMaster[] | null;
 
-  @OneToMany(
-    () => UserRoleModuleMapping,
-    (mapping) => mapping.module,
-  )
+  @OneToMany(() => UserRoleModuleMapping, (mapping) => mapping.module)
   userRoleMappings?: UserRoleModuleMapping[] | null;
 }

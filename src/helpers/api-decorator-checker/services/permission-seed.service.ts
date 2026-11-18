@@ -1,4 +1,4 @@
-import { PermissionMaster } from '@app/entity';
+import { PermissionMaster } from '@app/entity/entities/master/permission-master.entity';
 import {
   Injectable,
   Logger,
@@ -8,16 +8,16 @@ import {
 import { DiscoveryService, MetadataScanner, Reflector } from '@nestjs/core';
 import { InjectRepository } from '@nestjs/typeorm';
 import type { Repository } from 'typeorm';
-import { PERMISSION_SEED_ROWS } from '../../../resources/data/permissions/seed/permission-seed.data.js';
+import { PERMISSION_SEED_ROWS } from '../../../resources/data/permissions/seed/permission-seed.data';
 import {
   aggregateRoutePermissions,
   discoverAppRoutePermissions,
-} from '../discovery/permission-catalog.discovery.js';
-import { AdminRelationshipSeedService } from '../seed-admin/admin-relationship-seed.service.js';
+} from '../discovery/permission-catalog.discovery';
+import { AdminRelationshipSeedService } from '../seed-admin/admin-relationship-seed.service';
 import {
   buildPermissionDescription,
-} from '../tools/format-permission.tool.js';
-import { mergeSeedPermissions } from '../tools/merge-permission-catalog.tool.js';
+} from '../tools/format-permission.tool';
+import { mergeSeedPermissions } from '../tools/merge-permission-catalog.tool';
 
 const STARTUP_DELAY_MS = 3_000;
 

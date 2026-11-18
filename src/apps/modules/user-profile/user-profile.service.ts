@@ -5,10 +5,10 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import type { Repository } from 'typeorm';
-import type { FileInfo } from '../../../../libs/entity/src/index.js';
-import { UserMaster } from '../../../../libs/entity/src/index.js';
-import { FILE_CATEGORY } from '../file/data/file-category.data.js';
-import { FileService } from '../file/file.service.js';
+import type { FileInfo } from '@app/entity/entities/info/file-info.entity';
+import { UserMaster } from '@app/entity/entities/master/user-master.entity';
+import { FILE_CATEGORY } from '../file/data/file-category.data';
+import { FileService } from '../file/file.service';
 
 const ALLOWED_IMAGE_MIME = new Set([
   'image/png',

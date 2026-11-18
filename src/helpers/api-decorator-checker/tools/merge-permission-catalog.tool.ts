@@ -1,11 +1,11 @@
-import type { AggregatedRoutePermission } from '../discovery/permission-catalog.discovery.js';
-import { formatPermissionRef } from './format-permission.tool.js';
+import type { AggregatedRoutePermission } from '../discovery/permission-catalog.discovery';
+import { formatPermissionRef } from './format-permission.tool';
 import {
   assertPermissionCode,
   formatSeedPermissionCode,
   throwIfPermissionCatalogConflicts,
   type PermissionCatalogConflictReport,
-} from './permission-code.tool.js';
+} from './permission-code.tool';
 
 export type PermissionCatalogSeedRow = {
   name: string;

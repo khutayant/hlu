@@ -1,6 +1,6 @@
 import { ForbiddenException } from '@nestjs/common';
-import { formatPermissionRef } from '../../helpers/api-decorator-checker/tools/format-permission.tool.js';
-import type { PermissionActionCode } from '../../resources/data/permissions/actions/permission-action.data.js';
+import { formatPermissionRef } from '../../helpers/api-decorator-checker/tools/format-permission.tool';
+import type { PermissionActionCode } from '../../resources/data/permissions/actions/permission-action.data';
 
 /** Client-facing body for RBAC denials (tenant + main). */
 export type ForbiddenPermissionResponse = {

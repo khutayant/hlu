@@ -8,18 +8,16 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { createHash, randomBytes } from 'crypto';
 import { createRemoteJWKSet, jwtVerify } from 'jose';
 import type { Repository } from 'typeorm';
-import {
-  UserMaster,
-  UserRoleEnum,
-  UserRoleMaster,
-  UserUserRoleMapping,
-} from '../../../../libs/entity/src/index.js';
-import { AppEnv } from '../../../resources/env/app.env.js';
-import type { AuthUser } from '../../../interfaces/auth-user.interface.js';
+import { UserMaster } from '@app/entity/entities/master/user-master.entity';
+import { UserRoleEnum } from '@app/entity/enums/user-role.enum';
+import { UserRoleMaster } from '@app/entity/entities/master/user-role-master.entity';
+import { UserUserRoleMapping } from '@app/entity/entities/mapping/user-user-role-mapping.entity';
+import { AppEnv } from '../../../resources/env/app.env';
+import type { AuthUser } from '../../../interfaces/auth-user.interface';
 import type {
   KeycloakJwtPayload,
   KeycloakTokenResponse,
-} from '../../../interfaces/keycloak-token.interface.js';
+} from '../../../interfaces/keycloak-token.interface';
 
 type PendingLogin = {
   codeVerifier: string;

@@ -1,0 +1,44 @@
+[
+  {
+    "code": "GANGAW_NORTH",
+    "name": "Gangaw North",
+    "focalPrefix": "GN",
+    "country": "MM"
+  },
+  {
+    "code": "GANGAW_SOUTH",
+    "name": "Gangaw South",
+    "focalPrefix": "GS",
+    "country": "MM"
+  },
+  {
+    "code": "MYAING",
+    "name": "Myaing",
+    "focalPrefix": "M",
+    "country": "MM"
+  },
+  {
+    "code": "PAUK",
+    "name": "Pauk",
+    "focalPrefix": "P",
+    "country": "MM"
+  },
+  {
+    "code": "SAW",
+    "name": "Saw",
+    "focalPrefix": "S",
+    "country": "MM"
+  },
+  {
+    "code": "TILIN",
+    "name": "Tilin",
+    "focalPrefix": "T",
+    "country": "MM"
+  },
+  {
+    "code": "YESAGYO",
+    "name": "Yesagyo",
+    "focalPrefix": "Y",
+    "country": "MM"
+  }
+]

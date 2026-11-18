@@ -9,8 +9,8 @@ import type { NestExpressApplication } from '@nestjs/platform-express';
 import dayjs from 'dayjs';
 import type { NextFunction, Request, Response } from 'express';
 import { v7 as uuidv7 } from 'uuid';
-import { AppModule } from './app.module.js';
-import { AppEnv } from './resources/env/app.env.js';
+import { AppModule } from './app.module';
+import { AppEnv } from './resources/env/app.env';
 
 async function bootstrap() {
   const logger = new Logger('Main');

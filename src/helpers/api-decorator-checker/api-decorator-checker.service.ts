@@ -12,19 +12,19 @@ import {
   APP_HTTP_ROUTE_KEY,
   type ApiControllerMeta,
   type ApiHttpRouteMeta,
-} from '../../decorators/api.decorator.js';
-import { formatPermissionCode } from '../../resources/data/permissions/permission-code.tool.js';
-import { PERMISSION_SEED_ROWS } from '../../resources/data/permissions/seed/permission-seed.data.js';
-import { AppEnv } from '../../resources/env/app.env.js';
+} from '../../decorators/api.decorator';
+import { formatPermissionCode } from '../../resources/data/permissions/permission-code.tool';
+import { PERMISSION_SEED_ROWS } from '../../resources/data/permissions/seed/permission-seed.data';
+import { AppEnv } from '../../resources/env/app.env';
 import {
   aggregateRoutePermissions,
   discoverAppRoutePermissions,
-} from './discovery/permission-catalog.discovery.js';
-import { mergeSeedPermissions } from './tools/merge-permission-catalog.tool.js';
+} from './discovery/permission-catalog.discovery';
+import { mergeSeedPermissions } from './tools/merge-permission-catalog.tool';
 import {
   PermissionCatalogConflictError,
   assertPermissionCode,
-} from './tools/permission-code.tool.js';
+} from './tools/permission-code.tool';
 
 type Violation = {
   controller: string;

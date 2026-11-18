@@ -8,10 +8,13 @@ import {
   OneToOne,
   Unique,
 } from 'typeorm';
-import { BaseEntityWithUuid } from '../../bases/entity.base.js';
-import { GenderEnum } from '../../enums/gender.enum.js';
-import { FileInfo } from '../info/file-info.entity.js';
-import { UserMaster } from './user-master.entity.js';
+import { BaseEntityWithUuid } from '../../bases/entity.base';
+import { GenderEnum } from '../../enums/gender.enum';
+import { FileInfo } from '../info/file-info.entity';
+import { PositionMaster } from './position-master.entity';
+import { TitleMaster } from './title-master.entity';
+import { TownshipMaster } from './township-master.entity';
+import { UserMaster } from './user-master.entity';
 
 @Entity()
 @Unique(['employeeNo'])
@@ -34,6 +37,11 @@ export class EmployeeMaster extends BaseEntityWithUuid {
   @Column({ type: 'varchar', length: 9 })
   focalNo!: string;
 
+  /** Honorific title (`Daw`, `U`, `Dr.`, …). */
+  @ManyToOne(() => TitleMaster, { nullable: true })
+  @JoinColumn()
+  title?: TitleMaster | null;
+
   /** Full display name (Myanmar naming — not split into first/last). */
   @Column({ type: 'varchar', length: 255 })
   displayName!: string;
@@ -41,19 +49,15 @@ export class EmployeeMaster extends BaseEntityWithUuid {
   @Column({ type: 'varchar', length: 16 })
   gender!: GenderEnum;
 
-  /**
-   * Township display name (mandatory text for now).
-   * Later: replace with a TownshipMaster relationship; keep storing the name until then.
-   */
-  @Column({ type: 'varchar', length: 255 })
-  townshipName!: string;
+  /** Township (`TownshipMaster`). */
+  @ManyToOne(() => TownshipMaster, { nullable: false })
+  @JoinColumn()
+  township!: TownshipMaster;
 
-  /**
-   * Job position title (mandatory text for now).
-   * Later: managed via a dedicated position master / relationship — not now.
-   */
-  @Column({ type: 'varchar', length: 255 })
-  position!: string;
+  /** Job position (`PositionMaster`). */
+  @ManyToOne(() => PositionMaster, { nullable: false })
+  @JoinColumn()
+  position!: PositionMaster;
 
   /**
    * Work experience (mandatory text for now, e.g. years or summary).

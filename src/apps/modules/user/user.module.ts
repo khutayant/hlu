@@ -1,8 +1,8 @@
-import { UserMaster } from '../../../../libs/entity/src/index.js';
+import { UserMaster } from '@app/entity/entities/master/user-master.entity';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserController } from './user.controller.js';
-import { UserService } from './user.service.js';
+import { UserController } from './user.controller';
+import { UserService } from './user.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([UserMaster])],

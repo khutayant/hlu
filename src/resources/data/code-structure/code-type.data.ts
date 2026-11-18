@@ -3,6 +3,7 @@ export const CODE_TYPE = {
   COVER_IMAGE: 'COVER_IMAGE',
   FILE_NO: 'FILE_NO',
   EMPLOYEE_NO: 'EMPLOYEE_NO',
+  PROJECT_NO: 'PROJECT_NO',
 } as const;
 
 export type CodeType = (typeof CODE_TYPE)[keyof typeof CODE_TYPE];

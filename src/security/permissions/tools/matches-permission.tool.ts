@@ -1,5 +1,5 @@
-import { PERMISSION_ACTION } from '../../../resources/data/permissions/actions/permission-action.data.js';
-import { PERMISSION_SUBJECT } from '../../../resources/data/permissions/subjects/permission-subject.data.js';
+import { PERMISSION_ACTION } from '../../../resources/data/permissions/actions/permission-action.data';
+import { PERMISSION_SUBJECT } from '../../../resources/data/permissions/subjects/permission-subject.data';
 
 export type PermissionRef = {
   subject: string;

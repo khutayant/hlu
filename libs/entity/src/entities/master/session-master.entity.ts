@@ -1,5 +1,5 @@
 import { Check, Column, Entity, Unique } from 'typeorm';
-import { BaseEntityWithUuid } from '../../bases/entity.base.js';
+import { BaseEntityWithUuid } from '../../bases/entity.base';
 
 @Entity()
 @Unique(['code'])

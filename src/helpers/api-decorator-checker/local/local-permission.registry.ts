@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import type {
   AggregatedRoutePermission,
   DiscoveredRoutePermission,
-} from '../discovery/permission-catalog.discovery.js';
-import { aggregateRoutePermissions } from '../discovery/permission-catalog.discovery.js';
+} from '../discovery/permission-catalog.discovery';
+import { aggregateRoutePermissions } from '../discovery/permission-catalog.discovery';
 
 /**
  * Process-local route→permission attachments (from `@Api*` `permission`).

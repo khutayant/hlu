@@ -6,9 +6,9 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import type { Request } from 'express';
-import { AuthService } from '../apps/modules/auth/auth.service.js';
-import { extractBearerToken } from '../tools/extract-token.tool.js';
-import { IS_PUBLIC_KEY } from '../decorators/public.decorator.js';
+import { AuthService } from '../apps/modules/auth/auth.service';
+import { extractBearerToken } from '../tools/extract-token.tool';
+import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 
 @Injectable()
 export class AuthGuard implements CanActivate {

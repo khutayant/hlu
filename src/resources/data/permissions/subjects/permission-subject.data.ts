@@ -17,6 +17,11 @@ export const PERMISSION_SUBJECT = {
   USER_PROFILE: 'user-profile',
   USER_ROLE: 'user-role',
   EMPLOYEE: 'employee',
+  COUNTRY: 'country',
+  TOWNSHIP: 'township',
+  PROJECT: 'project',
+  TITLE: 'title',
+  POSITION: 'position',
 } as const;
 
 export type PermissionSubjectCode =

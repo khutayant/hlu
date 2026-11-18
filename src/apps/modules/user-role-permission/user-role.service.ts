@@ -1,12 +1,10 @@
-import {
-  ModuleMaster,
-  PermissionMaster,
-  UserMaster,
-  UserRoleMaster,
-  UserRoleModuleMapping,
-  UserRolePermissionMapping,
-  UserUserRoleMapping,
-} from '../../../../libs/entity/src/index.js';
+import { ModuleMaster } from '@app/entity/entities/master/module-master.entity';
+import { PermissionMaster } from '@app/entity/entities/master/permission-master.entity';
+import { UserMaster } from '@app/entity/entities/master/user-master.entity';
+import { UserRoleMaster } from '@app/entity/entities/master/user-role-master.entity';
+import { UserRoleModuleMapping } from '@app/entity/entities/mapping/user-role-module-mapping.entity';
+import { UserRolePermissionMapping } from '@app/entity/entities/mapping/user-role-permission-mapping.entity';
+import { UserUserRoleMapping } from '@app/entity/entities/mapping/user-user-role-mapping.entity';
 import {
   BadRequestException,
   ConflictException,
@@ -20,12 +18,12 @@ import {
   type ObjectLiteral,
   type SelectQueryBuilder,
 } from 'typeorm';
-import type { AddUserRoleModuleDto } from './dto/add-user-role-module.dto.js';
-import type { AddUserRolePermissionDto } from './dto/add-user-role-permission.dto.js';
-import type { AddUserRoleUserDto } from './dto/add-user-role-user.dto.js';
-import type { CreateUserRoleDto } from './dto/create-user-role.dto.js';
-import type { SetUserRolePermissionsDto } from './dto/set-user-role-permissions.dto.js';
-import type { UpdateUserRoleDto } from './dto/update-user-role.dto.js';
+import type { AddUserRoleModuleDto } from './dto/add-user-role-module.dto';
+import type { AddUserRolePermissionDto } from './dto/add-user-role-permission.dto';
+import type { AddUserRoleUserDto } from './dto/add-user-role-user.dto';
+import type { CreateUserRoleDto } from './dto/create-user-role.dto';
+import type { SetUserRolePermissionsDto } from './dto/set-user-role-permissions.dto';
+import type { UpdateUserRoleDto } from './dto/update-user-role.dto';
 
 const ACTIVE_DELETED_TOKEN = 'NA';
 const ROLE_CODE_PATTERN = /^[A-Z0-9_]+$/;

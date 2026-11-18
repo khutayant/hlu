@@ -1,13 +1,18 @@
-import type { GenderEnum } from '../../../../../libs/entity/src/index.js';
-import { parseFocalNo } from './focal-no.tool.js';
-import { parseGender } from './gender.tool.js';
+import type { GenderEnum } from '@app/entity/enums/gender.enum';
+import { parseFocalNo } from './focal-no.tool';
+import { parseGender } from './gender.tool';
 
 export type UpdateEmployeeDto = {
+  titleId?: string | null;
   displayName?: string;
   focalNo?: string;
   gender?: GenderEnum;
-  townshipName?: string;
-  position?: string;
+  townshipId?: string | null;
+  /** Import helper — resolved by exact name when set without `townshipId`. */
+  townshipName?: string | null;
+  positionId?: string | null;
+  /** Import helper — resolved by exact name when set without `positionId`. */
+  positionName?: string | null;
   experience?: string;
   email?: string | null;
   phone?: string | null;
@@ -61,6 +66,10 @@ export function parseUpdateEmployeeDto(body: unknown): UpdateEmployeeDto {
     throw new Error('employeeNo cannot be changed');
   }
 
+  if ('titleId' in record) {
+    dto.titleId = optionalTrimmedString(record, 'titleId') ?? null;
+  }
+
   if ('displayName' in record) {
     const displayName = optionalTrimmedString(record, 'displayName');
     if (!displayName) {
@@ -85,20 +94,21 @@ export function parseUpdateEmployeeDto(body: unknown): UpdateEmployeeDto {
     dto.gender = gender;
   }
 
+  if ('townshipId' in record) {
+    dto.townshipId = optionalTrimmedString(record, 'townshipId') ?? null;
+  }
   if ('townshipName' in record) {
-    const townshipName = optionalTrimmedString(record, 'townshipName');
-    if (!townshipName) {
-      throw new Error('townshipName is required when provided');
-    }
-    dto.townshipName = townshipName;
+    dto.townshipName = optionalTrimmedString(record, 'townshipName') ?? null;
   }
 
-  if ('position' in record) {
-    const position = optionalTrimmedString(record, 'position');
-    if (!position) {
-      throw new Error('position is required when provided');
-    }
-    dto.position = position;
+  if ('positionId' in record) {
+    dto.positionId = optionalTrimmedString(record, 'positionId') ?? null;
+  }
+  if ('positionName' in record || 'position' in record) {
+    dto.positionName =
+      optionalTrimmedString(record, 'positionName') ??
+      optionalTrimmedString(record, 'position') ??
+      null;
   }
 
   if ('experience' in record) {

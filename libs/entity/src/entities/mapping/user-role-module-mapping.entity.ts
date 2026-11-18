@@ -1,7 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
-import { BaseEntityWithUuid } from '../../bases/entity.base.js';
-import { ModuleMaster } from '../master/module-master.entity.js';
-import { UserRoleMaster } from '../master/user-role-master.entity.js';
+import { BaseEntityWithUuid } from '../../bases/entity.base';
+import { ModuleMaster } from '../master/module-master.entity';
+import { UserRoleMaster } from '../master/user-role-master.entity';
 
 @Entity()
 export class UserRoleModuleMapping extends BaseEntityWithUuid {

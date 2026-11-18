@@ -1,14 +1,12 @@
-import {
-  UserRolePermissionMapping,
-  UserUserRoleMapping,
-} from '@app/entity';
+import { UserRolePermissionMapping } from '@app/entity/entities/mapping/user-role-permission-mapping.entity';
+import { UserUserRoleMapping } from '@app/entity/entities/mapping/user-user-role-mapping.entity';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import {
   anyPermissionSatisfies,
   type PermissionRef,
-} from '../tools/matches-permission.tool.js';
+} from '../tools/matches-permission.tool';
 
 const ACTIVE_DELETED_TOKEN = 'NA';
 

@@ -8,16 +8,16 @@ import {
   ApiController,
   ApiGet,
   ApiPost,
-} from '../../../decorators/api.decorator.js';
-import { PERMISSION_ACTION } from '../../../resources/data/permissions/actions/permission-action.data.js';
-import { buildRoutePermission } from '../../../resources/data/permissions/permission-code.tool.js';
-import { PERMISSION_SUBJECT } from '../../../resources/data/permissions/subjects/permission-subject.data.js';
-import { CurrentUser } from '../../../decorators/current-user.decorator.js';
-import { Public } from '../../../decorators/public.decorator.js';
-import type { AuthUser } from '../../../interfaces/auth-user.interface.js';
-import { AuthService } from './auth.service.js';
-import { parseCallbackDto } from './dto/callback.dto.js';
-import { parseRefreshDto } from './dto/refresh.dto.js';
+} from '../../../decorators/api.decorator';
+import { PERMISSION_ACTION } from '../../../resources/data/permissions/actions/permission-action.data';
+import { buildRoutePermission } from '../../../resources/data/permissions/permission-code.tool';
+import { PERMISSION_SUBJECT } from '../../../resources/data/permissions/subjects/permission-subject.data';
+import { CurrentUser } from '../../../decorators/current-user.decorator';
+import { Public } from '../../../decorators/public.decorator';
+import type { AuthUser } from '../../../interfaces/auth-user.interface';
+import { AuthService } from './auth.service';
+import { parseCallbackDto } from './dto/callback.dto';
+import { parseRefreshDto } from './dto/refresh.dto';
 
 @ApiController({ code: 'AUTH', args: 'auth' })
 export class AuthController {

@@ -7,10 +7,10 @@ import {
   OneToOne,
   Unique,
 } from 'typeorm';
-import { BaseEntityWithUuid } from '../../bases/entity.base.js';
-import { UserRoleEnum } from '../../enums/user-role.enum.js';
-import { FileInfo } from '../info/file-info.entity.js';
-import { EmployeeMaster } from './employee-master.entity.js';
+import { BaseEntityWithUuid } from '../../bases/entity.base';
+import { UserRoleEnum } from '../../enums/user-role.enum';
+import { FileInfo } from '../info/file-info.entity';
+import { EmployeeMaster } from './employee-master.entity';
 
 @Entity()
 @Unique(['keycloakId'])

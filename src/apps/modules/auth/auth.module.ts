@@ -1,12 +1,10 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import {
-  UserMaster,
-  UserRoleMaster,
-  UserUserRoleMapping,
-} from '../../../../libs/entity/src/index.js';
-import { AuthController } from './auth.controller.js';
-import { AuthService } from './auth.service.js';
+import { UserMaster } from '@app/entity/entities/master/user-master.entity';
+import { UserRoleMaster } from '@app/entity/entities/master/user-role-master.entity';
+import { UserUserRoleMapping } from '@app/entity/entities/mapping/user-user-role-mapping.entity';
+import { AuthController } from './auth.controller';
+import { AuthService } from './auth.service';
 
 @Module({
   imports: [

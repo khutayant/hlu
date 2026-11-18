@@ -9,7 +9,7 @@
     "entity": {
       "type": "library",
       "root": "libs/entity",
-      "entryFile": "index",
+      "entryFile": "entities/master/user-master.entity",
       "sourceRoot": "libs/entity/src",
       "compilerOptions": {
         "tsConfigPath": "libs/entity/tsconfig.lib.json"

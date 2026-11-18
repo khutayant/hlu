@@ -1,4 +1,4 @@
-import type { AppEnvDto } from '../resources/env/app-env.dto.js';
+import type { AppEnvDto } from '../resources/env/app-env.dto';
 
 const REQUIRED_KEYS: (keyof AppEnvDto)[] = [
   'NAME',

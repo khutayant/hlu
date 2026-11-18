@@ -1,4 +1,4 @@
-import { GenderEnum } from '../../../../../libs/entity/src/index.js';
+import { GenderEnum } from '@app/entity/enums/gender.enum';
 
 const GENDER_VALUES = new Set<string>(Object.values(GenderEnum));
 

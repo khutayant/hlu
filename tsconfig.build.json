@@ -1,8 +1,9 @@
 {
   "extends": "./tsconfig.json",
-  "compilerOptions": {
-    "rootDir": "."
-  },
-  "include": ["src", "libs", "migrations"],
+  "include": [
+    "src/**/*",
+    "libs/**/*",
+    "migrations/**/*",
+  ],
   "exclude": ["node_modules", "test", "dist", "**/*spec.ts"]
 }

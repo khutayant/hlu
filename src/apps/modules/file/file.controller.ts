@@ -14,13 +14,13 @@ import {
   ApiController,
   ApiGet,
   ApiPost,
-} from '../../../decorators/api.decorator.js';
-import { PERMISSION_ACTION } from '../../../resources/data/permissions/actions/permission-action.data.js';
-import { buildRoutePermission } from '../../../resources/data/permissions/permission-code.tool.js';
-import { PERMISSION_SUBJECT } from '../../../resources/data/permissions/subjects/permission-subject.data.js';
-import { parseUploadFileDto } from './dto/upload-file.dto.js';
-import { uploadFileMulterOptions } from './file.multer.js';
-import { FileService } from './file.service.js';
+} from '../../../decorators/api.decorator';
+import { PERMISSION_ACTION } from '../../../resources/data/permissions/actions/permission-action.data';
+import { buildRoutePermission } from '../../../resources/data/permissions/permission-code.tool';
+import { PERMISSION_SUBJECT } from '../../../resources/data/permissions/subjects/permission-subject.data';
+import { parseUploadFileDto } from './dto/upload-file.dto';
+import { uploadFileMulterOptions } from './file.multer';
+import { FileService } from './file.service';
 
 /**
  * File API under `/api/{base}/v1/file`.

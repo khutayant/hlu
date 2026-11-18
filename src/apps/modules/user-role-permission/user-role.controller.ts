@@ -11,19 +11,19 @@ import {
   ApiGet,
   ApiPost,
   ApiPut,
-} from '../../../decorators/api.decorator.js';
-import { PERMISSION_ACTION } from '../../../resources/data/permissions/actions/permission-action.data.js';
-import { buildRoutePermission } from '../../../resources/data/permissions/permission-code.tool.js';
-import { PERMISSION_SUBJECT } from '../../../resources/data/permissions/subjects/permission-subject.data.js';
-import { CurrentUser } from '../../../decorators/current-user.decorator.js';
-import type { AuthUser } from '../../../interfaces/auth-user.interface.js';
-import { parseAddUserRoleModuleDto } from './dto/add-user-role-module.dto.js';
-import { parseAddUserRolePermissionDto } from './dto/add-user-role-permission.dto.js';
-import { parseAddUserRoleUserDto } from './dto/add-user-role-user.dto.js';
-import { parseCreateUserRoleDto } from './dto/create-user-role.dto.js';
-import { parseSetUserRolePermissionsDto } from './dto/set-user-role-permissions.dto.js';
-import { parseUpdateUserRoleDto } from './dto/update-user-role.dto.js';
-import { UserRoleService } from './user-role.service.js';
+} from '../../../decorators/api.decorator';
+import { PERMISSION_ACTION } from '../../../resources/data/permissions/actions/permission-action.data';
+import { buildRoutePermission } from '../../../resources/data/permissions/permission-code.tool';
+import { PERMISSION_SUBJECT } from '../../../resources/data/permissions/subjects/permission-subject.data';
+import { CurrentUser } from '../../../decorators/current-user.decorator';
+import type { AuthUser } from '../../../interfaces/auth-user.interface';
+import { parseAddUserRoleModuleDto } from './dto/add-user-role-module.dto';
+import { parseAddUserRolePermissionDto } from './dto/add-user-role-permission.dto';
+import { parseAddUserRoleUserDto } from './dto/add-user-role-user.dto';
+import { parseCreateUserRoleDto } from './dto/create-user-role.dto';
+import { parseSetUserRolePermissionsDto } from './dto/set-user-role-permissions.dto';
+import { parseUpdateUserRoleDto } from './dto/update-user-role.dto';
+import { UserRoleService } from './user-role.service';
 
 /**
  * User role API under `/api/{base}/v1/user-role`.

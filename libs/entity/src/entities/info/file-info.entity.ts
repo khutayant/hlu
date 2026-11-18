@@ -1,6 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
-import { BaseEntityWithUuid } from '../../bases/entity.base.js';
-import { CategoryMaster } from '../master/category-master.entity.js';
+import { BaseEntityWithUuid } from '../../bases/entity.base';
+import { CategoryMaster } from '../master/category-master.entity';
 
 @Entity()
 export class FileInfo extends BaseEntityWithUuid {

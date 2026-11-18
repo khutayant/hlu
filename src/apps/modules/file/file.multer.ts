@@ -1,7 +1,7 @@
 import { mkdirSync } from 'fs';
 import { diskStorage } from 'multer';
 import { v4 as uuidv4 } from 'uuid';
-import { AppEnv } from '../../../resources/env/app.env.js';
+import { AppEnv } from '../../../resources/env/app.env';
 
 export const uploadFileMulterOptions = {
   storage: diskStorage({

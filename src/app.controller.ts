@@ -7,13 +7,13 @@ import {
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { join, resolve, sep } from 'node:path';
-import { AppService } from './app.service.js';
+import { AppService } from './app.service';
 import {
   ApiController,
   ApiGet,
-} from './decorators/api.decorator.js';
-import { Public } from './decorators/public.decorator.js';
-import { AppEnv } from './resources/env/app.env.js';
+} from './decorators/api.decorator';
+import { Public } from './decorators/public.decorator';
+import { AppEnv } from './resources/env/app.env';
 
 const UI_ROUTE = AppEnv.UI_BASE_URL.replace(/^\/|\/$/g, '');
 
