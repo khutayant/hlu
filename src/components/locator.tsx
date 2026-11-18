@@ -20,6 +20,24 @@ const ROUTE_LABELS: { path: string; labelKey: string }[] = [
   { path: '/staff/employee', labelKey: 'nav.employeePage' },
   { path: '/staff/employee/import', labelKey: 'nav.employeeImportPage' },
   { path: '/staff/employee/:id', labelKey: 'nav.employeeProfilePage' },
+  { path: '/meeting', labelKey: 'nav.meetingPage' },
+  { path: '/meeting/:id', labelKey: 'nav.meetingDetail' },
+  {
+    path: '/meeting/:id/details',
+    labelKey: 'meetingDetailPage.menu.details',
+  },
+  {
+    path: '/meeting/:id/attendance',
+    labelKey: 'meetingDetailPage.menu.attendance',
+  },
+  {
+    path: '/meeting/:id/attendance-import',
+    labelKey: 'meetingAttendancePanel.import.title',
+  },
+  {
+    path: '/meeting/:id/perdiem-receipt',
+    labelKey: 'meetingDetailPage.menu.perdiemReceipt',
+  },
   { path: '/masters', labelKey: 'nav.mastersPage' },
   { path: '/masters/location', labelKey: 'nav.locationMasterPage' },
   {

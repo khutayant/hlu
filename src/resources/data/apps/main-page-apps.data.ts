@@ -1,4 +1,4 @@
-export type MainPageAppIcon = 'team' | 'masters' | 'admin';
+export type MainPageAppIcon = 'team' | 'masters' | 'admin' | 'meeting';
 
 export type MainPageApp = {
   id: string;
@@ -37,5 +37,13 @@ export const MAIN_PAGE_APPS: MainPageApp[] = [
     path: '/masters/location',
     icon: 'masters',
     color: '#c62828',
+  },
+  {
+    id: 'meeting',
+    titleKey: 'apps.meeting.title',
+    descriptionKey: 'apps.meeting.description',
+    path: '/meeting',
+    icon: 'meeting',
+    color: '#1565c0',
   },
 ];

@@ -57,6 +57,12 @@ const PositionMasterPage = lazy(
 const ProjectMasterPage = lazy(
   () => import('../pages/home/masters-page/project-master-page'),
 );
+const MeetingPage = lazy(
+  () => import('../pages/home/meeting-page/meeting-page'),
+);
+const MeetingDetailPage = lazy(
+  () => import('../pages/home/meeting-page/meeting-detail-page'),
+);
 const UserRoleDetailPage = lazy(
   () =>
     import(
@@ -145,6 +151,12 @@ export function HomeRoutes() {
         <Route
           path='/masters/project/:section'
           element={<ProjectMasterPage />}
+        />
+        <Route path='/meeting' element={<MeetingPage />} />
+        <Route path='/meeting/:id' element={<MeetingDetailPage />} />
+        <Route
+          path='/meeting/:id/:section'
+          element={<MeetingDetailPage />}
         />
       </Route>
     </Route>

@@ -1,4 +1,5 @@
 import {
+  CalendarOutlined,
   ControlOutlined,
   DatabaseOutlined,
   TeamOutlined,
@@ -21,6 +22,7 @@ const APP_ICONS: Record<MainPageAppIcon, ReactNode> = {
   team: <TeamOutlined />,
   masters: <DatabaseOutlined />,
   admin: <ControlOutlined />,
+  meeting: <CalendarOutlined />,
 };
 
 function MainPage() {

@@ -1,6 +1,7 @@
 import {
   AppstoreOutlined,
   AuditOutlined,
+  CalendarOutlined,
   DashboardOutlined,
   EnvironmentOutlined,
   ExperimentOutlined,
@@ -55,6 +56,7 @@ const MENU_ICONS: Record<SidebarMenuIcon, ReactNode> = {
   title: <TagOutlined />,
   position: <AuditOutlined />,
   overview: <DashboardOutlined />,
+  meeting: <CalendarOutlined />,
 };
 
 const BRAND_LOGO = publicUrl(

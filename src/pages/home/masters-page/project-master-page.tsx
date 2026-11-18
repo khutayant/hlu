@@ -1,5 +1,5 @@
 import { MedicineBoxOutlined, ProjectOutlined } from '@ant-design/icons';
-import { Button, Empty, Grid, Menu, theme } from 'antd';
+import { Button, Grid, Menu, theme } from 'antd';
 import { useMemo } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { TOOLBAR_HEIGHT_PX } from '../../../components/toolbar';
@@ -9,6 +9,7 @@ import {
   RibbonTitle,
   useSetRibbon,
 } from '../../../providers/ribbon.provider';
+import { ImmunizationSessionPanel } from './immunization-session-panel';
 import { ProjectPanel } from './project-panel';
 
 /** Matches `HomeLayout` Content padding so this shell can bleed edge-to-edge. */
@@ -24,20 +25,6 @@ type ProjectSection = (typeof PROJECT_SECTIONS)[number];
 
 function isProjectSection(value: string | undefined): value is ProjectSection {
   return PROJECT_SECTIONS.includes(value as ProjectSection);
-}
-
-function ProjectSectionPlaceholder({
-  descriptionKey,
-}: {
-  descriptionKey: string;
-}) {
-  const { t } = useI18n();
-  return (
-    <Empty
-      image={Empty.PRESENTED_IMAGE_SIMPLE}
-      description={t(descriptionKey)}
-    />
-  );
 }
 
 function ProjectMasterPage() {
@@ -79,7 +66,7 @@ function ProjectMasterPage() {
     section === 'projects' ? (
       <ProjectPanel />
     ) : (
-      <ProjectSectionPlaceholder descriptionKey='projectMasterPage.sections.immunizationSessionsComingSoon' />
+      <ImmunizationSessionPanel />
     );
 
   const shellHeight = `calc(100vh - ${TOOLBAR_HEIGHT_PX + RIBBON_MIN_HEIGHT_PX}px)`;

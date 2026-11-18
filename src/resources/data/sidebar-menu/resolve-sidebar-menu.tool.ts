@@ -2,6 +2,7 @@ import { isDev } from '../../../config';
 import { ADMIN_PAGE_MENU } from './admin-page.menu';
 import { MAIN_PAGE_MENU } from './main-page.menu';
 import { MASTERS_PAGE_MENU } from './masters-page.menu';
+import { MEETING_PAGE_MENU } from './meeting-page.menu';
 import { STAFF_PAGE_MENU } from './staff-page.menu';
 import type { SidebarMenuItem } from './sidebar-menu.interface';
 
@@ -42,6 +43,7 @@ export function flattenSidebarMenuLeaves(
  * - `/admin*` → admin menu
  * - `/staff*` → staff (HR) menu
  * - `/masters*` → masters menu (reference data)
+ * - `/meeting*` → meeting and attendance menu
  * - otherwise → main menu (home; Test only on `/` and `/test`, and only in dev)
  */
 export function resolveSidebarMenu(pathname: string): SidebarMenuItem[] {
@@ -60,6 +62,10 @@ export function resolveSidebarMenu(pathname: string): SidebarMenuItem[] {
 
   if (normalized === '/masters' || normalized.startsWith('/masters/')) {
     return filterDevItems(MASTERS_PAGE_MENU);
+  }
+
+  if (normalized === '/meeting' || normalized.startsWith('/meeting/')) {
+    return filterDevItems(MEETING_PAGE_MENU);
   }
 
   const onHomeOrTest = normalized === '/' || normalized === '/test';

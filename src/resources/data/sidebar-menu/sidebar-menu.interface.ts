@@ -11,7 +11,8 @@ export type SidebarMenuIcon =
   | 'project'
   | 'title'
   | 'position'
-  | 'overview';
+  | 'overview'
+  | 'meeting';
 
 type SidebarMenuBase = {
   id: string;
