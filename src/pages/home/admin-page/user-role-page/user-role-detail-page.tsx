@@ -165,7 +165,7 @@ function UserRoleDetailPage() {
       <nav
         aria-label={role.name}
         style={{
-          width: isMobile ? '100%' : 220,
+          width: isMobile ? '100%' : 280,
           flexShrink: 0,
           minHeight: 0,
           overflow: 'auto',

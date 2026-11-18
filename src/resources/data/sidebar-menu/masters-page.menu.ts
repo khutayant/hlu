@@ -9,21 +9,15 @@ export const MASTERS_PAGE_MENU: SidebarMenuItem[] = [
     icon: 'location',
   },
   {
-    id: 'category',
-    labelKey: 'nav.categoryMasterPage',
-    path: '/masters/category',
-    icon: 'category',
-  },
-  {
     id: 'project',
     labelKey: 'nav.projectMasterPage',
     path: '/masters/project',
     icon: 'project',
   },
   {
-    id: 'session',
-    labelKey: 'nav.sessionMasterPage',
-    path: '/masters/session',
-    icon: 'session',
+    id: 'category',
+    labelKey: 'nav.categoryMasterPage',
+    path: '/masters/category',
+    icon: 'category',
   },
 ];

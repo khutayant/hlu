@@ -8,6 +8,10 @@ import {
   type ReactNode,
 } from 'react';
 import {
+  AUTH_EXPIRED_EVENT,
+  AUTH_REFRESHED_EVENT,
+} from '../handlers/api.handler';
+import {
   beginLoginRequest,
   clearSession,
   completeLoginRequest,
@@ -65,7 +69,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     if (accessToken) {
       try {
-        const me = await meRequest(accessToken);
+        // `meRequest` uses `apiFetch` — 401 triggers a silent refresh + retry.
+        const me = await meRequest();
         applySession(me);
         return;
       } catch {
@@ -107,6 +112,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, [restoreSession]);
 
+  useEffect(() => {
+    const onRefreshed = (event: Event) => {
+      const detail = (event as CustomEvent<{ user: AuthUser }>).detail;
+      if (detail?.user) {
+        applySession(detail.user);
+      }
+    };
+    const onExpired = () => {
+      applySession(null);
+    };
+
+    window.addEventListener(AUTH_REFRESHED_EVENT, onRefreshed);
+    window.addEventListener(AUTH_EXPIRED_EVENT, onExpired);
+    return () => {
+      window.removeEventListener(AUTH_REFRESHED_EVENT, onRefreshed);
+      window.removeEventListener(AUTH_EXPIRED_EVENT, onExpired);
+    };
+  }, [applySession]);
+
   const signIn = useCallback(async (returnTo = '/') => {
     const { authorizeUrl } = await beginLoginRequest(returnTo);
     window.location.assign(authorizeUrl);
@@ -145,12 +169,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const refreshUser = useCallback(async () => {
-    const accessToken = getAccessToken();
-    if (!accessToken) {
+    if (!getAccessToken() && !getRefreshToken()) {
       applySession(null);
       return null;
     }
-    const me = await meRequest(accessToken);
+    const me = await meRequest();
     applySession(me);
     return me;
   }, [applySession]);

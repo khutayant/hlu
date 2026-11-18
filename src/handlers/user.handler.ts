@@ -1,5 +1,5 @@
 import { API_URL } from '../config';
-import { getAccessToken } from './auth.handler';
+import { apiFetch } from './api.handler';
 
 export type AppUserImage = {
   id: string;
@@ -46,12 +46,8 @@ async function readErrorMessage(response: Response): Promise<string> {
   return `Request failed (${response.status})`;
 }
 
-function authHeaders(json = false): HeadersInit {
-  const accessToken = getAccessToken();
-  return {
-    ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
-    ...(json ? { 'Content-Type': 'application/json' } : {}),
-  };
+function jsonHeaders(): HeadersInit {
+  return { 'Content-Type': 'application/json' };
 }
 
 export async function listUsersRequest(options?: {
@@ -74,11 +70,10 @@ export async function listUsersRequest(options?: {
     params.set('active', String(options.active));
   }
   const query = params.toString();
-  const response = await fetch(
+  const response = await apiFetch(
     `${API_URL}v1/user${query ? `?${query}` : ''}`,
     {
-      headers: authHeaders(),
-    },
+          },
   );
   if (!response.ok) {
     throw new Error(await readErrorMessage(response));
@@ -90,9 +85,9 @@ export async function setUserActiveRequest(
   id: string,
   active: boolean,
 ): Promise<AppUser> {
-  const response = await fetch(`${API_URL}v1/user/${id}/active`, {
+  const response = await apiFetch(`${API_URL}v1/user/${id}/active`, {
     method: 'PATCH',
-    headers: authHeaders(true),
+    headers: jsonHeaders(),
     body: JSON.stringify({ active }),
   });
   if (!response.ok) {

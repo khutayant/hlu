@@ -41,10 +41,7 @@ import {
   type ReactNode,
 } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  createEmployeeRequest,
-  findExistingEmployeeFocalNosRequest,
-} from '../../../../handlers/employee.handler';
+import { createEmployeeRequest } from '../../../../handlers/employee.handler';
 import { useDialog } from '../../../../providers/dialog.provider';
 import { useI18n } from '../../../../providers/i18n.provider';
 import {
@@ -57,7 +54,6 @@ import {
   EMPLOYEE_IMPORT_TEMPLATE_CSV,
   FOCAL_NO_MAX_LENGTH,
   isEmployeeImportRowValid,
-  normalizeFocalNo,
   parseEmployeeImportCsv,
   toCreateEmployeeInput,
   validateEmployeeImportRows,
@@ -405,52 +401,17 @@ function EmployeeImportPage() {
 
     setImporting(true);
     try {
-      // Skip server focal duplicates — mark those rows invalid, import the rest.
-      const focalNos = [
-        ...new Set(
-          validRows
-            .map((row) => normalizeFocalNo(row.focalNo))
-            .filter(Boolean),
-        ),
-      ];
-      const duplicates =
-        focalNos.length > 0
-          ? await findExistingEmployeeFocalNosRequest(focalNos)
-          : [];
-      const duplicateSet = new Set(duplicates);
-
-      if (duplicateSet.size > 0) {
-        checkedRows = validateEmployeeImportRows(
-          checkedRows,
-          messages,
-          duplicateSet,
-        );
-        setRows(checkedRows);
-        validRows = checkedRows.filter((row) =>
-          isEmployeeImportRowValid(row),
-        );
-      }
-
-      const skippedDbDupCount = checkedRows.filter((row) => {
-        const focalNo = normalizeFocalNo(row.focalNo);
-        return (
-          Boolean(focalNo) &&
-          duplicateSet.has(focalNo) &&
-          row.errors.focalNo === messages.focalNoDuplicateDb
-        );
-      }).length;
+      // TEMP (employee list reseed): allow existing focalNos — server create upserts.
+      // Revert: restore DB duplicate check + skip-existing flow below.
+      const duplicateSet = new Set<string>();
+      const skippedDbDupCount = 0;
 
       if (validRows.length === 0) {
         setSelectedRowKeys([]);
         setValidityFilter('invalid');
         setPage(1);
         showToast({
-          message:
-            skippedDbDupCount > 0
-              ? t('employeePage.import.noValidRowsAfterDbCheck', {
-                  count: skippedDbDupCount,
-                })
-              : t('employeePage.import.noValidRows'),
+          message: t('employeePage.import.noValidRows'),
           severity: 'warning',
         });
         return;

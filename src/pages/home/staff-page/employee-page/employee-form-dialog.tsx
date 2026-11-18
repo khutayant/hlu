@@ -26,6 +26,18 @@ import {
 } from '../../../../handlers/employee.handler';
 import { fetchAuthorizedFileUrl } from '../../../../handlers/file.handler';
 import {
+  listPositionsRequest,
+  type Position,
+} from '../../../../handlers/position.handler';
+import {
+  listTitlesRequest,
+  type Title,
+} from '../../../../handlers/title.handler';
+import {
+  listTownshipsRequest,
+  type Township,
+} from '../../../../handlers/township.handler';
+import {
   listUsersRequest,
   type AppUser,
 } from '../../../../handlers/user.handler';
@@ -47,11 +59,12 @@ function revokeIfBlob(url: string | null | undefined) {
 const EMPLOYEE_GENDER_OPTIONS: EmployeeGender[] = ['MALE', 'FEMALE', 'OTHER'];
 
 type EmployeeFormValues = {
+  titleId?: string | null;
   displayName: string;
   focalNo: string;
   gender: EmployeeGender;
-  townshipName: string;
-  position: string;
+  townshipId: string;
+  positionId: string;
   experience: string;
   email?: string;
   phone?: string;
@@ -86,6 +99,12 @@ export function EmployeeFormDialogBody({
   const { closeDialog, setDialogActions } = useDialog();
   const [form] = Form.useForm<EmployeeFormValues>();
   const [saving, setSaving] = useState(false);
+  const [titleOptions, setTitleOptions] = useState<Title[]>([]);
+  const [titlesLoading, setTitlesLoading] = useState(false);
+  const [positionOptions, setPositionOptions] = useState<Position[]>([]);
+  const [positionsLoading, setPositionsLoading] = useState(false);
+  const [townshipOptions, setTownshipOptions] = useState<Township[]>([]);
+  const [townshipsLoading, setTownshipsLoading] = useState(false);
   const [userOptions, setUserOptions] = useState<AppUser[]>([]);
   const [usersLoading, setUsersLoading] = useState(false);
   const [profileImageId, setProfileImageId] = useState<string | null>(
@@ -108,11 +127,12 @@ export function EmployeeFormDialogBody({
   useEffect(() => {
     if (mode === 'edit' && initial) {
       form.setFieldsValue({
+        titleId: initial.title?.id ?? null,
         displayName: initial.displayName,
         focalNo: initial.focalNo,
         gender: initial.gender,
-        townshipName: initial.townshipName,
-        position: initial.position,
+        townshipId: initial.township?.id ?? '',
+        positionId: initial.position?.id ?? '',
         experience: initial.experience,
         email: initial.email ?? undefined,
         phone: initial.phone ?? undefined,
@@ -162,6 +182,90 @@ export function EmployeeFormDialogBody({
       }
     };
   }, [imageRemoved, initial?.profileImage?.uuidName]);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      setTitlesLoading(true);
+      try {
+        const result = await listTitlesRequest({
+          page: 1,
+          limit: 100,
+          active: true,
+        });
+        if (!cancelled) {
+          setTitleOptions(result.items);
+        }
+      } catch {
+        if (!cancelled) {
+          setTitleOptions([]);
+        }
+      } finally {
+        if (!cancelled) {
+          setTitlesLoading(false);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      setPositionsLoading(true);
+      try {
+        const result = await listPositionsRequest({
+          page: 1,
+          limit: 100,
+          active: true,
+        });
+        if (!cancelled) {
+          setPositionOptions(result.items);
+        }
+      } catch {
+        if (!cancelled) {
+          setPositionOptions([]);
+        }
+      } finally {
+        if (!cancelled) {
+          setPositionsLoading(false);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      setTownshipsLoading(true);
+      try {
+        const result = await listTownshipsRequest({
+          page: 1,
+          limit: 100,
+          active: true,
+        });
+        if (!cancelled) {
+          setTownshipOptions(result.items);
+        }
+      } catch {
+        if (!cancelled) {
+          setTownshipOptions([]);
+        }
+      } finally {
+        if (!cancelled) {
+          setTownshipsLoading(false);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -250,11 +354,12 @@ export function EmployeeFormDialogBody({
       setSaving(true);
 
       const shared = {
+        titleId: values.titleId || null,
         displayName: values.displayName.trim(),
         focalNo: normalizeFocalNo(values.focalNo),
         gender: values.gender,
-        townshipName: values.townshipName.trim(),
-        position: values.position.trim(),
+        townshipId: values.townshipId,
+        positionId: values.positionId,
         experience: values.experience.trim(),
         email: values.email?.trim() || null,
         phone: values.phone?.trim() || null,
@@ -411,6 +516,23 @@ export function EmployeeFormDialogBody({
       </Form.Item>
       <Flex gap={12} wrap>
         <Form.Item
+          name='titleId'
+          label={t('employeePage.fields.title')}
+          style={{ flex: '0 0 120px', minWidth: 100 }}
+        >
+          <Select
+            allowClear
+            showSearch
+            optionFilterProp='label'
+            loading={titlesLoading}
+            placeholder={t('employeePage.fields.titlePlaceholder')}
+            options={titleOptions.map((title) => ({
+              value: title.id,
+              label: title.name,
+            }))}
+          />
+        </Form.Item>
+        <Form.Item
           name='displayName'
           label={t('employeePage.fields.displayName')}
           rules={[
@@ -484,7 +606,7 @@ export function EmployeeFormDialogBody({
         </Form.Item>
       </Flex>
       <Form.Item
-        name='townshipName'
+        name='townshipId'
         label={t('employeePage.fields.townshipName')}
         rules={[
           {
@@ -493,11 +615,20 @@ export function EmployeeFormDialogBody({
           },
         ]}
       >
-        <Input maxLength={255} />
+        <Select
+          showSearch
+          optionFilterProp='label'
+          loading={townshipsLoading}
+          placeholder={t('employeePage.fields.townshipName')}
+          options={townshipOptions.map((township) => ({
+            value: township.id,
+            label: township.name,
+          }))}
+        />
       </Form.Item>
       <Flex gap={12} wrap>
         <Form.Item
-          name='position'
+          name='positionId'
           label={t('employeePage.fields.position')}
           rules={[
             {
@@ -507,7 +638,16 @@ export function EmployeeFormDialogBody({
           ]}
           style={{ flex: 1, minWidth: 160 }}
         >
-          <Input maxLength={255} />
+          <Select
+            showSearch
+            optionFilterProp='label'
+            loading={positionsLoading}
+            placeholder={t('employeePage.fields.position')}
+            options={positionOptions.map((position) => ({
+              value: position.id,
+              label: position.name,
+            }))}
+          />
         </Form.Item>
         <Form.Item
           name='experience'

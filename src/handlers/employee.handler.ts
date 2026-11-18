@@ -1,5 +1,5 @@
 import { API_URL } from '../config';
-import { getAccessToken } from './auth.handler';
+import { apiFetch } from './api.handler';
 import {
   getFileCategoryByCodeRequest,
   uploadFileRequest,
@@ -26,14 +26,37 @@ export type EmployeeActor = {
 
 export type EmployeeGender = 'MALE' | 'FEMALE' | 'OTHER';
 
+export type EmployeeTitleRef = {
+  id: string;
+  name: string;
+};
+
+export type EmployeeTownshipRef = {
+  id: string;
+  name: string;
+  code: string;
+  focalPrefix: string;
+};
+
+export type EmployeePositionRef = {
+  id: string;
+  name: string;
+  code: string;
+};
+
 export type Employee = {
   id: string;
   employeeNo: string;
+  title: EmployeeTitleRef | null;
   displayName: string;
   focalNo: string;
   gender: EmployeeGender;
+  township: EmployeeTownshipRef | null;
+  /** Derived from `township.name` for import/export compatibility. */
   townshipName: string;
-  position: string;
+  position: EmployeePositionRef | null;
+  /** Derived from `position.name` for import/export compatibility. */
+  positionName: string;
   experience: string;
   email: string | null;
   phone: string | null;
@@ -59,11 +82,15 @@ export type EmployeeListResult = {
 
 export type CreateEmployeeInput = {
   employeeNo?: string | null;
+  titleId?: string | null;
   displayName: string;
   focalNo: string;
   gender: EmployeeGender;
-  townshipName: string;
-  position: string;
+  townshipId?: string | null;
+  townshipName?: string | null;
+  positionId?: string | null;
+  /** Import helper — resolved by exact name when `positionId` omitted. */
+  positionName?: string | null;
   experience: string;
   email?: string | null;
   phone?: string | null;
@@ -75,11 +102,14 @@ export type CreateEmployeeInput = {
 };
 
 export type UpdateEmployeeInput = {
+  titleId?: string | null;
   displayName?: string;
   focalNo?: string;
   gender?: EmployeeGender;
-  townshipName?: string;
-  position?: string;
+  townshipId?: string | null;
+  townshipName?: string | null;
+  positionId?: string | null;
+  positionName?: string | null;
   experience?: string;
   email?: string | null;
   phone?: string | null;
@@ -105,34 +135,176 @@ async function readErrorMessage(response: Response): Promise<string> {
   return `Request failed (${response.status})`;
 }
 
-function authHeaders(json = false): HeadersInit {
-  const accessToken = getAccessToken();
+function jsonHeaders(): HeadersInit {
+  return { 'Content-Type': 'application/json' };
+}
+
+export type EmployeeFilterTownship = {
+  id: string;
+  name: string;
+  code: string;
+};
+
+export type EmployeeFilterPosition = {
+  id: string;
+  name: string;
+  code: string;
+};
+
+export type EmployeeFilterOptions = {
+  townships: EmployeeFilterTownship[];
+  positions: EmployeeFilterPosition[];
+};
+
+export type EmployeeOverviewGenderRow = {
+  gender: EmployeeGender | string;
+  count: number;
+};
+
+export type EmployeeOverviewGroupRow = {
+  id: string;
+  name: string;
+  code: string;
+  count: number;
+  activeCount: number;
+  inactiveCount: number;
+};
+
+export type EmployeeOverviewMatrixColumn = {
+  id: string;
+  name: string;
+  code: string;
+};
+
+export type EmployeeOverviewMatrixRow = {
+  id: string;
+  name: string;
+  code: string;
+  counts: Record<string, number>;
+  total: number;
+};
+
+export type EmployeeOverviewMatrix = {
+  columns: EmployeeOverviewMatrixColumn[];
+  rows: EmployeeOverviewMatrixRow[];
+  columnTotals: Record<string, number>;
+  grandTotal: number;
+};
+
+export type EmployeeOverview = {
+  total: number;
+  active: number;
+  inactive: number;
+  byGender: EmployeeOverviewGenderRow[];
+  byTownship: EmployeeOverviewGroupRow[];
+  byPosition: EmployeeOverviewGroupRow[];
+  matrix: EmployeeOverviewMatrix;
+};
+
+export async function getEmployeeOverviewRequest(options?: {
+  townshipId?: string;
+  positionId?: string;
+}): Promise<EmployeeOverview> {
+  const params = new URLSearchParams();
+  if (options?.townshipId) {
+    params.set('townshipId', options.townshipId);
+  }
+  if (options?.positionId) {
+    params.set('positionId', options.positionId);
+  }
+  const query = params.toString();
+  const response = await apiFetch(
+    `${API_URL}v1/employee/overview${query ? `?${query}` : ''}`,
+  );
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response));
+  }
+  const data = (await response.json()) as Partial<EmployeeOverview>;
+  const matrix = data.matrix;
   return {
-    ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
-    ...(json ? { 'Content-Type': 'application/json' } : {}),
+    total: Number(data.total) || 0,
+    active: Number(data.active) || 0,
+    inactive: Number(data.inactive) || 0,
+    byGender: Array.isArray(data.byGender)
+      ? data.byGender.map((row) => ({
+          gender: row.gender,
+          count: Number(row.count) || 0,
+        }))
+      : [],
+    byTownship: Array.isArray(data.byTownship)
+      ? data.byTownship.map((row) => ({
+          id: row.id,
+          name: row.name,
+          code: row.code,
+          count: Number(row.count) || 0,
+          activeCount: Number(row.activeCount) || 0,
+          inactiveCount: Number(row.inactiveCount) || 0,
+        }))
+      : [],
+    byPosition: Array.isArray(data.byPosition)
+      ? data.byPosition.map((row) => ({
+          id: row.id,
+          name: row.name,
+          code: row.code,
+          count: Number(row.count) || 0,
+          activeCount: Number(row.activeCount) || 0,
+          inactiveCount: Number(row.inactiveCount) || 0,
+        }))
+      : [],
+    matrix: {
+      columns: Array.isArray(matrix?.columns)
+        ? matrix.columns.map((column) => ({
+            id: column.id,
+            name: column.name,
+            code: column.code,
+          }))
+        : [],
+      rows: Array.isArray(matrix?.rows)
+        ? matrix.rows.map((row) => ({
+            id: row.id,
+            name: row.name,
+            code: row.code,
+            counts:
+              row.counts && typeof row.counts === 'object' ? row.counts : {},
+            total: Number(row.total) || 0,
+          }))
+        : [],
+      columnTotals:
+        matrix?.columnTotals && typeof matrix.columnTotals === 'object'
+          ? matrix.columnTotals
+          : {},
+      grandTotal: Number(matrix?.grandTotal) || 0,
+    },
   };
 }
 
-export type EmployeeFilterOptions = {
-  townships: string[];
-  positions: string[];
-};
-
 export async function listEmployeeFilterOptionsRequest(): Promise<EmployeeFilterOptions> {
-  const response = await fetch(`${API_URL}v1/employee/filter-options`, {
-    headers: authHeaders(),
-  });
+  const response = await apiFetch(`${API_URL}v1/employee/filter-options`);
   if (!response.ok) {
     throw new Error(await readErrorMessage(response));
   }
   const data = (await response.json()) as Partial<EmployeeFilterOptions>;
+  const townships = Array.isArray(data.townships)
+    ? data.townships.filter(
+        (row): row is EmployeeFilterTownship =>
+          Boolean(row) &&
+          typeof row === 'object' &&
+          typeof (row as EmployeeFilterTownship).id === 'string' &&
+          typeof (row as EmployeeFilterTownship).name === 'string',
+      )
+    : [];
+  const positions = Array.isArray(data.positions)
+    ? data.positions.filter(
+        (row): row is EmployeeFilterPosition =>
+          Boolean(row) &&
+          typeof row === 'object' &&
+          typeof (row as EmployeeFilterPosition).id === 'string' &&
+          typeof (row as EmployeeFilterPosition).name === 'string',
+      )
+    : [];
   return {
-    townships: Array.isArray(data.townships)
-      ? data.townships.filter((value): value is string => typeof value === 'string')
-      : [],
-    positions: Array.isArray(data.positions)
-      ? data.positions.filter((value): value is string => typeof value === 'string')
-      : [],
+    townships,
+    positions,
   };
 }
 
@@ -143,9 +315,9 @@ export async function listEmployeeFilterOptionsRequest(): Promise<EmployeeFilter
 export async function findExistingEmployeeFocalNosRequest(
   focalNos: string[],
 ): Promise<string[]> {
-  const response = await fetch(`${API_URL}v1/employee/import/focal-nos`, {
+  const response = await apiFetch(`${API_URL}v1/employee/import/focal-nos`, {
     method: 'POST',
-    headers: authHeaders(true),
+    headers: jsonHeaders(),
     body: JSON.stringify({ focalNos }),
   });
   if (!response.ok) {
@@ -193,11 +365,10 @@ export async function listEmployeesRequest(options?: {
     params.set('position', options.position);
   }
   const query = params.toString();
-  const response = await fetch(
+  const response = await apiFetch(
     `${API_URL}v1/employee${query ? `?${query}` : ''}`,
     {
-      headers: authHeaders(),
-    },
+          },
   );
   if (!response.ok) {
     throw new Error(await readErrorMessage(response));
@@ -206,9 +377,7 @@ export async function listEmployeesRequest(options?: {
 }
 
 export async function getEmployeeByIdRequest(id: string): Promise<Employee> {
-  const response = await fetch(`${API_URL}v1/employee/${id}`, {
-    headers: authHeaders(),
-  });
+  const response = await apiFetch(`${API_URL}v1/employee/${id}`);
   if (!response.ok) {
     throw new Error(await readErrorMessage(response));
   }
@@ -218,9 +387,9 @@ export async function getEmployeeByIdRequest(id: string): Promise<Employee> {
 export async function createEmployeeRequest(
   input: CreateEmployeeInput,
 ): Promise<Employee> {
-  const response = await fetch(`${API_URL}v1/employee`, {
+  const response = await apiFetch(`${API_URL}v1/employee`, {
     method: 'POST',
-    headers: authHeaders(true),
+    headers: jsonHeaders(),
     body: JSON.stringify(input),
   });
   if (!response.ok) {
@@ -233,9 +402,9 @@ export async function updateEmployeeRequest(
   id: string,
   input: UpdateEmployeeInput,
 ): Promise<Employee> {
-  const response = await fetch(`${API_URL}v1/employee/${id}`, {
+  const response = await apiFetch(`${API_URL}v1/employee/${id}`, {
     method: 'PUT',
-    headers: authHeaders(true),
+    headers: jsonHeaders(),
     body: JSON.stringify(input),
   });
   if (!response.ok) {
@@ -248,9 +417,9 @@ export async function setEmployeeActiveRequest(
   id: string,
   active: boolean,
 ): Promise<Employee> {
-  const response = await fetch(`${API_URL}v1/employee/${id}/active`, {
+  const response = await apiFetch(`${API_URL}v1/employee/${id}/active`, {
     method: 'PATCH',
-    headers: authHeaders(true),
+    headers: jsonHeaders(),
     body: JSON.stringify({ active }),
   });
   if (!response.ok) {

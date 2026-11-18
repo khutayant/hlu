@@ -117,10 +117,10 @@ export async function logoutRequest(refreshToken?: string | null) {
   }).catch(() => undefined);
 }
 
-export async function meRequest(accessToken: string): Promise<AuthUser> {
-  const response = await fetch(`${API_URL}v1/auth/me`, {
-    headers: { Authorization: `Bearer ${accessToken}` },
-  });
+export async function meRequest(): Promise<AuthUser> {
+  // Lazy import avoids a circular dependency with api.handler → auth.handler.
+  const { apiFetch } = await import('./api.handler');
+  const response = await apiFetch(`${API_URL}v1/auth/me`);
 
   if (!response.ok) {
     throw new Error(await readErrorMessage(response));

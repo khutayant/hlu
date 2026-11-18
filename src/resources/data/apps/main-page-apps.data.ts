@@ -25,7 +25,7 @@ export const MAIN_PAGE_APPS: MainPageApp[] = [
     id: 'staff',
     titleKey: 'apps.staff.title',
     descriptionKey: 'apps.staff.description',
-    path: '/staff/employee',
+    path: '/staff/overview',
     icon: 'team',
     color: '#00897b',
     moduleCode: 'EMPLOYEE_MANAGEMENT_SYSTEM',

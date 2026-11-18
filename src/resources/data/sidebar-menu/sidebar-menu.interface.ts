@@ -4,18 +4,35 @@ export type SidebarMenuIcon =
   | 'userRole'
   | 'users'
   | 'employee'
+  | 'country'
+  | 'township'
   | 'location'
   | 'category'
   | 'project'
-  | 'session';
+  | 'title'
+  | 'position'
+  | 'overview';
 
-export type SidebarMenuItem = {
+type SidebarMenuBase = {
   id: string;
   labelKey: string;
-  path: string;
   icon: SidebarMenuIcon;
   /** Shown only when `isDev()` / TEST_MODE is true. */
   devOnly?: boolean;
   /** When set, the module gate must allow this system or module code. */
   moduleCode?: string;
 };
+
+/** Leaf item that navigates to a route. */
+export type SidebarMenuLeaf = SidebarMenuBase & {
+  path: string;
+  children?: undefined;
+};
+
+/** Group that expands to child leaf items (no direct route). */
+export type SidebarMenuGroup = SidebarMenuBase & {
+  path?: undefined;
+  children: SidebarMenuLeaf[];
+};
+
+export type SidebarMenuItem = SidebarMenuLeaf | SidebarMenuGroup;

@@ -341,7 +341,7 @@ function ProfilePage() {
       <nav
         aria-label={t('profilePage.title')}
         style={{
-          width: isMobile ? '100%' : 220,
+          width: isMobile ? '100%' : 280,
           flexShrink: 0,
           position: isMobile ? 'static' : 'sticky',
           top: 120,

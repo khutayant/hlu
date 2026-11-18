@@ -1,13 +1,16 @@
 import {
   AppstoreOutlined,
-  CalendarOutlined,
+  AuditOutlined,
+  DashboardOutlined,
   EnvironmentOutlined,
   ExperimentOutlined,
+  GlobalOutlined,
   HomeOutlined,
   IdcardOutlined,
   LogoutOutlined,
   ProjectOutlined,
   SolutionOutlined,
+  TagOutlined,
   TeamOutlined,
   UserOutlined,
 } from '@ant-design/icons';
@@ -20,14 +23,20 @@ import {
   Menu,
   Typography,
 } from 'antd';
-import type { ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { publicUrl, VERSION } from '../config';
 import { useModule } from '../providers/module.provider';
 import { useAuth } from '../providers/auth.provider';
 import { useI18n } from '../providers/i18n.provider';
-import { resolveSidebarMenu } from '../resources/data/sidebar-menu/resolve-sidebar-menu.tool';
-import type { SidebarMenuIcon } from '../resources/data/sidebar-menu/sidebar-menu.interface';
+import {
+  flattenSidebarMenuLeaves,
+  resolveSidebarMenu,
+} from '../resources/data/sidebar-menu/resolve-sidebar-menu.tool';
+import type {
+  SidebarMenuIcon,
+  SidebarMenuItem,
+} from '../resources/data/sidebar-menu/sidebar-menu.interface';
 
 const { Sider } = Layout;
 const { useBreakpoint } = Grid;
@@ -38,10 +47,14 @@ const MENU_ICONS: Record<SidebarMenuIcon, ReactNode> = {
   userRole: <SolutionOutlined />,
   users: <TeamOutlined />,
   employee: <IdcardOutlined />,
+  country: <GlobalOutlined />,
+  township: <EnvironmentOutlined />,
   location: <EnvironmentOutlined />,
   category: <AppstoreOutlined />,
   project: <ProjectOutlined />,
-  session: <CalendarOutlined />,
+  title: <TagOutlined />,
+  position: <AuditOutlined />,
+  overview: <DashboardOutlined />,
 };
 
 const BRAND_LOGO = publicUrl(
@@ -273,13 +286,41 @@ function DeveloperMark({ collapsed }: { collapsed: boolean }) {
   );
 }
 
+function filterMenuByModule(
+  items: SidebarMenuItem[],
+  ready: boolean,
+  hasModule: (code: string) => boolean,
+): SidebarMenuItem[] {
+  return items
+    .map((item) => {
+      if (item.moduleCode && !(ready && hasModule(item.moduleCode))) {
+        return null;
+      }
+      if (!item.children) {
+        return item;
+      }
+      const children = item.children.filter(
+        (child) =>
+          !child.moduleCode || (ready && hasModule(child.moduleCode)),
+      );
+      if (children.length === 0) {
+        return null;
+      }
+      return { ...item, children };
+    })
+    .filter((item): item is SidebarMenuItem => item !== null);
+}
+
 function NavigationContent({
   onClose,
+  onNavigate,
   collapsed = false,
   compact = false,
   showAccount = false,
 }: {
   onClose: () => void;
+  /** Called after a menu link click (e.g. close mobile drawer). Omit on desktop. */
+  onNavigate?: () => void;
   collapsed?: boolean;
   compact?: boolean;
   showAccount?: boolean;
@@ -287,23 +328,47 @@ function NavigationContent({
   const location = useLocation();
   const { t } = useI18n();
   const { ready, hasModule } = useModule();
-  const navItems = resolveSidebarMenu(location.pathname).filter(
-    (item) => !item.moduleCode || (ready && hasModule(item.moduleCode)),
+  const navItems = filterMenuByModule(
+    resolveSidebarMenu(location.pathname),
+    ready,
+    hasModule,
   );
+  const leaves = flattenSidebarMenuLeaves(navItems);
 
   const pathname =
     location.pathname.length > 1 && location.pathname.endsWith('/')
       ? location.pathname.slice(0, -1)
       : location.pathname;
   const selected =
-    [...navItems]
+    [...leaves]
       .filter(
         (item) =>
           pathname === item.path || pathname.startsWith(`${item.path}/`),
       )
       .sort((a, b) => b.path.length - a.path.length)[0]?.path ??
-    navItems[0]?.path ??
+    leaves[0]?.path ??
     '/';
+
+  const activeGroupKeys = navItems
+    .filter(
+      (item) =>
+        item.children?.some(
+          (child) =>
+            pathname === child.path ||
+            pathname.startsWith(`${child.path}/`),
+        ),
+    )
+    .map((item) => item.id);
+  const activeGroupKey = activeGroupKeys.join('|');
+  const [userOpenKeys, setUserOpenKeys] = useState<string[]>(activeGroupKeys);
+  useEffect(() => {
+    if (!activeGroupKey) {
+      return;
+    }
+    const nextKeys = activeGroupKey.split('|');
+    setUserOpenKeys((prev) => [...new Set([...prev, ...nextKeys])]);
+  }, [activeGroupKey]);
+  const openKeys = [...new Set([...userOpenKeys, ...activeGroupKeys])];
 
   return (
     <div
@@ -320,17 +385,37 @@ function NavigationContent({
         <Menu
           mode='inline'
           selectedKeys={[selected]}
+          openKeys={collapsed ? [] : openKeys}
+          onOpenChange={setUserOpenKeys}
           inlineCollapsed={collapsed}
           style={{ borderInlineEnd: 'none' }}
-          items={navItems.map(({ labelKey, path, icon }) => ({
-            key: path,
-            icon: MENU_ICONS[icon],
-            label: (
-              <Link to={path} onClick={onClose}>
-                {t(labelKey)}
-              </Link>
-            ),
-          }))}
+          items={navItems.map((item) => {
+            if (item.children) {
+              return {
+                key: item.id,
+                icon: MENU_ICONS[item.icon],
+                label: t(item.labelKey),
+                children: item.children.map((child) => ({
+                  key: child.path,
+                  icon: MENU_ICONS[child.icon],
+                  label: (
+                    <Link to={child.path} onClick={onNavigate}>
+                      {t(child.labelKey)}
+                    </Link>
+                  ),
+                })),
+              };
+            }
+            return {
+              key: item.path,
+              icon: MENU_ICONS[item.icon],
+              label: (
+                <Link to={item.path} onClick={onNavigate}>
+                  {t(item.labelKey)}
+                </Link>
+              ),
+            };
+          })}
         />
       </div>
       {showAccount ? (
@@ -367,7 +452,12 @@ function AppSidebar({ open, onClose }: AppSidebarProps) {
           },
         }}
       >
-        <NavigationContent onClose={onClose} compact showAccount />
+        <NavigationContent
+          onClose={onClose}
+          onNavigate={onClose}
+          compact
+          showAccount
+        />
       </Drawer>
     );
   }

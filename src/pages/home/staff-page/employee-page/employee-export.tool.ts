@@ -58,9 +58,9 @@ function cellValue(employee: Employee, column: EmployeeExportColumn): string {
     case 'gender':
       return employee.gender ?? '';
     case 'townshipName':
-      return employee.townshipName ?? '';
+      return employee.township?.name ?? employee.townshipName ?? '';
     case 'position':
-      return employee.position ?? '';
+      return employee.position?.name ?? employee.positionName ?? '';
     case 'experience':
       return employee.experience ?? '';
     case 'email':

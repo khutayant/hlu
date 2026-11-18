@@ -5,8 +5,36 @@ import { MASTERS_PAGE_MENU } from './masters-page.menu';
 import { STAFF_PAGE_MENU } from './staff-page.menu';
 import type { SidebarMenuItem } from './sidebar-menu.interface';
 
-function filterDevItems(items: SidebarMenuItem[]) {
-  return items.filter((item) => !item.devOnly || isDev());
+function filterDevItems(items: SidebarMenuItem[]): SidebarMenuItem[] {
+  return items
+    .filter((item) => !item.devOnly || isDev())
+    .map((item) => {
+      if (!item.children) {
+        return item;
+      }
+      return {
+        ...item,
+        children: item.children.filter(
+          (child) => !child.devOnly || isDev(),
+        ),
+      };
+    })
+    .filter((item) => !item.children || item.children.length > 0);
+}
+
+/** Flatten leaf items (for selection / module gating). */
+export function flattenSidebarMenuLeaves(
+  items: SidebarMenuItem[],
+): Extract<SidebarMenuItem, { path: string }>[] {
+  const leaves: Extract<SidebarMenuItem, { path: string }>[] = [];
+  for (const item of items) {
+    if (item.children) {
+      leaves.push(...item.children);
+    } else {
+      leaves.push(item);
+    }
+  }
+  return leaves;
 }
 
 /**

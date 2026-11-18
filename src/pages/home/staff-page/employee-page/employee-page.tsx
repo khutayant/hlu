@@ -124,6 +124,9 @@ function EmployeeNameCell({
     };
   }, [uuidName]);
 
+  const titledName = [employee.title?.name, employee.displayName]
+    .filter(Boolean)
+    .join(' ');
   const meta = [employee.employeeNo, employee.focalNo]
     .filter(Boolean)
     .join(' · ');
@@ -148,7 +151,7 @@ function EmployeeNameCell({
           width={AVATAR_SIZE}
           height={AVATAR_SIZE}
           src={src}
-          alt={employee.displayName}
+          alt={titledName}
           preview={false}
           style={{
             flexShrink: 0,
@@ -172,7 +175,7 @@ function EmployeeNameCell({
             onOpen();
           }}
         >
-          {employee.displayName}
+          {titledName}
         </Typography.Link>
         <Typography.Text
           type='secondary'
@@ -203,8 +206,12 @@ function EmployeePage() {
   const [genderFilter, setGenderFilter] = useState<EmployeeGender | null>(null);
   const [townshipFilter, setTownshipFilter] = useState<string | null>(null);
   const [positionFilter, setPositionFilter] = useState<string | null>(null);
-  const [townships, setTownships] = useState<string[]>([]);
-  const [positions, setPositions] = useState<string[]>([]);
+  const [townships, setTownships] = useState<
+    { id: string; name: string; code: string }[]
+  >([]);
+  const [positions, setPositions] = useState<
+    { id: string; name: string; code: string }[]
+  >([]);
   const [statusBusyId, setStatusBusyId] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
   const [exporting, setExporting] = useState(false);
@@ -470,15 +477,17 @@ function EmployeePage() {
     },
     {
       title: t('employeePage.columns.townshipName'),
-      dataIndex: 'townshipName',
       key: 'townshipName',
       width: 160,
       ellipsis: true,
+      render: (_: unknown, row: Employee) =>
+        row.township?.name || row.townshipName || '—',
     },
     {
       title: t('employeePage.columns.position'),
-      dataIndex: 'position',
       key: 'position',
+      render: (_value, row) =>
+        row.position?.name || row.positionName || '—',
       width: 140,
       ellipsis: true,
     },
@@ -653,7 +662,10 @@ function EmployeePage() {
               setTownshipFilter(value ?? null);
               setPage(1);
             }}
-            options={townships.map((value) => ({ value, label: value }))}
+            options={townships.map((township) => ({
+              value: township.name,
+              label: township.name,
+            }))}
             style={{ width: 180 }}
           />
           <Select
@@ -666,7 +678,10 @@ function EmployeePage() {
               setPositionFilter(value ?? null);
               setPage(1);
             }}
-            options={positions.map((value) => ({ value, label: value }))}
+            options={positions.map((position) => ({
+              value: position.name,
+              label: position.name,
+            }))}
             style={{ width: 180 }}
           />
         </Flex>

@@ -85,7 +85,9 @@ function EmployeeProfilePage() {
   const [reloadKey, setReloadKey] = useState(0);
   const avatarBlobRef = useRef<string | null>(null);
 
-  const title = employee?.displayName || t('employeePage.profile.title');
+  const title = employee
+    ? [employee.title?.name, employee.displayName].filter(Boolean).join(' ')
+    : t('employeePage.profile.title');
   const description = t('employeePage.profile.description');
 
   const loadEmployee = useCallback(async () => {
@@ -278,7 +280,9 @@ function EmployeeProfilePage() {
         key={pickerKey}
         showCover={false}
         avatarUrl={avatarUrl}
-        displayName={employee.displayName}
+        displayName={
+          [employee.title?.name, employee.displayName].filter(Boolean).join(' ')
+        }
         username={metaLine}
         avatarLabel={t('employeePage.fields.profileImage')}
         pickProfileLabel={t('employeePage.fields.profileImagePick')}
@@ -309,16 +313,20 @@ function EmployeeProfilePage() {
           value={employee.focalNo}
         />
         <DetailRow
+          label={t('employeePage.fields.title')}
+          value={employee.title?.name || '—'}
+        />
+        <DetailRow
           label={t('employeePage.fields.gender')}
           value={t(`employeePage.gender.${employee.gender}`)}
         />
         <DetailRow
           label={t('employeePage.fields.townshipName')}
-          value={employee.townshipName || '—'}
+          value={employee.township?.name || employee.townshipName || '—'}
         />
         <DetailRow
           label={t('employeePage.fields.position')}
-          value={employee.position || '—'}
+          value={employee.position?.name || employee.positionName || '—'}
         />
         <DetailRow
           label={t('employeePage.fields.experience')}

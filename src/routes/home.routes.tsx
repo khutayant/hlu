@@ -16,12 +16,24 @@ const ProfilePage = lazy(
 const UserPage = lazy(
   () => import('../pages/home/admin-page/user-page/user-page'),
 );
+const EmployeeOverviewPage = lazy(
+  () =>
+    import('../pages/home/staff-page/employee-page/employee-overview-page'),
+);
 const EmployeePage = lazy(
   () => import('../pages/home/staff-page/employee-page/employee-page'),
 );
 const EmployeeImportPage = lazy(
   () =>
     import('../pages/home/staff-page/employee-page/employee-import-page'),
+);
+const EmployeeTitlesPage = lazy(
+  () =>
+    import('../pages/home/staff-page/employee-page/employee-titles-page'),
+);
+const EmployeePositionsPage = lazy(
+  () =>
+    import('../pages/home/staff-page/employee-page/employee-positions-page'),
 );
 const EmployeeProfilePage = lazy(
   () =>
@@ -36,11 +48,14 @@ const LocationMasterPage = lazy(
 const CategoryMasterPage = lazy(
   () => import('../pages/home/masters-page/category-master-page'),
 );
+const TitleMasterPage = lazy(
+  () => import('../pages/home/masters-page/title-master-page'),
+);
+const PositionMasterPage = lazy(
+  () => import('../pages/home/masters-page/position-master-page'),
+);
 const ProjectMasterPage = lazy(
   () => import('../pages/home/masters-page/project-master-page'),
-);
-const SessionMasterPage = lazy(
-  () => import('../pages/home/masters-page/session-master-page'),
 );
 const UserRoleDetailPage = lazy(
   () =>
@@ -81,8 +96,15 @@ export function HomeRoutes() {
         <Route element={<ModuleGate code={EMPLOYEE_MANAGEMENT_SYSTEM_CODE} />}>
           <Route
             path='/staff'
-            element={<Navigate to='/staff/employee' replace />}
+            element={<Navigate to='/staff/overview' replace />}
           />
+          <Route path='/staff/overview' element={<EmployeeOverviewPage />} />
+          <Route path='/staff/title' element={<EmployeeTitlesPage />} />
+          <Route
+            path='/staff/employee/titles'
+            element={<Navigate to='/staff/title' replace />}
+          />
+          <Route path='/staff/position' element={<EmployeePositionsPage />} />
           <Route path='/staff/employee' element={<EmployeePage />} />
           <Route
             path='/staff/employee/import'
@@ -97,10 +119,33 @@ export function HomeRoutes() {
           path='/masters'
           element={<Navigate to='/masters/location' replace />}
         />
-        <Route path='/masters/location' element={<LocationMasterPage />} />
+        <Route
+          path='/masters/location'
+          element={<Navigate to='/masters/location/country' replace />}
+        />
+        <Route
+          path='/masters/location/:section'
+          element={<LocationMasterPage />}
+        />
+        <Route
+          path='/masters/country'
+          element={<Navigate to='/masters/location/country' replace />}
+        />
+        <Route
+          path='/masters/township'
+          element={<Navigate to='/masters/location/township' replace />}
+        />
         <Route path='/masters/category' element={<CategoryMasterPage />} />
-        <Route path='/masters/project' element={<ProjectMasterPage />} />
-        <Route path='/masters/session' element={<SessionMasterPage />} />
+        <Route path='/masters/title' element={<TitleMasterPage />} />
+        <Route path='/masters/position' element={<PositionMasterPage />} />
+        <Route
+          path='/masters/project'
+          element={<Navigate to='/masters/project/projects' replace />}
+        />
+        <Route
+          path='/masters/project/:section'
+          element={<ProjectMasterPage />}
+        />
       </Route>
     </Route>
   );

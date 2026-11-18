@@ -271,7 +271,7 @@ export function toCreateEmployeeInput(row: EmployeeImportRow): CreateEmployeeInp
     focalNo: normalizeFocalNo(row.focalNo),
     gender,
     townshipName: row.townshipName.trim(),
-    position: row.position.trim(),
+    positionName: row.position.trim(),
     experience: row.experience.trim(),
     email: row.email.trim() || null,
     phone: row.phone.trim() || null,

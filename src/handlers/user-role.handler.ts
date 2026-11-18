@@ -1,5 +1,5 @@
 import { API_URL } from '../config';
-import { getAccessToken } from './auth.handler';
+import { apiFetch } from './api.handler';
 
 export type UserRoleActor = {
   id: string;
@@ -52,11 +52,8 @@ async function readErrorMessage(response: Response): Promise<string> {
   return `Request failed (${response.status})`;
 }
 
-function authHeaders(): HeadersInit {
-  const accessToken = getAccessToken();
-  return {
-    ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
-  };
+function jsonHeaders(): HeadersInit {
+  return { 'Content-Type': 'application/json' };
 }
 
 export async function listUserRolesRequest(options?: {
@@ -76,9 +73,8 @@ export async function listUserRolesRequest(options?: {
   }
 
   const query = params.toString();
-  const response = await fetch(
+  const response = await apiFetch(
     `${API_URL}v1/user-role${query ? `?${query}` : ''}`,
-    { headers: authHeaders() },
   );
 
   if (!response.ok) {
@@ -89,9 +85,7 @@ export async function listUserRolesRequest(options?: {
 }
 
 export async function getUserRoleRequest(id: string): Promise<UserRoleDetail> {
-  const response = await fetch(`${API_URL}v1/user-role/${id}`, {
-    headers: authHeaders(),
-  });
+  const response = await apiFetch(`${API_URL}v1/user-role/${id}`);
 
   if (!response.ok) {
     throw new Error(await readErrorMessage(response));
@@ -109,12 +103,9 @@ export type CreateUserRoleInput = {
 export async function createUserRoleRequest(
   input: CreateUserRoleInput,
 ): Promise<UserRole> {
-  const response = await fetch(`${API_URL}v1/user-role`, {
+  const response = await apiFetch(`${API_URL}v1/user-role`, {
     method: 'POST',
-    headers: {
-      ...authHeaders(),
-      'Content-Type': 'application/json',
-    },
+    headers: jsonHeaders(),
     body: JSON.stringify(input),
   });
 
@@ -134,12 +125,9 @@ export async function updateUserRoleRequest(
   id: string,
   input: UpdateUserRoleInput,
 ): Promise<UserRole> {
-  const response = await fetch(`${API_URL}v1/user-role/${id}`, {
+  const response = await apiFetch(`${API_URL}v1/user-role/${id}`, {
     method: 'PUT',
-    headers: {
-      ...authHeaders(),
-      'Content-Type': 'application/json',
-    },
+    headers: jsonHeaders(),
     body: JSON.stringify(input),
   });
 
@@ -206,9 +194,8 @@ export async function listUserRoleUsersRequest(
   }
 
   const query = params.toString();
-  const response = await fetch(
+  const response = await apiFetch(
     `${API_URL}v1/user-role/${roleId}/users${query ? `?${query}` : ''}`,
-    { headers: authHeaders() },
   );
 
   if (!response.ok) {
@@ -234,9 +221,8 @@ export async function listUserRoleUserCandidatesRequest(
   }
 
   const query = params.toString();
-  const response = await fetch(
+  const response = await apiFetch(
     `${API_URL}v1/user-role/${roleId}/users/candidates${query ? `?${query}` : ''}`,
-    { headers: authHeaders() },
   );
 
   if (!response.ok) {
@@ -255,12 +241,9 @@ export async function addUserRoleUsersRequest(
   roleId: string,
   userIds: string[],
 ): Promise<AddUserRoleUsersResult> {
-  const response = await fetch(`${API_URL}v1/user-role/${roleId}/users`, {
+  const response = await apiFetch(`${API_URL}v1/user-role/${roleId}/users`, {
     method: 'POST',
-    headers: {
-      ...authHeaders(),
-      'Content-Type': 'application/json',
-    },
+    headers: jsonHeaders(),
     body: JSON.stringify({ userIds }),
   });
 
@@ -275,12 +258,9 @@ export async function removeUserRoleUserRequest(
   roleId: string,
   userId: string,
 ): Promise<{ roleId: string; userId: string; removed: boolean }> {
-  const response = await fetch(
+  const response = await apiFetch(
     `${API_URL}v1/user-role/${roleId}/users/${userId}`,
-    {
-      method: 'DELETE',
-      headers: authHeaders(),
-    },
+    { method: 'DELETE' },
   );
 
   if (!response.ok) {
@@ -332,9 +312,8 @@ export async function listUserRolePermissionsRequest(
   }
 
   const query = params.toString();
-  const response = await fetch(
+  const response = await apiFetch(
     `${API_URL}v1/user-role/${roleId}/permissions${query ? `?${query}` : ''}`,
-    { headers: authHeaders() },
   );
 
   if (!response.ok) {
@@ -363,9 +342,8 @@ export async function listUserRolePermissionCandidatesRequest(
   }
 
   const query = params.toString();
-  const response = await fetch(
+  const response = await apiFetch(
     `${API_URL}v1/user-role/${roleId}/permissions/candidates${query ? `?${query}` : ''}`,
-    { headers: authHeaders() },
   );
 
   if (!response.ok) {
@@ -384,14 +362,11 @@ export async function addUserRolePermissionsRequest(
   roleId: string,
   permissionIds: string[],
 ): Promise<AddUserRolePermissionsResult> {
-  const response = await fetch(
+  const response = await apiFetch(
     `${API_URL}v1/user-role/${roleId}/permissions`,
     {
       method: 'POST',
-      headers: {
-        ...authHeaders(),
-        'Content-Type': 'application/json',
-      },
+      headers: jsonHeaders(),
       body: JSON.stringify({ permissionIds }),
     },
   );
@@ -407,12 +382,9 @@ export async function removeUserRolePermissionRequest(
   roleId: string,
   permissionId: string,
 ): Promise<{ roleId: string; permissionId: string; removed: boolean }> {
-  const response = await fetch(
+  const response = await apiFetch(
     `${API_URL}v1/user-role/${roleId}/permissions/${permissionId}`,
-    {
-      method: 'DELETE',
-      headers: authHeaders(),
-    },
+    { method: 'DELETE' },
   );
 
   if (!response.ok) {
@@ -461,9 +433,7 @@ export type UserRoleModuleCandidateListResult = {
 };
 
 export async function listGrantedModulesRequest(): Promise<GrantedModule[]> {
-  const response = await fetch(`${API_URL}v1/user-role/me/modules`, {
-    headers: authHeaders(),
-  });
+  const response = await apiFetch(`${API_URL}v1/user-role/me/modules`);
 
   if (!response.ok) {
     throw new Error(await readErrorMessage(response));
@@ -489,9 +459,8 @@ export async function listUserRoleModulesRequest(
   }
 
   const query = params.toString();
-  const response = await fetch(
+  const response = await apiFetch(
     `${API_URL}v1/user-role/${roleId}/modules${query ? `?${query}` : ''}`,
-    { headers: authHeaders() },
   );
 
   if (!response.ok) {
@@ -517,9 +486,8 @@ export async function listUserRoleModuleCandidatesRequest(
   }
 
   const query = params.toString();
-  const response = await fetch(
+  const response = await apiFetch(
     `${API_URL}v1/user-role/${roleId}/modules/candidates${query ? `?${query}` : ''}`,
-    { headers: authHeaders() },
   );
 
   if (!response.ok) {
@@ -538,12 +506,9 @@ export async function addUserRoleModulesRequest(
   roleId: string,
   moduleIds: string[],
 ): Promise<AddUserRoleModulesResult> {
-  const response = await fetch(`${API_URL}v1/user-role/${roleId}/modules`, {
+  const response = await apiFetch(`${API_URL}v1/user-role/${roleId}/modules`, {
     method: 'POST',
-    headers: {
-      ...authHeaders(),
-      'Content-Type': 'application/json',
-    },
+    headers: jsonHeaders(),
     body: JSON.stringify({ moduleIds }),
   });
 
@@ -558,12 +523,9 @@ export async function removeUserRoleModuleRequest(
   roleId: string,
   moduleId: string,
 ): Promise<{ roleId: string; moduleId: string; removed: boolean }> {
-  const response = await fetch(
+  const response = await apiFetch(
     `${API_URL}v1/user-role/${roleId}/modules/${moduleId}`,
-    {
-      method: 'DELETE',
-      headers: authHeaders(),
-    },
+    { method: 'DELETE' },
   );
 
   if (!response.ok) {

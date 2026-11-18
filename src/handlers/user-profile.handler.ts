@@ -1,8 +1,6 @@
 import { API_URL } from '../config';
-import {
-  getAccessToken,
-  type AuthUser,
-} from './auth.handler';
+import { apiFetch } from './api.handler';
+import type { AuthUser } from './auth.handler';
 import {
   getFileCategoryByCodeRequest,
   uploadFileRequest,
@@ -23,21 +21,17 @@ async function readErrorMessage(response: Response): Promise<string> {
   return `Request failed (${response.status})`;
 }
 
-function authHeaders(json = false): HeadersInit {
-  const accessToken = getAccessToken();
-  return {
-    ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
-    ...(json ? { 'Content-Type': 'application/json' } : {}),
-  };
+function jsonHeaders(): HeadersInit {
+  return { 'Content-Type': 'application/json' };
 }
 
 async function linkImage(
   path: 'profile-image' | 'cover-image',
   fileId: string,
 ): Promise<AuthUser> {
-  const response = await fetch(`${API_URL}v1/user/me/${path}`, {
+  const response = await apiFetch(`${API_URL}v1/user/me/${path}`, {
     method: 'PATCH',
-    headers: authHeaders(true),
+    headers: jsonHeaders(),
     body: JSON.stringify({ fileId }),
   });
 
@@ -51,9 +45,8 @@ async function linkImage(
 async function clearImage(
   path: 'profile-image' | 'cover-image',
 ): Promise<AuthUser> {
-  const response = await fetch(`${API_URL}v1/user/me/${path}`, {
+  const response = await apiFetch(`${API_URL}v1/user/me/${path}`, {
     method: 'DELETE',
-    headers: authHeaders(),
   });
 
   if (!response.ok) {

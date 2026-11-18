@@ -1,5 +1,5 @@
 import { API_URL } from '../config';
-import { getAccessToken } from './auth.handler';
+import { apiFetch } from './api.handler';
 
 export type FileCategory = {
   id: string;
@@ -40,13 +40,6 @@ async function readErrorMessage(response: Response): Promise<string> {
   return `Request failed (${response.status})`;
 }
 
-function authHeaders(): HeadersInit {
-  const accessToken = getAccessToken();
-  return {
-    ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
-  };
-}
-
 const categoryCache = new Map<string, FileCategory>();
 
 /** Resolve a known category (`PROFILE_IMAGE` / `COVER_IMAGE`). Cached in-memory. */
@@ -58,9 +51,8 @@ export async function getFileCategoryByCodeRequest(
     return cached;
   }
 
-  const response = await fetch(
+  const response = await apiFetch(
     `${API_URL}v1/file/category/by-code/${encodeURIComponent(code)}`,
-    { headers: authHeaders() },
   );
 
   if (!response.ok) {
@@ -87,9 +79,8 @@ export async function uploadFileRequest(
     body.append('description', options.description);
   }
 
-  const response = await fetch(`${API_URL}v1/file/upload`, {
+  const response = await apiFetch(`${API_URL}v1/file/upload`, {
     method: 'POST',
-    headers: authHeaders(),
     body,
   });
 
@@ -104,9 +95,7 @@ export async function uploadFileRequest(
 export async function fetchAuthorizedFileUrl(
   uuidName: string,
 ): Promise<string> {
-  const response = await fetch(`${API_URL}v1/file/${uuidName}`, {
-    headers: authHeaders(),
-  });
+  const response = await apiFetch(`${API_URL}v1/file/${uuidName}`);
 
   if (!response.ok) {
     throw new Error(await readErrorMessage(response));
