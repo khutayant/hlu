@@ -1,0 +1,11 @@
+---
+description: Menu panel vs sidebar menu wording in HLU Work UI
+globs: hlu-work/src/**/*
+---
+
+# Menu panel vs sidebar
+
+- **Sidebar menu** = app left sider (`AppSidebar`).
+- **Menu panel** = left nav **inside** the page content (Locations → Country/Township; Projects → Projects/Immunization Sessions; user-role detail sections). Same shell pattern as `location-master-page` / `user-role-detail-page`.
+- Desktop menu panel width: **280px** (full width on mobile).
+- When the user says **menu panel**, do **not** add a nested Ant Design SubMenu in the app sidebar. Build the in-content left panel.
