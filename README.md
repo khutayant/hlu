@@ -27,7 +27,7 @@ Remote: `https://github.com/khutayant/hlu.git`
 - Meeting: `YYYY-MM-DD-MEET-NNN-short-slug.md`
 - Note: `YYYY-MM-DD-NOTE-NNN-short-slug.md`
 
-Copy `_template-meeting.md` / `_template-note.md`. Next numbers: **MEET-021**, **NOTE-025**.
+Copy `_template-meeting.md` / `_template-note.md`. Next numbers: **MEET-022**, **NOTE-026**.
 
 ## Track changes
 
