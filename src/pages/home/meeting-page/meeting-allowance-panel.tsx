@@ -368,7 +368,7 @@ function AllowanceFormBody({
 export function MeetingAllowancePanel({ meeting }: { meeting: Meeting }) {
   const { t } = useI18n();
   const { showToast } = useToast();
-  const { customDialog } = useDialog();
+  const { confirmDialog, customDialog } = useDialog();
   const [items, setItems] = useState<MeetingAllowance[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -449,6 +449,29 @@ export function MeetingAllowancePanel({ meeting }: { meeting: Meeting }) {
   };
 
   const onToggleActive = async (row: MeetingAllowance, nextActive: boolean) => {
+    const confirmed = await confirmDialog({
+      title: t(
+        nextActive
+          ? 'meetingAllowancePanel.statusActivateConfirmTitle'
+          : 'meetingAllowancePanel.statusDeactivateConfirmTitle',
+      ),
+      message: t(
+        nextActive
+          ? 'meetingAllowancePanel.statusActivateConfirmMessage'
+          : 'meetingAllowancePanel.statusDeactivateConfirmMessage',
+        { name: row.name },
+      ),
+      okText: t(
+        nextActive
+          ? 'meetingAllowancePanel.statusActivateConfirmOk'
+          : 'meetingAllowancePanel.statusDeactivateConfirmOk',
+      ),
+      cancelText: t('common.cancel'),
+    });
+    if (!confirmed) {
+      return;
+    }
+
     setStatusBusyId(row.id);
     try {
       await setMeetingAllowanceActiveRequest(row.id, nextActive);

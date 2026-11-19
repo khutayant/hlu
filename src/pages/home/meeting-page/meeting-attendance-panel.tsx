@@ -252,7 +252,7 @@ function AddAttendanceFormBody({
 export function MeetingAttendancePanel({ meetingId }: { meetingId: string }) {
   const { t } = useI18n();
   const { showToast } = useToast();
-  const { customDialog } = useDialog();
+  const { confirmDialog, customDialog } = useDialog();
   const navigate = useNavigate();
   const [items, setItems] = useState<MeetingAttendance[]>([]);
   const [total, setTotal] = useState(0);
@@ -318,6 +318,30 @@ export function MeetingAttendancePanel({ meetingId }: { meetingId: string }) {
   };
 
   const onToggleActive = async (row: MeetingAttendance, nextActive: boolean) => {
+    const name = formatEmployeeName(row);
+    const confirmed = await confirmDialog({
+      title: t(
+        nextActive
+          ? 'meetingAttendancePanel.statusActivateConfirmTitle'
+          : 'meetingAttendancePanel.statusDeactivateConfirmTitle',
+      ),
+      message: t(
+        nextActive
+          ? 'meetingAttendancePanel.statusActivateConfirmMessage'
+          : 'meetingAttendancePanel.statusDeactivateConfirmMessage',
+        { name },
+      ),
+      okText: t(
+        nextActive
+          ? 'meetingAttendancePanel.statusActivateConfirmOk'
+          : 'meetingAttendancePanel.statusDeactivateConfirmOk',
+      ),
+      cancelText: t('common.cancel'),
+    });
+    if (!confirmed) {
+      return;
+    }
+
     setStatusBusyId(row.id);
     try {
       await setMeetingAttendanceActiveRequest(row.id, nextActive);
@@ -326,7 +350,7 @@ export function MeetingAttendancePanel({ meetingId }: { meetingId: string }) {
           nextActive
             ? 'meetingAttendancePanel.statusActivateSuccess'
             : 'meetingAttendancePanel.statusDeactivateSuccess',
-          { name: formatEmployeeName(row) },
+          { name },
         ),
         severity: 'success',
       });
