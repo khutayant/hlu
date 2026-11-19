@@ -105,7 +105,7 @@ export async function updateTitleRequest(
   input: UpdateTitleInput,
 ): Promise<Title> {
   const response = await apiFetch(`${API_URL}v1/title/${id}`, {
-    method: 'PUT',
+    method: 'PATCH',
     headers: jsonHeaders(),
     body: JSON.stringify(input),
   });

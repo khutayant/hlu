@@ -55,8 +55,9 @@ const HEADER_ALIASES: Record<string, AttendanceImportColumn> = {
 
 const HEADER_FILL = 'C6EFCE';
 
+/** Trim, strip all whitespace, uppercase (e.g. ` ho 001 ` → `HO001`). */
 export function normalizeFocalNo(value: string) {
-  return value.trim().toUpperCase();
+  return value.replace(/\s+/g, '').toUpperCase();
 }
 
 export function resolveImportHeader(

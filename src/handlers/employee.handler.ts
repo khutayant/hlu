@@ -403,7 +403,7 @@ export async function updateEmployeeRequest(
   input: UpdateEmployeeInput,
 ): Promise<Employee> {
   const response = await apiFetch(`${API_URL}v1/employee/${id}`, {
-    method: 'PUT',
+    method: 'PATCH',
     headers: jsonHeaders(),
     body: JSON.stringify(input),
   });

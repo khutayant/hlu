@@ -22,6 +22,13 @@ export const ADMIN_SYSTEM_CODE = 'ADMIN_SYSTEM';
 /** System code required to open staff employee pages. */
 export const EMPLOYEE_MANAGEMENT_SYSTEM_CODE = 'EMPLOYEE_MANAGEMENT_SYSTEM';
 
+/** System code required to open meeting and attendance pages. */
+export const MEETING_AND_ATTENDANCE_MANAGEMENT_SYSTEM_CODE =
+  'MEETING_AND_ATTENDANCE_MANAGEMENT_SYSTEM';
+
+/** System code required to open masters (reference data) pages. */
+export const MASTER_MANAGEMENT_SYSTEM_CODE = 'MASTER_MANAGEMENT_SYSTEM';
+
 type ModuleContextValue = {
   modules: GrantedModule[];
   /** False while the one granted-module request is in flight. */

@@ -12,6 +12,11 @@ export type MeetingAttendanceEmployee = {
   focalNo: string;
   displayName: string;
   titleName: string | null;
+  gender: string | null;
+  townshipId: string | null;
+  townshipName: string | null;
+  positionName: string | null;
+  experience: string | null;
 };
 
 export type MeetingAttendance = {

@@ -7,5 +7,6 @@ export const MEETING_PAGE_MENU: SidebarMenuItem[] = [
     labelKey: 'nav.meetingsList',
     path: '/meeting',
     icon: 'meeting',
+    moduleCode: 'MEETING_AND_ATTENDANCE_MANAGEMENT_SYSTEM',
   },
 ];

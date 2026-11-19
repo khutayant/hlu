@@ -35,8 +35,12 @@ const ROUTE_LABELS: { path: string; labelKey: string }[] = [
     labelKey: 'meetingAttendancePanel.import.title',
   },
   {
-    path: '/meeting/:id/perdiem-receipt',
-    labelKey: 'meetingDetailPage.menu.perdiemReceipt',
+    path: '/meeting/:id/allowance',
+    labelKey: 'meetingDetailPage.menu.allowance',
+  },
+  {
+    path: '/meeting/:id/reports',
+    labelKey: 'meetingDetailPage.menu.reports',
   },
   { path: '/masters', labelKey: 'nav.mastersPage' },
   { path: '/masters/location', labelKey: 'nav.locationMasterPage' },
@@ -52,13 +56,14 @@ const ROUTE_LABELS: { path: string; labelKey: string }[] = [
   { path: '/masters/title', labelKey: 'nav.titleMasterPage' },
   { path: '/masters/position', labelKey: 'nav.positionMasterPage' },
   { path: '/masters/project', labelKey: 'nav.projectMasterPage' },
+  { path: '/masters/project/:id', labelKey: 'nav.projectDetail' },
   {
-    path: '/masters/project/projects',
-    labelKey: 'projectMasterPage.menu.projects',
+    path: '/masters/project/:id/details',
+    labelKey: 'projectDetailPage.menu.details',
   },
   {
-    path: '/masters/project/immunization-sessions',
-    labelKey: 'projectMasterPage.menu.immunizationSessions',
+    path: '/masters/project/:id/immunization-sessions',
+    labelKey: 'projectDetailPage.menu.immunizationSessions',
   },
   { path: '/admin/user-role/:id', labelKey: 'nav.userRoleDetail' },
   {

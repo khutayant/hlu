@@ -48,6 +48,7 @@ import {
   downloadAttendanceImportTemplate,
   FOCAL_NO_MAX_LENGTH,
   isAttendanceImportRowValid,
+  normalizeFocalNo,
   parseAttendanceImportFile,
   validateAttendanceImportRows,
   type AttendanceImportColumn,
@@ -245,7 +246,7 @@ export function MeetingAttendanceImportPanel({
             ? {
                 ...row,
                 name: values.name ?? '',
-                focalNo: (values.focalNo ?? '').toUpperCase(),
+                focalNo: normalizeFocalNo(values.focalNo ?? ''),
                 remark: values.remark ?? '',
                 importError: null,
               }
@@ -532,7 +533,7 @@ export function MeetingAttendanceImportPanel({
           disabled={importing}
           maxLength={FOCAL_NO_MAX_LENGTH}
           onChange={(value) =>
-            updateField(row.key, 'focalNo', value.toUpperCase())
+            updateField(row.key, 'focalNo', normalizeFocalNo(value))
           }
         />
       ),
@@ -839,7 +840,7 @@ export function MeetingAttendanceImportPanel({
                 message: t('meetingAttendancePanel.validation.focalNoRequired'),
               },
             ]}
-            normalize={(value: string) => (value ?? '').toUpperCase()}
+            normalize={(value: string) => normalizeFocalNo(value ?? '')}
           >
             <Input maxLength={FOCAL_NO_MAX_LENGTH} />
           </Form.Item>

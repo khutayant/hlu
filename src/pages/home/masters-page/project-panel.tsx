@@ -13,6 +13,7 @@ import {
 } from 'antd';
 import type { ColumnsType, TablePaginationConfig } from 'antd/es/table';
 import { useEffect, useState, type ReactNode } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   createProjectRequest,
   listProjectsRequest,
@@ -45,7 +46,8 @@ function renderActorCell(
   );
 }
 
-function ProjectFormBody({
+/** Shared create/edit form body used by list and detail dialogs. */
+export function ProjectFormBody({
   mode,
   initial,
   onSaved,
@@ -174,6 +176,7 @@ export function ProjectPanel() {
   const { t } = useI18n();
   const { showToast } = useToast();
   const { customDialog } = useDialog();
+  const navigate = useNavigate();
   const [items, setItems] = useState<Project[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -285,19 +288,18 @@ export function ProjectPanel() {
       fixed: 'left',
       width: 220,
       render: (value: string, row) => (
-        <div>
-          <div>{value}</div>
+        <div style={{ lineHeight: 1.35 }}>
+          <Typography.Link
+            style={{ display: 'block', fontSize: 13 }}
+            onClick={() => navigate(`/masters/project/${row.id}/details`)}
+          >
+            {value}
+          </Typography.Link>
           <Typography.Text type='secondary' style={{ fontSize: 12 }}>
             {row.projectNo}
           </Typography.Text>
         </div>
       ),
-    },
-    {
-      title: t('projectPanel.columns.projectNo'),
-      dataIndex: 'projectNo',
-      key: 'projectNo',
-      width: 140,
     },
     {
       title: t('projectPanel.columns.description'),

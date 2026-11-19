@@ -16,11 +16,4 @@ export const ADMIN_PAGE_MENU: SidebarMenuItem[] = [
     icon: 'userRole',
     moduleCode: 'ADMIN_SYSTEM',
   },
-  {
-    id: 'test',
-    labelKey: 'nav.testPage',
-    path: '/test',
-    icon: 'test',
-    devOnly: true,
-  },
 ];

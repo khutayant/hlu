@@ -104,7 +104,7 @@ export async function updateCountryRequest(
   input: UpdateCountryInput,
 ): Promise<Country> {
   const response = await apiFetch(`${API_URL}v1/country/${id}`, {
-    method: 'PUT',
+    method: 'PATCH',
     headers: jsonHeaders(),
     body: JSON.stringify(input),
   });

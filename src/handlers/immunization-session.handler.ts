@@ -131,7 +131,7 @@ export async function updateImmunizationSessionRequest(
   input: UpdateImmunizationSessionInput,
 ): Promise<ImmunizationSession> {
   const response = await apiFetch(`${API_URL}v1/immunization-session/${id}`, {
-    method: 'PUT',
+    method: 'PATCH',
     headers: jsonHeaders(),
     body: JSON.stringify(input),
   });

@@ -7,6 +7,8 @@ import { parseCsv } from '../../../../tools/parse-csv.tool';
 /** Letters A–Z then digits 0–9 only; max 9 (e.g. A91, M003). */
 export const FOCAL_NO_PATTERN = /^[A-Z]+[0-9]+$/;
 export const FOCAL_NO_MAX_LENGTH = 9;
+/** Letter prefix for employees with no township (head office). */
+export const HEAD_OFFICE_FOCAL_PREFIX = 'HO';
 
 export const EMPLOYEE_GENDERS = ['MALE', 'FEMALE', 'OTHER'] as const;
 
@@ -100,6 +102,8 @@ export type EmployeeImportMessages = {
   focalNoDuplicateFile: string;
   /** Used only when import-time DB check finds conflicts (cell highlight). */
   focalNoDuplicateDb: string;
+  /** Empty township → focal must start with HO. */
+  focalNoHeadOfficePrefix: string;
   genderRequired: string;
   genderInvalid: string;
   townshipNameRequired: string;
@@ -111,6 +115,11 @@ export type EmployeeImportMessages = {
 
 export function normalizeFocalNo(value: string) {
   return value.trim().toUpperCase();
+}
+
+export function focalNoLetterPrefix(focalNo: string) {
+  const match = normalizeFocalNo(focalNo).match(/^([A-Z]+)/);
+  return match?.[1] ?? '';
 }
 
 export function parseEmployeeGender(value: string): EmployeeGender | null {
@@ -207,6 +216,11 @@ export function validateEmployeeImportRows(
       errors.focalNo = messages.focalNoMaxLength;
     } else if (!FOCAL_NO_PATTERN.test(focalNo)) {
       errors.focalNo = messages.focalNoPattern;
+    } else if (
+      !townshipName &&
+      focalNoLetterPrefix(focalNo) !== HEAD_OFFICE_FOCAL_PREFIX
+    ) {
+      errors.focalNo = messages.focalNoHeadOfficePrefix;
     } else if ((focalCounts.get(focalNo) ?? 0) > 1) {
       errors.focalNo = messages.focalNoDuplicateFile;
     } else if (existingFocalNos.has(focalNo)) {
@@ -219,9 +233,6 @@ export function validateEmployeeImportRows(
       errors.gender = messages.genderInvalid;
     }
 
-    if (!townshipName) {
-      errors.townshipName = messages.townshipNameRequired;
-    }
     if (!position) {
       errors.position = messages.positionRequired;
     }
@@ -270,7 +281,7 @@ export function toCreateEmployeeInput(row: EmployeeImportRow): CreateEmployeeInp
     displayName: row.displayName.trim(),
     focalNo: normalizeFocalNo(row.focalNo),
     gender,
-    townshipName: row.townshipName.trim(),
+    townshipName: row.townshipName.trim() || null,
     positionName: row.position.trim(),
     experience: row.experience.trim(),
     email: row.email.trim() || null,

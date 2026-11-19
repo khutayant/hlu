@@ -6,15 +6,21 @@ import {
   Form,
   Input,
   Segmented,
+  Select,
   Space,
   Switch,
   Table,
+  Tag,
   Typography,
   theme,
 } from 'antd';
 import type { ColumnsType, TablePaginationConfig } from 'antd/es/table';
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {
+  listCategoriesRequest,
+  type Category,
+} from '../../../../handlers/category.handler';
 import {
   createPositionRequest,
   listPositionsRequest,
@@ -33,6 +39,8 @@ import { useToast } from '../../../../providers/toast.provider';
 import { formatDisplayDateTime } from '../../../../tools/format-date.tool';
 
 const DEFAULT_PAGE_SIZE = 20;
+const CATEGORY_FETCH_LIMIT = 100;
+const POSITION_CATEGORIES_ROOT = 'POSITION_CATEGORIES';
 type ActiveFilter = 'active' | 'inactive';
 
 function renderActorCell(
@@ -51,13 +59,34 @@ function renderActorCell(
   );
 }
 
+function positionCategoryOptions(categories: Category[]): Category[] {
+  const root = categories.find((item) => item.code === POSITION_CATEGORIES_ROOT);
+  if (!root) {
+    return categories;
+  }
+  return categories.filter((item) => item.parentCategoryId === root.id);
+}
+
+function categoryChipColor(code: string | null | undefined) {
+  switch (code) {
+    case 'HEAD_OFFICE_POSITION':
+      return 'blue';
+    case 'FIELD_OFFICE_POSITION':
+      return 'green';
+    default:
+      return 'default';
+  }
+}
+
 function PositionFormBody({
   mode,
   initial,
+  categories,
   onSaved,
 }: {
   mode: 'create' | 'edit';
   initial?: Position;
+  categories: Category[];
   onSaved: () => void;
 }) {
   const { t } = useI18n();
@@ -66,15 +95,31 @@ function PositionFormBody({
   const [form] = Form.useForm<{
     name: string;
     code: string;
+    categoryId?: string | null;
     description?: string;
   }>();
   const [saving, setSaving] = useState(false);
+
+  const categoryChoices = useMemo(() => {
+    const options = positionCategoryOptions(categories);
+    if (
+      initial?.categoryId &&
+      !options.some((item) => item.id === initial.categoryId)
+    ) {
+      const current = categories.find((item) => item.id === initial.categoryId);
+      if (current) {
+        return [...options, current];
+      }
+    }
+    return options;
+  }, [categories, initial?.categoryId]);
 
   useEffect(() => {
     if (initial) {
       form.setFieldsValue({
         name: initial.name,
         code: initial.code,
+        categoryId: initial.categoryId,
         description: initial.description ?? undefined,
       });
     }
@@ -93,10 +138,12 @@ function PositionFormBody({
             void form.validateFields().then(async (values) => {
               setSaving(true);
               try {
+                const categoryId = values.categoryId || null;
                 if (mode === 'create') {
                   await createPositionRequest({
                     name: values.name.trim(),
                     code: values.code.trim().toUpperCase(),
+                    categoryId,
                     description: values.description?.trim() || null,
                   });
                   showToast({
@@ -107,6 +154,7 @@ function PositionFormBody({
                   await updatePositionRequest(initial.id, {
                     name: values.name.trim(),
                     code: values.code.trim().toUpperCase(),
+                    categoryId,
                     description: values.description?.trim() || null,
                   });
                   showToast({
@@ -188,6 +236,21 @@ function PositionFormBody({
         <Input placeholder='MIDWIFE' />
       </Form.Item>
       <Form.Item
+        name='categoryId'
+        label={t('positionMasterPage.fields.category')}
+      >
+        <Select
+          allowClear
+          showSearch
+          optionFilterProp='label'
+          placeholder={t('positionMasterPage.fields.categoryNone')}
+          options={categoryChoices.map((item) => ({
+            value: item.id,
+            label: `${item.name} (${item.code})`,
+          }))}
+        />
+      </Form.Item>
+      <Form.Item
         name='description'
         label={t('positionMasterPage.fields.description')}
       >
@@ -204,6 +267,7 @@ function EmployeePositionsPage() {
   const { showToast } = useToast();
   const { customDialog } = useDialog();
   const [items, setItems] = useState<Position[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
@@ -235,15 +299,23 @@ function EmployeePositionsPage() {
     void (async () => {
       setLoading(true);
       try {
-        const result = await listPositionsRequest({
-          q: q || undefined,
-          page,
-          limit: pageSize,
-          active: activeFilter === 'active',
-        });
+        const [result, categoryResult] = await Promise.all([
+          listPositionsRequest({
+            q: q || undefined,
+            page,
+            limit: pageSize,
+            active: activeFilter === 'active',
+          }),
+          listCategoriesRequest({
+            page: 1,
+            limit: CATEGORY_FETCH_LIMIT,
+            active: true,
+          }),
+        ]);
         if (!cancelled) {
           setItems(result.items);
           setTotal(result.total);
+          setCategories(categoryResult.items);
         }
       } catch (error) {
         if (!cancelled) {
@@ -275,6 +347,7 @@ function EmployeePositionsPage() {
       content: (
         <PositionFormBody
           mode='create'
+          categories={categories}
           onSaved={() => setReloadKey((key) => key + 1)}
         />
       ),
@@ -289,6 +362,7 @@ function EmployeePositionsPage() {
         <PositionFormBody
           mode='edit'
           initial={row}
+          categories={categories}
           onSaved={() => setReloadKey((key) => key + 1)}
         />
       ),
@@ -337,6 +411,19 @@ function EmployeePositionsPage() {
           </Typography.Text>
         </div>
       ),
+    },
+    {
+      title: t('positionMasterPage.columns.category'),
+      key: 'category',
+      width: 200,
+      render: (_value, row) =>
+        row.category ? (
+          <Tag color={categoryChipColor(row.category.code)}>
+            {row.category.name}
+          </Tag>
+        ) : (
+          '—'
+        ),
     },
     {
       title: t('positionMasterPage.columns.description'),

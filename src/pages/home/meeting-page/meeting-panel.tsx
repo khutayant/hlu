@@ -7,6 +7,7 @@ import {
   Form,
   Input,
   Segmented,
+  Select,
   Space,
   Switch,
   Table,
@@ -24,6 +25,10 @@ import {
   type Meeting,
   type MeetingActor,
 } from '../../../handlers/meeting.handler';
+import {
+  listProjectsRequest,
+  type Project,
+} from '../../../handlers/project.handler';
 import { useDialog } from '../../../providers/dialog.provider';
 import { useI18n } from '../../../providers/i18n.provider';
 import { useToast } from '../../../providers/toast.provider';
@@ -73,9 +78,35 @@ export function MeetingFormBody({
     name: string;
     fromDate: Dayjs;
     toDate: Dayjs;
+    place?: string;
+    projectId?: string;
     description?: string;
   }>();
   const [saving, setSaving] = useState(false);
+  const [projects, setProjects] = useState<Project[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const result = await listProjectsRequest({
+          active: true,
+          page: 1,
+          limit: 100,
+        });
+        if (!cancelled) {
+          setProjects(result.items);
+        }
+      } catch {
+        if (!cancelled) {
+          setProjects([]);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     if (initial) {
@@ -83,6 +114,8 @@ export function MeetingFormBody({
         name: initial.name,
         fromDate: dayjs(initial.fromDate),
         toDate: dayjs(initial.toDate),
+        place: initial.place ?? undefined,
+        projectId: initial.projectId ?? undefined,
         description: initial.description ?? undefined,
       });
     }
@@ -113,6 +146,8 @@ export function MeetingFormBody({
                     name: values.name.trim(),
                     fromDate,
                     toDate,
+                    place: values.place?.trim() || null,
+                    projectId: values.projectId || null,
                     description: values.description?.trim() || null,
                   });
                   showToast({
@@ -124,6 +159,8 @@ export function MeetingFormBody({
                     name: values.name.trim(),
                     fromDate,
                     toDate,
+                    place: values.place?.trim() || null,
+                    projectId: values.projectId || null,
                     description: values.description?.trim() || null,
                   });
                   showToast({
@@ -166,12 +203,37 @@ export function MeetingFormBody({
   ]);
 
   return (
-    <Form form={form} layout='vertical' style={{ marginTop: 8 }}>
+    <Form form={form} layout='vertical' style={{ marginTop: 4 }}>
       {mode === 'edit' && initial ? (
-        <Form.Item label={t('meetingPanel.fields.meetingNo')}>
-          <Input value={initial.meetingNo} disabled />
-        </Form.Item>
+        <Typography.Text
+          type='secondary'
+          style={{ display: 'block', marginBottom: 12, fontSize: 13 }}
+        >
+          {initial.meetingNo}
+        </Typography.Text>
       ) : null}
+      <Form.Item name='projectId' label={t('meetingPanel.fields.project')}>
+        <Select
+          allowClear
+          showSearch
+          optionFilterProp='label'
+          options={(initial?.project &&
+          !projects.some((project) => project.id === initial.project?.id)
+            ? [
+                {
+                  id: initial.project.id,
+                  name: initial.project.name,
+                  projectNo: initial.project.projectNo,
+                },
+                ...projects,
+              ]
+            : projects
+          ).map((project) => ({
+            value: project.id,
+            label: `${project.name} (${project.projectNo})`,
+          }))}
+        />
+      </Form.Item>
       <Form.Item
         name='name'
         label={t('meetingPanel.fields.name')}
@@ -181,49 +243,56 @@ export function MeetingFormBody({
       >
         <Input />
       </Form.Item>
-      <Form.Item
-        name='fromDate'
-        label={t('meetingPanel.fields.fromDate')}
-        rules={[
-          {
-            required: true,
-            message: t('meetingPanel.validation.fromDateRequired'),
-          },
-        ]}
-      >
-        <DatePicker
-          showTime={{ format: 'hh:mm A', minuteStep: 5 }}
-          style={{ width: '100%' }}
-          format={DATE_TIME_FORMAT}
-        />
-      </Form.Item>
-      <Form.Item
-        name='toDate'
-        label={t('meetingPanel.fields.toDate')}
-        dependencies={['fromDate']}
-        rules={[
-          {
-            required: true,
-            message: t('meetingPanel.validation.toDateRequired'),
-          },
-          ({ getFieldValue }) => ({
-            validator(_, value?: Dayjs | null) {
-              const fromDate = getFieldValue('fromDate') as Dayjs | undefined;
-              if (!value || !fromDate || !value.isBefore(fromDate)) {
-                return Promise.resolve();
-              }
-              return Promise.reject(
-                new Error(t('meetingPanel.validation.toDateAfterFromDate')),
-              );
+      <Flex gap={12}>
+        <Form.Item
+          name='fromDate'
+          label={t('meetingPanel.fields.fromDate')}
+          style={{ flex: 1, minWidth: 0 }}
+          rules={[
+            {
+              required: true,
+              message: t('meetingPanel.validation.fromDateRequired'),
             },
-          }),
-        ]}
-      >
-        <DatePicker
-          showTime={{ format: 'hh:mm A', minuteStep: 5 }}
-          style={{ width: '100%' }}
-          format={DATE_TIME_FORMAT}
-        />
+          ]}
+        >
+          <DatePicker
+            showTime={{ format: 'hh:mm A', minuteStep: 5 }}
+            style={{ width: '100%' }}
+            format={DATE_TIME_FORMAT}
+          />
+        </Form.Item>
+        <Form.Item
+          name='toDate'
+          label={t('meetingPanel.fields.toDate')}
+          style={{ flex: 1, minWidth: 0 }}
+          dependencies={['fromDate']}
+          rules={[
+            {
+              required: true,
+              message: t('meetingPanel.validation.toDateRequired'),
+            },
+            ({ getFieldValue }) => ({
+              validator(_, value?: Dayjs | null) {
+                const fromDate = getFieldValue('fromDate') as Dayjs | undefined;
+                if (!value || !fromDate || !value.isBefore(fromDate)) {
+                  return Promise.resolve();
+                }
+                return Promise.reject(
+                  new Error(t('meetingPanel.validation.toDateAfterFromDate')),
+                );
+              },
+            }),
+          ]}
+        >
+          <DatePicker
+            showTime={{ format: 'hh:mm A', minuteStep: 5 }}
+            style={{ width: '100%' }}
+            format={DATE_TIME_FORMAT}
+          />
+        </Form.Item>
+      </Flex>
+      <Form.Item name='place' label={t('meetingPanel.fields.place')}>
+        <Input maxLength={256} />
       </Form.Item>
       <Form.Item
         name='description'
@@ -242,15 +311,40 @@ export function MeetingPanel() {
   const { customDialog } = useDialog();
   const navigate = useNavigate();
   const [items, setItems] = useState<Meeting[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
   const [loading, setLoading] = useState(true);
   const [searchInput, setSearchInput] = useState('');
   const [q, setQ] = useState('');
+  const [projectId, setProjectId] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<ActiveFilter>('active');
   const [statusBusyId, setStatusBusyId] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const result = await listProjectsRequest({
+          active: true,
+          page: 1,
+          limit: 100,
+        });
+        if (!cancelled) {
+          setProjects(result.items);
+        }
+      } catch {
+        if (!cancelled) {
+          setProjects([]);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -262,6 +356,7 @@ export function MeetingPanel() {
           page,
           limit: pageSize,
           active: activeFilter === 'active',
+          projectId: projectId ?? undefined,
         });
         if (!cancelled) {
           setItems(result.items);
@@ -288,12 +383,12 @@ export function MeetingPanel() {
     return () => {
       cancelled = true;
     };
-  }, [page, pageSize, q, activeFilter, reloadKey, showToast, t]);
+  }, [page, pageSize, q, activeFilter, projectId, reloadKey, showToast, t]);
 
   const openCreate = () => {
     customDialog({
       title: t('meetingPanel.createTitle'),
-      width: 480,
+      width: 560,
       content: (
         <MeetingFormBody
           mode='create'
@@ -306,7 +401,7 @@ export function MeetingPanel() {
   const openEdit = (row: Meeting) => {
     customDialog({
       title: t('meetingPanel.editTitle'),
-      width: 480,
+      width: 560,
       content: (
         <MeetingFormBody
           mode='edit'
@@ -386,6 +481,22 @@ export function MeetingPanel() {
           {formatDisplayDateTime(value)}
         </Typography.Text>
       ),
+    },
+    {
+      title: t('meetingPanel.columns.place'),
+      dataIndex: 'place',
+      key: 'place',
+      ellipsis: true,
+      render: (value: string | null) => value || '—',
+    },
+    {
+      title: t('meetingPanel.columns.project'),
+      key: 'project',
+      ellipsis: true,
+      render: (_value, row) =>
+        row.project
+          ? `${row.project.name} (${row.project.projectNo})`
+          : '—',
     },
     {
       title: t('meetingPanel.columns.description'),
@@ -471,6 +582,22 @@ export function MeetingPanel() {
               setPage(1);
             }}
             style={{ width: 280, maxWidth: '100%' }}
+          />
+          <Select
+            allowClear
+            showSearch
+            optionFilterProp='label'
+            placeholder={t('meetingPanel.filterAllProjects')}
+            value={projectId}
+            onChange={(value) => {
+              setProjectId(value ?? null);
+              setPage(1);
+            }}
+            style={{ minWidth: 220 }}
+            options={projects.map((project) => ({
+              value: project.id,
+              label: `${project.name} (${project.projectNo})`,
+            }))}
           />
           <Segmented
             value={activeFilter}

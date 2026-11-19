@@ -6,11 +6,19 @@ export type PositionActor = {
   name: string;
 };
 
+export type PositionCategory = {
+  id: string;
+  name: string;
+  code: string;
+};
+
 export type Position = {
   id: string;
   name: string;
   code: string;
   description: string | null;
+  categoryId: string | null;
+  category: PositionCategory | null;
   active: boolean;
   createdDate: string;
   updatedDate: string;
@@ -30,12 +38,14 @@ export type CreatePositionInput = {
   name: string;
   code: string;
   description?: string | null;
+  categoryId?: string | null;
 };
 
 export type UpdatePositionInput = {
   name?: string;
   code?: string;
   description?: string | null;
+  categoryId?: string | null;
 };
 
 async function readErrorMessage(response: Response): Promise<string> {
@@ -105,7 +115,7 @@ export async function updatePositionRequest(
   input: UpdatePositionInput,
 ): Promise<Position> {
   const response = await apiFetch(`${API_URL}v1/position/${id}`, {
-    method: 'PUT',
+    method: 'PATCH',
     headers: jsonHeaders(),
     body: JSON.stringify(input),
   });

@@ -47,7 +47,7 @@ export function MeetingDetailPanel({
   const openEdit = () => {
     customDialog({
       title: t('meetingPanel.editTitle'),
-      width: 480,
+      width: 560,
       content: (
         <MeetingFormBody
           mode='edit'
@@ -93,6 +93,14 @@ export function MeetingDetailPanel({
         </Button>
       </Flex>
 
+      <DetailRow
+        label={t('meetingPanel.fields.project')}
+        value={
+          meeting.project
+            ? `${meeting.project.name} (${meeting.project.projectNo})`
+            : '—'
+        }
+      />
       <DetailRow label={t('meetingPanel.fields.name')} value={meeting.name} />
       <DetailRow
         label={t('meetingPanel.fields.meetingNo')}
@@ -105,6 +113,10 @@ export function MeetingDetailPanel({
       <DetailRow
         label={t('meetingPanel.fields.toDate')}
         value={formatDisplayDateTime(meeting.toDate)}
+      />
+      <DetailRow
+        label={t('meetingPanel.fields.place')}
+        value={meeting.place || '—'}
       />
       <DetailRow
         label={t('meetingPanel.fields.description')}

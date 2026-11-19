@@ -59,12 +59,14 @@ function ImmunizationSessionFormBody({
   initial,
   projects,
   townships,
+  lockedProjectId,
   onSaved,
 }: {
   mode: 'create' | 'edit';
   initial?: ImmunizationSession;
   projects: Project[];
   townships: Township[];
+  lockedProjectId?: string;
   onSaved: () => void;
 }) {
   const { t } = useI18n();
@@ -77,22 +79,23 @@ function ImmunizationSessionFormBody({
     description?: string;
   }>();
   const [saving, setSaving] = useState(false);
+  const projectLocked = Boolean(lockedProjectId);
 
   useEffect(() => {
     if (initial) {
       form.setFieldsValue({
         name: initial.name,
-        projectId: initial.projectId,
+        projectId: lockedProjectId ?? initial.projectId,
         townshipId: initial.townshipId,
         description: initial.description ?? undefined,
       });
     } else {
       form.setFieldsValue({
-        projectId: projects[0]?.id,
+        projectId: lockedProjectId ?? projects[0]?.id,
         townshipId: townships[0]?.id,
       });
     }
-  }, [form, initial, projects, townships]);
+  }, [form, initial, lockedProjectId, projects, townships]);
 
   useEffect(() => {
     setDialogActions(
@@ -182,6 +185,7 @@ function ImmunizationSessionFormBody({
         ]}
       >
         <Select
+          disabled={projectLocked}
           options={projects.map((project) => ({
             value: project.id,
             label: `${project.name} (${project.projectNo})`,
@@ -231,8 +235,12 @@ function ImmunizationSessionFormBody({
   );
 }
 
-/** Immunization session list/CRUD panel (Projects master shell). */
-export function ImmunizationSessionPanel() {
+/** Immunization session list/CRUD panel (optionally locked to one project). */
+export function ImmunizationSessionPanel({
+  lockedProject,
+}: {
+  lockedProject?: Project;
+} = {}) {
   const { t } = useI18n();
   const { showToast } = useToast();
   const { customDialog } = useDialog();
@@ -245,16 +253,37 @@ export function ImmunizationSessionPanel() {
   const [loading, setLoading] = useState(true);
   const [searchInput, setSearchInput] = useState('');
   const [q, setQ] = useState('');
-  const [projectId, setProjectId] = useState<string | null>(null);
+  const [projectId, setProjectId] = useState<string | null>(
+    lockedProject?.id ?? null,
+  );
   const [townshipId, setTownshipId] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<ActiveFilter>('active');
   const [statusBusyId, setStatusBusyId] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
+  const lockedProjectId = lockedProject?.id;
+
+  useEffect(() => {
+    if (lockedProjectId) {
+      setProjectId(lockedProjectId);
+    }
+  }, [lockedProjectId]);
 
   useEffect(() => {
     let cancelled = false;
     void (async () => {
       try {
+        if (lockedProject) {
+          const townshipResult = await listTownshipsRequest({
+            active: true,
+            page: 1,
+            limit: 100,
+          });
+          if (!cancelled) {
+            setProjects([lockedProject]);
+            setTownships(townshipResult.items);
+          }
+          return;
+        }
         const [projectResult, townshipResult] = await Promise.all([
           listProjectsRequest({
             active: true,
@@ -273,7 +302,7 @@ export function ImmunizationSessionPanel() {
         }
       } catch {
         if (!cancelled) {
-          setProjects([]);
+          setProjects(lockedProject ? [lockedProject] : []);
           setTownships([]);
         }
       }
@@ -281,7 +310,7 @@ export function ImmunizationSessionPanel() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [lockedProject]);
 
   useEffect(() => {
     let cancelled = false;
@@ -293,7 +322,7 @@ export function ImmunizationSessionPanel() {
           page,
           limit: pageSize,
           active: activeFilter === 'active',
-          projectId: projectId ?? undefined,
+          projectId: (lockedProjectId ?? projectId) || undefined,
           townshipId: townshipId ?? undefined,
         });
         if (!cancelled) {
@@ -327,6 +356,7 @@ export function ImmunizationSessionPanel() {
     q,
     activeFilter,
     projectId,
+    lockedProjectId,
     townshipId,
     reloadKey,
     showToast,
@@ -342,6 +372,7 @@ export function ImmunizationSessionPanel() {
           mode='create'
           projects={projects}
           townships={townships}
+          lockedProjectId={lockedProjectId}
           onSaved={() => setReloadKey((key) => key + 1)}
         />
       ),
@@ -358,6 +389,7 @@ export function ImmunizationSessionPanel() {
           initial={row}
           projects={projects}
           townships={townships}
+          lockedProjectId={lockedProjectId}
           onSaved={() => setReloadKey((key) => key + 1)}
         />
       ),
@@ -416,15 +448,19 @@ export function ImmunizationSessionPanel() {
       key: 'sessionNo',
       width: 140,
     },
-    {
-      title: t('immunizationSessionPanel.columns.project'),
-      key: 'project',
-      width: 220,
-      render: (_value, row) =>
-        row.project
-          ? `${row.project.name} (${row.project.projectNo})`
-          : '—',
-    },
+    ...(lockedProjectId
+      ? []
+      : [
+          {
+            title: t('immunizationSessionPanel.columns.project'),
+            key: 'project',
+            width: 220,
+            render: (_value: unknown, row: ImmunizationSession) =>
+              row.project
+                ? `${row.project.name} (${row.project.projectNo})`
+                : '—',
+          },
+        ]),
     {
       title: t('immunizationSessionPanel.columns.township'),
       key: 'township',
@@ -519,22 +555,24 @@ export function ImmunizationSessionPanel() {
             }}
             style={{ width: 280, maxWidth: '100%' }}
           />
-          <Select
-            allowClear
-            showSearch
-            optionFilterProp='label'
-            placeholder={t('immunizationSessionPanel.filterProject')}
-            value={projectId}
-            onChange={(value) => {
-              setProjectId(value ?? null);
-              setPage(1);
-            }}
-            style={{ minWidth: 220 }}
-            options={projects.map((project) => ({
-              value: project.id,
-              label: `${project.name} (${project.projectNo})`,
-            }))}
-          />
+          {lockedProjectId ? null : (
+            <Select
+              allowClear
+              showSearch
+              optionFilterProp='label'
+              placeholder={t('immunizationSessionPanel.filterProject')}
+              value={projectId}
+              onChange={(value) => {
+                setProjectId(value ?? null);
+                setPage(1);
+              }}
+              style={{ minWidth: 220 }}
+              options={projects.map((project) => ({
+                value: project.id,
+                label: `${project.name} (${project.projectNo})`,
+              }))}
+            />
+          )}
           <Select
             allowClear
             showSearch

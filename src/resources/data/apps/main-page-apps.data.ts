@@ -37,6 +37,7 @@ export const MAIN_PAGE_APPS: MainPageApp[] = [
     path: '/masters/location',
     icon: 'masters',
     color: '#c62828',
+    moduleCode: 'MASTER_MANAGEMENT_SYSTEM',
   },
   {
     id: 'meeting',
@@ -45,5 +46,6 @@ export const MAIN_PAGE_APPS: MainPageApp[] = [
     path: '/meeting',
     icon: 'meeting',
     color: '#1565c0',
+    moduleCode: 'MEETING_AND_ATTENDANCE_MANAGEMENT_SYSTEM',
   },
 ];

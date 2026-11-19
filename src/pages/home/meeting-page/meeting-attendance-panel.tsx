@@ -349,23 +349,33 @@ export function MeetingAttendancePanel({ meetingId }: { meetingId: string }) {
       title: t('meetingAttendancePanel.columns.name'),
       key: 'name',
       fixed: 'left',
-      width: 220,
-      render: (_value, row) => (
-        <div style={{ lineHeight: 1.35 }}>
-          <Typography.Text style={{ display: 'block', fontSize: 13 }}>
-            {formatEmployeeName(row)}
-          </Typography.Text>
-          <Typography.Text type='secondary' style={{ fontSize: 12 }}>
-            {row.employee?.employeeNo || '—'}
-          </Typography.Text>
-        </div>
-      ),
+      width: 240,
+      render: (_value, row) => {
+        const employeeNo = row.employee?.employeeNo?.trim() || '—';
+        const focalNo = row.employee?.focalNo?.trim() || '—';
+        return (
+          <div style={{ lineHeight: 1.35 }}>
+            <Typography.Text style={{ display: 'block', fontSize: 13 }}>
+              {formatEmployeeName(row)}
+            </Typography.Text>
+            <Typography.Text type='secondary' style={{ fontSize: 12 }}>
+              {employeeNo} · {focalNo}
+            </Typography.Text>
+          </div>
+        );
+      },
     },
     {
-      title: t('meetingAttendancePanel.columns.focalNo'),
-      key: 'focalNo',
-      width: 120,
-      render: (_value, row) => row.employee?.focalNo || '—',
+      title: t('meetingAttendancePanel.columns.position'),
+      key: 'position',
+      width: 180,
+      render: (_value, row) => row.employee?.positionName || '—',
+    },
+    {
+      title: t('meetingAttendancePanel.columns.township'),
+      key: 'township',
+      width: 160,
+      render: (_value, row) => row.employee?.townshipName || '—',
     },
     {
       title: t('meetingAttendancePanel.columns.remark'),

@@ -1,5 +1,5 @@
 import { SafetyOutlined, UserOutlined } from '@ant-design/icons';
-import { Button, Grid, Menu, Typography, message } from 'antd';
+import { Button, Flex, Grid, Menu, Spin, Tag, Typography, message } from 'antd';
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import type { ImagePickerValue } from '../../../components/image-picker/image-picker';
@@ -11,6 +11,10 @@ import {
   uploadCoverImageRequest,
   uploadProfileImageRequest,
 } from '../../../handlers/user-profile.handler';
+import {
+  listGrantedRolesRequest,
+  type GrantedRole,
+} from '../../../handlers/user-role.handler';
 import { useAuth } from '../../../providers/auth.provider';
 import { useI18n } from '../../../providers/i18n.provider';
 import {
@@ -68,6 +72,7 @@ function ProfilePage() {
   const [savingCover, setSavingCover] = useState(false);
   const [changingPassword, setChangingPassword] = useState(false);
   const [pickerKey, setPickerKey] = useState(0);
+  const [roles, setRoles] = useState<GrantedRole[] | null>(null);
   const avatarBlobRef = useRef<string | null>(null);
   const coverBlobRef = useRef<string | null>(null);
 
@@ -92,6 +97,32 @@ function ProfilePage() {
     </>,
     [title, description, navigate, t],
   );
+
+  useEffect(() => {
+    if (!user?.id) {
+      setRoles(null);
+      return;
+    }
+
+    let cancelled = false;
+    setRoles(null);
+
+    void listGrantedRolesRequest()
+      .then((items) => {
+        if (!cancelled) {
+          setRoles(items);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setRoles([]);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id]);
 
   useEffect(() => {
     let cancelled = false;
@@ -260,7 +291,24 @@ function ProfilePage() {
           label={t('profilePage.fields.email')}
           value={user.email || '—'}
         />
-        <DetailRow label={t('profilePage.fields.role')} value={user.role} />
+        <DetailRow
+          label={t('profilePage.fields.roles')}
+          value={
+            roles === null ? (
+              <Spin size='small' />
+            ) : roles.length === 0 ? (
+              t('profilePage.rolesEmpty')
+            ) : (
+              <Flex wrap='wrap' gap={8}>
+                {roles.map((role) => (
+                  <Tag key={role.id} style={{ margin: 0 }}>
+                    {role.name}
+                  </Tag>
+                ))}
+              </Flex>
+            )
+          }
+        />
         <DetailRow
           label={t('profilePage.fields.lastLoginAt')}
           value={formatDisplayDateTime(user.lastLoginAt)}
@@ -343,8 +391,7 @@ function ProfilePage() {
         style={{
           width: isMobile ? '100%' : 280,
           flexShrink: 0,
-          position: isMobile ? 'static' : 'sticky',
-          top: 120,
+          alignSelf: 'flex-start',
           background: '#fff',
           borderRadius: 16,
           border: '1px solid rgba(5, 5, 5, 0.06)',
@@ -363,6 +410,7 @@ function ProfilePage() {
             background: 'transparent',
             fontSize: 15,
             borderRadius: 16,
+            height: 'auto',
           }}
           items={[
             {

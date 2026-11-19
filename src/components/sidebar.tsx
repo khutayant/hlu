@@ -383,14 +383,29 @@ function NavigationContent({
       }}
     >
       <BrandSection collapsed={collapsed} compact={compact} />
-      <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', overflowX: 'hidden' }}>
+      <div
+        style={{
+          flex: 1,
+          minHeight: 0,
+          overflowY: 'auto',
+          overflowX: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'flex-start',
+          alignItems: 'stretch',
+        }}
+      >
         <Menu
           mode='inline'
           selectedKeys={[selected]}
           openKeys={collapsed ? [] : openKeys}
           onOpenChange={setUserOpenKeys}
           inlineCollapsed={collapsed}
-          style={{ borderInlineEnd: 'none' }}
+          style={{
+            borderInlineEnd: 'none',
+            height: 'auto',
+            flex: 'none',
+          }}
           items={navItems.map((item) => {
             if (item.children) {
               return {

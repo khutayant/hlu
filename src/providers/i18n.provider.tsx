@@ -128,3 +128,12 @@ export function useI18n() {
   }
   return context;
 }
+
+/** Always English — for fixed report/export copy (ignores app locale). */
+export function translateEn(key: string, params?: TranslateParams): string {
+  const fromEn = getMessageByPath(LOCALES.en, key);
+  if (fromEn !== null) {
+    return interpolate(fromEn, params);
+  }
+  return key;
+}

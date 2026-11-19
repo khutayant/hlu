@@ -121,7 +121,7 @@ export async function updateTownshipRequest(
   input: UpdateTownshipInput,
 ): Promise<Township> {
   const response = await apiFetch(`${API_URL}v1/township/${id}`, {
-    method: 'PUT',
+    method: 'PATCH',
     headers: jsonHeaders(),
     body: JSON.stringify(input),
   });

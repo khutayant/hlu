@@ -190,6 +190,9 @@ function EmployeeImportPage() {
       focalNoMaxLength: t('employeePage.validation.focalNoMaxLength'),
       focalNoDuplicateFile: t('employeePage.import.focalNoDuplicateFile'),
       focalNoDuplicateDb: t('employeePage.import.focalNoDuplicateDb'),
+      focalNoHeadOfficePrefix: t(
+        'employeePage.validation.focalNoHeadOfficePrefix',
+      ),
       genderRequired: t('employeePage.validation.genderRequired'),
       genderInvalid: t('employeePage.validation.genderInvalid'),
       townshipNameRequired: t('employeePage.validation.townshipNameRequired'),
@@ -1162,14 +1165,8 @@ function EmployeeImportPage() {
             <Form.Item
               name='townshipName'
               label={t('employeePage.fields.townshipName')}
-              rules={[
-                {
-                  required: true,
-                  message: t('employeePage.validation.townshipNameRequired'),
-                },
-              ]}
             >
-              <Input maxLength={255} />
+              <Input maxLength={255} allowClear />
             </Form.Item>
             <Flex gap={12} wrap>
               <Form.Item

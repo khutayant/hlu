@@ -1,6 +1,8 @@
 import {
+  BarChartOutlined,
   FileTextOutlined,
   InfoCircleOutlined,
+  PieChartOutlined,
   TeamOutlined,
 } from '@ant-design/icons';
 import { Button, Empty, Grid, Menu, Spin, theme } from 'antd';
@@ -12,22 +14,19 @@ import {
   type ReactNode,
 } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
-import { TOOLBAR_HEIGHT_PX } from '../../../components/toolbar';
 import {
   getMeetingByIdRequest,
   type Meeting,
 } from '../../../handlers/meeting.handler';
 import { useI18n } from '../../../providers/i18n.provider';
-import {
-  RIBBON_MIN_HEIGHT_PX,
-  RibbonTitle,
-  useSetRibbon,
-} from '../../../providers/ribbon.provider';
+import { RibbonTitle, useSetRibbon } from '../../../providers/ribbon.provider';
 import { useToast } from '../../../providers/toast.provider';
+import { MeetingAttendanceAnalysisPanel } from './meeting-attendance-analysis-panel';
 import { MeetingAttendanceImportPanel } from './meeting-attendance-import-panel';
 import { MeetingAttendancePanel } from './meeting-attendance-panel';
 import { MeetingDetailPanel } from './meeting-detail-panel';
-import { MeetingPerdiemReceiptPanel } from './meeting-perdiem-receipt-panel';
+import { MeetingAllowancePanel } from './meeting-allowance-panel';
+import { MeetingReportsPanel } from './meeting-reports-panel';
 
 /** Matches `HomeLayout` Content padding so this shell can bleed edge-to-edge. */
 const CONTENT_PAD_X = 20;
@@ -40,7 +39,9 @@ const MEETING_SECTIONS = [
   'details',
   'attendance',
   'attendance-import',
-  'perdiem-receipt',
+  'attendance-analysis',
+  'allowance',
+  'reports',
 ] as const;
 
 type MeetingSection = (typeof MEETING_SECTIONS)[number];
@@ -140,11 +141,13 @@ function MeetingDetailPage() {
     return <Navigate to='/meeting' replace />;
   }
 
+  if (sectionParam === 'perdiem-receipt') {
+    return <Navigate to={`/meeting/${id}/allowance`} replace />;
+  }
+
   if (!section) {
     return <Navigate to={`/meeting/${id}/details`} replace />;
   }
-
-  const shellHeight = `calc(100vh - ${TOOLBAR_HEIGHT_PX + RIBBON_MIN_HEIGHT_PX}px)`;
 
   let mainContent: ReactNode;
   if (loading) {
@@ -168,11 +171,17 @@ function MeetingDetailPage() {
         onClose={() => navigate(`/meeting/${meeting.id}/attendance`)}
       />
     );
-  } else if (section === 'perdiem-receipt') {
-    mainContent = <MeetingPerdiemReceiptPanel meeting={meeting} />;
+  } else if (section === 'attendance-analysis') {
+    mainContent = <MeetingAttendanceAnalysisPanel meeting={meeting} />;
+  } else if (section === 'allowance') {
+    mainContent = <MeetingAllowancePanel meeting={meeting} />;
+  } else if (section === 'reports') {
+    mainContent = <MeetingReportsPanel meeting={meeting} />;
   } else {
     mainContent = null;
   }
+
+  const shellHeight = `calc(100% + ${CONTENT_PAD_TOP + CONTENT_PAD_BOTTOM}px)`;
 
   return (
     <div
@@ -181,6 +190,7 @@ function MeetingDetailPage() {
         flexDirection: isMobile ? 'column' : 'row',
         alignItems: 'stretch',
         flex: 1,
+        alignSelf: 'stretch',
         width: `calc(100% + ${CONTENT_PAD_X * 2}px)`,
         marginInline: -CONTENT_PAD_X,
         marginTop: -CONTENT_PAD_TOP,
@@ -197,7 +207,9 @@ function MeetingDetailPage() {
         style={{
           width: isMobile ? '100%' : 280,
           flexShrink: 0,
+          alignSelf: 'stretch',
           minHeight: 0,
+          maxHeight: isMobile ? '40%' : undefined,
           overflow: 'auto',
           background: '#fff',
           borderInlineEnd: isMobile
@@ -234,9 +246,19 @@ function MeetingDetailPage() {
               label: t('meetingDetailPage.menu.attendance'),
             },
             {
-              key: 'perdiem-receipt',
+              key: 'attendance-analysis',
+              icon: <PieChartOutlined />,
+              label: t('meetingDetailPage.menu.attendanceAnalysis'),
+            },
+            {
+              key: 'allowance',
               icon: <FileTextOutlined />,
-              label: t('meetingDetailPage.menu.perdiemReceipt'),
+              label: t('meetingDetailPage.menu.allowance'),
+            },
+            {
+              key: 'reports',
+              icon: <BarChartOutlined />,
+              label: t('meetingDetailPage.menu.reports'),
             },
           ]}
         />
@@ -247,6 +269,7 @@ function MeetingDetailPage() {
           flex: 1,
           minWidth: 0,
           minHeight: 0,
+          alignSelf: 'stretch',
           padding: isMobile ? 16 : 20,
           overflow: 'auto',
           boxSizing: 'border-box',

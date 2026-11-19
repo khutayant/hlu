@@ -5,6 +5,8 @@ import RequireAuthGuard from '../guards/require-auth.guard';
 import {
   ADMIN_SYSTEM_CODE,
   EMPLOYEE_MANAGEMENT_SYSTEM_CODE,
+  MASTER_MANAGEMENT_SYSTEM_CODE,
+  MEETING_AND_ATTENDANCE_MANAGEMENT_SYSTEM_CODE,
 } from '../providers/module.provider';
 import HomeLayout from '../layouts/home.layout';
 
@@ -56,6 +58,9 @@ const PositionMasterPage = lazy(
 );
 const ProjectMasterPage = lazy(
   () => import('../pages/home/masters-page/project-master-page'),
+);
+const ProjectDetailPage = lazy(
+  () => import('../pages/home/masters-page/project-detail-page'),
 );
 const MeetingPage = lazy(
   () => import('../pages/home/meeting-page/meeting-page'),
@@ -121,43 +126,57 @@ export function HomeRoutes() {
             element={<EmployeeProfilePage />}
           />
         </Route>
+        <Route element={<ModuleGate code={MASTER_MANAGEMENT_SYSTEM_CODE} />}>
+          <Route
+            path='/masters'
+            element={<Navigate to='/masters/location' replace />}
+          />
+          <Route
+            path='/masters/location'
+            element={<Navigate to='/masters/location/country' replace />}
+          />
+          <Route
+            path='/masters/location/:section'
+            element={<LocationMasterPage />}
+          />
+          <Route
+            path='/masters/country'
+            element={<Navigate to='/masters/location/country' replace />}
+          />
+          <Route
+            path='/masters/township'
+            element={<Navigate to='/masters/location/township' replace />}
+          />
+          <Route path='/masters/category' element={<CategoryMasterPage />} />
+          <Route path='/masters/title' element={<TitleMasterPage />} />
+          <Route path='/masters/position' element={<PositionMasterPage />} />
+          <Route path='/masters/project' element={<ProjectMasterPage />} />
+          <Route
+            path='/masters/project/projects'
+            element={<Navigate to='/masters/project' replace />}
+          />
+          <Route
+            path='/masters/project/immunization-sessions'
+            element={<Navigate to='/masters/project' replace />}
+          />
+          <Route path='/masters/project/:id' element={<ProjectDetailPage />} />
+          <Route
+            path='/masters/project/:id/:section'
+            element={<ProjectDetailPage />}
+          />
+        </Route>
         <Route
-          path='/masters'
-          element={<Navigate to='/masters/location' replace />}
-        />
-        <Route
-          path='/masters/location'
-          element={<Navigate to='/masters/location/country' replace />}
-        />
-        <Route
-          path='/masters/location/:section'
-          element={<LocationMasterPage />}
-        />
-        <Route
-          path='/masters/country'
-          element={<Navigate to='/masters/location/country' replace />}
-        />
-        <Route
-          path='/masters/township'
-          element={<Navigate to='/masters/location/township' replace />}
-        />
-        <Route path='/masters/category' element={<CategoryMasterPage />} />
-        <Route path='/masters/title' element={<TitleMasterPage />} />
-        <Route path='/masters/position' element={<PositionMasterPage />} />
-        <Route
-          path='/masters/project'
-          element={<Navigate to='/masters/project/projects' replace />}
-        />
-        <Route
-          path='/masters/project/:section'
-          element={<ProjectMasterPage />}
-        />
-        <Route path='/meeting' element={<MeetingPage />} />
-        <Route path='/meeting/:id' element={<MeetingDetailPage />} />
-        <Route
-          path='/meeting/:id/:section'
-          element={<MeetingDetailPage />}
-        />
+          element={
+            <ModuleGate code={MEETING_AND_ATTENDANCE_MANAGEMENT_SYSTEM_CODE} />
+          }
+        >
+          <Route path='/meeting' element={<MeetingPage />} />
+          <Route path='/meeting/:id' element={<MeetingDetailPage />} />
+          <Route
+            path='/meeting/:id/:section'
+            element={<MeetingDetailPage />}
+          />
+        </Route>
       </Route>
     </Route>
   );

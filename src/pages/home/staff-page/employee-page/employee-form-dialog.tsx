@@ -49,6 +49,12 @@ const FORM_AVATAR_SIZE = 72;
 /** Letters A–Z then digits 0–9 only; max 9 (e.g. A91, M003). */
 const FOCAL_NO_PATTERN = /^[A-Z]+[0-9]+$/;
 const FOCAL_NO_MAX_LENGTH = 9;
+const HEAD_OFFICE_FOCAL_PREFIX = 'HO';
+
+function focalNoLetterPrefix(focalNo: string) {
+  const match = normalizeFocalNo(focalNo).match(/^([A-Z]+)/);
+  return match?.[1] ?? '';
+}
 
 function revokeIfBlob(url: string | null | undefined) {
   if (url?.startsWith('blob:')) {
@@ -63,7 +69,7 @@ type EmployeeFormValues = {
   displayName: string;
   focalNo: string;
   gender: EmployeeGender;
-  townshipId: string;
+  townshipId?: string | null;
   positionId: string;
   experience: string;
   email?: string;
@@ -131,7 +137,7 @@ export function EmployeeFormDialogBody({
         displayName: initial.displayName,
         focalNo: initial.focalNo,
         gender: initial.gender,
-        townshipId: initial.township?.id ?? '',
+        townshipId: initial.township?.id ?? null,
         positionId: initial.position?.id ?? '',
         experience: initial.experience,
         email: initial.email ?? undefined,
@@ -358,7 +364,7 @@ export function EmployeeFormDialogBody({
         displayName: values.displayName.trim(),
         focalNo: normalizeFocalNo(values.focalNo),
         gender: values.gender,
-        townshipId: values.townshipId,
+        townshipId: values.townshipId || null,
         positionId: values.positionId,
         experience: values.experience.trim(),
         email: values.email?.trim() || null,
@@ -597,25 +603,44 @@ export function EmployeeFormDialogBody({
                 if (!FOCAL_NO_PATTERN.test(focalNo)) {
                   throw new Error(t('employeePage.validation.focalNoPattern'));
                 }
+                const townshipId = form.getFieldValue('townshipId') as
+                  | string
+                  | null
+                  | undefined;
+                const letterPrefix = focalNoLetterPrefix(focalNo);
+                if (!townshipId) {
+                  if (letterPrefix !== HEAD_OFFICE_FOCAL_PREFIX) {
+                    throw new Error(
+                      t('employeePage.validation.focalNoHeadOfficePrefix'),
+                    );
+                  }
+                  return;
+                }
+                const township = townshipOptions.find(
+                  (item) => item.id === townshipId,
+                );
+                const expected = township?.focalPrefix?.trim().toUpperCase();
+                if (expected && letterPrefix !== expected) {
+                  throw new Error(
+                    t('employeePage.validation.focalNoTownshipPrefix', {
+                      prefix: expected,
+                    }),
+                  );
+                }
               },
             },
           ]}
           style={{ flex: '0 0 140px', minWidth: 120 }}
         >
-          <Input maxLength={FOCAL_NO_MAX_LENGTH} placeholder='M003' />
+          <Input maxLength={FOCAL_NO_MAX_LENGTH} placeholder='HO001' />
         </Form.Item>
       </Flex>
       <Form.Item
         name='townshipId'
         label={t('employeePage.fields.townshipName')}
-        rules={[
-          {
-            required: true,
-            message: t('employeePage.validation.townshipNameRequired'),
-          },
-        ]}
       >
         <Select
+          allowClear
           showSearch
           optionFilterProp='label'
           loading={townshipsLoading}
@@ -624,6 +649,9 @@ export function EmployeeFormDialogBody({
             value: township.id,
             label: township.name,
           }))}
+          onChange={() => {
+            void form.validateFields(['focalNo']);
+          }}
         />
       </Form.Item>
       <Flex gap={12} wrap>

@@ -84,6 +84,14 @@ export async function listProjectsRequest(options?: {
   return (await response.json()) as ProjectListResult;
 }
 
+export async function getProjectByIdRequest(id: string): Promise<Project> {
+  const response = await apiFetch(`${API_URL}v1/project/${id}`);
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response));
+  }
+  return (await response.json()) as Project;
+}
+
 export async function createProjectRequest(
   input: CreateProjectInput,
 ): Promise<Project> {
@@ -103,7 +111,7 @@ export async function updateProjectRequest(
   input: UpdateProjectInput,
 ): Promise<Project> {
   const response = await apiFetch(`${API_URL}v1/project/${id}`, {
-    method: 'PUT',
+    method: 'PATCH',
     headers: jsonHeaders(),
     body: JSON.stringify(input),
   });

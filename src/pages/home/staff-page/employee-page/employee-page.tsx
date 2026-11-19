@@ -55,6 +55,8 @@ import { EmployeeFormDialogBody } from './employee-form-dialog';
 
 const DEFAULT_PAGE_SIZE = 20;
 const AVATAR_SIZE = 36;
+/** Sentinel for employees with no township (head office). */
+const TOWNSHIP_FILTER_NONE = '__none__';
 type ActiveFilter = 'active' | 'inactive';
 
 function formatDateOnly(value: string | null | undefined) {
@@ -651,6 +653,7 @@ function EmployeePage() {
               }),
             )}
             style={{ width: 140 }}
+            popupMatchSelectWidth={false}
           />
           <Select
             allowClear
@@ -662,11 +665,18 @@ function EmployeePage() {
               setTownshipFilter(value ?? null);
               setPage(1);
             }}
-            options={townships.map((township) => ({
-              value: township.name,
-              label: township.name,
-            }))}
+            options={[
+              {
+                value: TOWNSHIP_FILTER_NONE,
+                label: t('employeePage.filterTownshipNone'),
+              },
+              ...townships.map((township) => ({
+                value: township.name,
+                label: township.name,
+              })),
+            ]}
             style={{ width: 180 }}
+            popupMatchSelectWidth={false}
           />
           <Select
             allowClear
@@ -683,6 +693,7 @@ function EmployeePage() {
               label: position.name,
             }))}
             style={{ width: 180 }}
+            popupMatchSelectWidth={false}
           />
         </Flex>
 

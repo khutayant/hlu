@@ -19,12 +19,28 @@ function HomeLayout() {
 
   return (
     <RibbonProvider>
-      <Layout style={{ minHeight: '100vh', background: '#f5f7fa' }}>
+      <Layout
+        style={{
+          height: '100%',
+          minHeight: 0,
+          overflow: 'hidden',
+          background: '#f5f7fa',
+        }}
+      >
         <AppSidebar
           open={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
         />
-        <Layout style={{ background: '#f5f7fa' }}>
+        <Layout
+          style={{
+            height: '100%',
+            minHeight: 0,
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+            background: '#f5f7fa',
+          }}
+        >
           <AppToolbar onMenuClick={toggleSidebar} />
           <AppRibbon />
           <Content
@@ -34,6 +50,7 @@ function HomeLayout() {
               display: 'flex',
               flexDirection: 'column',
               minHeight: 0,
+              overflow: 'auto',
               paddingBlock: 20,
               paddingInline: 20,
               paddingBottom: 32,

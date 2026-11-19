@@ -6,12 +6,21 @@ export type MeetingActor = {
   name: string;
 };
 
+export type MeetingProject = {
+  id: string;
+  name: string;
+  projectNo: string;
+};
+
 export type Meeting = {
   id: string;
   name: string;
   meetingNo: string;
   fromDate: string;
   toDate: string;
+  place: string | null;
+  projectId: string | null;
+  project: MeetingProject | null;
   description: string | null;
   active: boolean;
   createdDate: string;
@@ -32,6 +41,8 @@ export type CreateMeetingInput = {
   name: string;
   fromDate: string;
   toDate: string;
+  place?: string | null;
+  projectId?: string | null;
   description?: string | null;
 };
 
@@ -39,6 +50,8 @@ export type UpdateMeetingInput = {
   name?: string;
   fromDate?: string;
   toDate?: string;
+  place?: string | null;
+  projectId?: string | null;
   description?: string | null;
 };
 
@@ -66,6 +79,7 @@ export async function listMeetingsRequest(options?: {
   page?: number;
   limit?: number;
   active?: boolean;
+  projectId?: string;
 }): Promise<MeetingListResult> {
   const params = new URLSearchParams();
   if (options?.q) {
@@ -79,6 +93,9 @@ export async function listMeetingsRequest(options?: {
   }
   if (options?.active !== undefined) {
     params.set('active', String(options.active));
+  }
+  if (options?.projectId) {
+    params.set('projectId', options.projectId);
   }
   const query = params.toString();
   const response = await apiFetch(
@@ -117,7 +134,7 @@ export async function updateMeetingRequest(
   input: UpdateMeetingInput,
 ): Promise<Meeting> {
   const response = await apiFetch(`${API_URL}v1/meeting/${id}`, {
-    method: 'PUT',
+    method: 'PATCH',
     headers: jsonHeaders(),
     body: JSON.stringify(input),
   });

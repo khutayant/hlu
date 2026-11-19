@@ -10,13 +10,8 @@ import {
   getUserRoleRequest,
   type UserRoleDetail,
 } from '../../../../handlers/user-role.handler';
-import { TOOLBAR_HEIGHT_PX } from '../../../../components/toolbar';
 import { useI18n } from '../../../../providers/i18n.provider';
-import {
-  RIBBON_MIN_HEIGHT_PX,
-  RibbonTitle,
-  useSetRibbon,
-} from '../../../../providers/ribbon.provider';
+import { RibbonTitle, useSetRibbon } from '../../../../providers/ribbon.provider';
 import { useToast } from '../../../../providers/toast.provider';
 import { UserRoleModulesPanel } from './user-role-modules-panel';
 import { UserRolePermissionsPanel } from './user-role-permissions-panel';
@@ -142,7 +137,7 @@ function UserRoleDetailPage() {
       <UserRolePermissionsPanel roleId={id} />
     );
 
-  const shellHeight = `calc(100vh - ${TOOLBAR_HEIGHT_PX + RIBBON_MIN_HEIGHT_PX}px)`;
+  const shellHeight = `calc(100% + ${CONTENT_PAD_TOP + CONTENT_PAD_BOTTOM}px)`;
 
   return (
     <div
@@ -151,6 +146,7 @@ function UserRoleDetailPage() {
         flexDirection: isMobile ? 'column' : 'row',
         alignItems: 'stretch',
         flex: 1,
+        alignSelf: 'stretch',
         width: `calc(100% + ${CONTENT_PAD_X * 2}px)`,
         marginInline: -CONTENT_PAD_X,
         marginTop: -CONTENT_PAD_TOP,
@@ -167,7 +163,9 @@ function UserRoleDetailPage() {
         style={{
           width: isMobile ? '100%' : 280,
           flexShrink: 0,
+          alignSelf: 'stretch',
           minHeight: 0,
+          maxHeight: isMobile ? '40%' : undefined,
           overflow: 'auto',
           background: '#fff',
           borderInlineEnd: isMobile
@@ -215,6 +213,7 @@ function UserRoleDetailPage() {
           flex: 1,
           minWidth: 0,
           minHeight: 0,
+          alignSelf: 'stretch',
           padding: isMobile ? 16 : 20,
           overflow: 'auto',
           boxSizing: 'border-box',

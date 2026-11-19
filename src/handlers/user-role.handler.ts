@@ -126,7 +126,7 @@ export async function updateUserRoleRequest(
   input: UpdateUserRoleInput,
 ): Promise<UserRole> {
   const response = await apiFetch(`${API_URL}v1/user-role/${id}`, {
-    method: 'PUT',
+    method: 'PATCH',
     headers: jsonHeaders(),
     body: JSON.stringify(input),
   });
@@ -431,6 +431,24 @@ export type UserRoleModuleCandidateListResult = {
   page: number;
   limit: number;
 };
+
+export type GrantedRole = {
+  id: string;
+  name: string;
+  code: string;
+  description: string | null;
+};
+
+export async function listGrantedRolesRequest(): Promise<GrantedRole[]> {
+  const response = await apiFetch(`${API_URL}v1/user-role/me/roles`);
+
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response));
+  }
+
+  const data = (await response.json()) as { items: GrantedRole[] };
+  return data.items;
+}
 
 export async function listGrantedModulesRequest(): Promise<GrantedModule[]> {
   const response = await apiFetch(`${API_URL}v1/user-role/me/modules`);

@@ -19,6 +19,7 @@
     "@tailwindcss/vite": "^4.3.3",
     "antd": "^5.27.0",
     "dayjs": "^1.11.23",
+    "docx": "^9.16.0",
     "exceljs": "^4.4.0",
     "html-to-image": "^1.11.13",
     "react": "^19.3.1",
