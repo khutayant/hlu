@@ -28,6 +28,7 @@
 ### Perdiem
 
 - Menu **Perdiem Receipt** / **နေ့တွက်စရိတ် တောင်းခံလွှာ** with coming-soon panel only (no calculation yet).
+- Follow-up (**NOTE-013** / **TICK-026**): renamed to **Allowance** / **ထောက်ပံ့ကြေး**; route `/allowance`.
 
 ### Ops
 

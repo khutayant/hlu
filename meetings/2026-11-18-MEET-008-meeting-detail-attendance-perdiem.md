@@ -22,6 +22,7 @@
 | Import ribbon Close → attendance list only | done | **TICK-025** |
 | Perdiem Receipt menu (placeholder) | done | **TICK-025** |
 | MM labels (နယ်မြေခံအမှတ်, အသစ်ထည့်ရန်, …) | done | **TICK-025** |
+| Follow-up place/project/Allowance/shell scroll | → **MEET-009** | **TICK-026** |
 
 ## Decisions
 
