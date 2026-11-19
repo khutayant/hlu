@@ -159,6 +159,8 @@ const en = {
       downloadDocxConfirmTitle: 'Download summary report?',
       downloadDocxConfirmMessage:
         'Download a Word summary report for {{count}} participant(s)?',
+      downloadDocxConfirmWarning:
+        'The system can only fill in the correct data. Writing the report must be done by you manually.',
       downloadDocxConfirmOk: 'Download',
       downloadDocxSuccess: 'Summary report downloaded.',
       downloadDocxFailed: 'Failed to download summary report.',

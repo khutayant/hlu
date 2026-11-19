@@ -5,12 +5,14 @@ import {
   MoreOutlined,
 } from '@ant-design/icons';
 import {
+  Alert,
   Button,
   Checkbox,
   Dropdown,
   Empty,
   Flex,
   Select,
+  Space,
   Spin,
   Table,
   Typography,
@@ -812,9 +814,26 @@ export function ReportsSummaryTab({ meeting }: { meeting: Meeting }) {
 
     const confirmed = await confirmDialog({
       title: t('meetingReportsPanel.summary.downloadDocxConfirmTitle'),
-      message: t('meetingReportsPanel.summary.downloadDocxConfirmMessage', {
-        count: filteredItems.length,
-      }),
+      message: (
+        <Space
+          direction='vertical'
+          size={12}
+          style={{ width: '100%', paddingBottom: 16 }}
+        >
+          <span>
+            {t('meetingReportsPanel.summary.downloadDocxConfirmMessage', {
+              count: filteredItems.length,
+            })}
+          </span>
+          <Alert
+            type='warning'
+            showIcon
+            message={t(
+              'meetingReportsPanel.summary.downloadDocxConfirmWarning',
+            )}
+          />
+        </Space>
+      ),
       okText: t('meetingReportsPanel.summary.downloadDocxConfirmOk'),
       cancelText: t('common.cancel'),
     });

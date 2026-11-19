@@ -222,9 +222,14 @@ export function DialogProvider({ children }: { children: ReactNode }) {
 
   const body =
     active?.kind === 'confirm' ? (
-      <Typography.Paragraph style={{ margin: 0 }}>
-        {active.options.message}
-      </Typography.Paragraph>
+      typeof active.options.message === 'string' ||
+      typeof active.options.message === 'number' ? (
+        <Typography.Paragraph style={{ margin: 0 }}>
+          {active.options.message}
+        </Typography.Paragraph>
+      ) : (
+        <div>{active.options.message}</div>
+      )
     ) : active?.kind === 'prompt' ? (
       <Space direction='vertical' size={12} style={{ width: '100%' }}>
         {active.options.message ? (

@@ -161,6 +161,8 @@ const mm = {
       downloadDocxConfirmTitle: 'အနှစ်ချုပ် အစီရင်ခံစာ ဒေါင်းလုဒ်မလား?',
       downloadDocxConfirmMessage:
         'တက်ရောက်သူ {{count}} ဦးအတွက် Word အနှစ်ချုပ် အစီရင်ခံစာ ဒေါင်းလုဒ်မလား?',
+      downloadDocxConfirmWarning:
+        'စနစ်သည် မှန်ကန်သော အချက်အလက်ကိုသာ ထည့်သွင်းပေးနိုင်သည်။ အစီရင်ခံစာ ရေးသားခြင်းကို အသုံးပြုသူက ကိုယ်တိုင် ပြုလုပ်ရမည်။',
       downloadDocxConfirmOk: 'ဒေါင်းလုဒ်',
       downloadDocxSuccess: 'အနှစ်ချုပ် အစီရင်ခံစာ ဒေါင်းလုဒ်ပြီး။',
       downloadDocxFailed: 'အနှစ်ချုပ် အစီရင်ခံစာ ဒေါင်းလုဒ်မရပါ။',
