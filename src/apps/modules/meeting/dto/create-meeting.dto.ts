@@ -2,6 +2,8 @@ export type CreateMeetingDto = {
   name: string;
   fromDate: string;
   toDate: string;
+  place?: string | null;
+  projectId?: string | null;
   description?: string | null;
 };
 
@@ -33,6 +35,28 @@ export function parseCreateMeetingDto(body: unknown): CreateMeetingDto {
     throw new Error('toDate must be on or after fromDate');
   }
 
+  let place: string | null | undefined;
+  if ('place' in record) {
+    if (record.place === null) {
+      place = null;
+    } else if (typeof record.place === 'string') {
+      place = record.place.trim() || null;
+    } else {
+      throw new Error('place must be a string or null');
+    }
+  }
+
+  let projectId: string | null | undefined;
+  if ('projectId' in record) {
+    if (record.projectId === null) {
+      projectId = null;
+    } else if (typeof record.projectId === 'string') {
+      projectId = record.projectId.trim() || null;
+    } else {
+      throw new Error('projectId must be a string or null');
+    }
+  }
+
   let description: string | null | undefined;
   if ('description' in record) {
     if (record.description === null) {
@@ -44,5 +68,5 @@ export function parseCreateMeetingDto(body: unknown): CreateMeetingDto {
     }
   }
 
-  return { name, fromDate, toDate, description };
+  return { name, fromDate, toDate, place, projectId, description };
 }

@@ -1,4 +1,7 @@
-import { parseFocalNo } from '../../employee/dto/focal-no.tool';
+import {
+  normalizeFocalNo,
+  parseFocalNo,
+} from '../../employee/dto/focal-no.tool';
 
 export type ImportMeetingAttendanceRowDto = {
   focalNo: string;
@@ -88,7 +91,7 @@ export function parseResolveMeetingAttendanceImportDto(
     ...new Set(
       record.focalNos
         .map((value) =>
-          typeof value === 'string' ? value.trim().toUpperCase() : '',
+          typeof value === 'string' ? normalizeFocalNo(value) : '',
         )
         .filter(Boolean),
     ),

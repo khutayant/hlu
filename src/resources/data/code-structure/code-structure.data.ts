@@ -66,10 +66,14 @@ export const CODE_STRUCTURE = {
     month: false,
     day: false,
   },
-  /** [SEC][YYYY][4 digits] e.g. SEC20260001 */
+  /**
+   * [township.focalPrefix][YYYY][4 digits] e.g. GN20260001.
+   * Prefix is the township focal prefix, passed when the code is generated.
+   * Sequence is per prefix and year.
+   */
   sessionNo: {
     type: CODE_TYPE.SESSION_NO,
-    prefix: 'SEC',
+    prefix: null,
     padding: 4,
     delimiter: null as CodeDelimiter,
     year: true,

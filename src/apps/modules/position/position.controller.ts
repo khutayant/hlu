@@ -10,7 +10,6 @@ import {
   ApiGet,
   ApiPatch,
   ApiPost,
-  ApiPut,
 } from '../../../decorators/api.decorator';
 import { CurrentUser } from '../../../decorators/current-user.decorator';
 import type { AuthUser } from '../../../interfaces/auth-user.interface';
@@ -77,7 +76,7 @@ export class PositionController {
     return this.positionService.create(dto, user);
   }
 
-  @ApiPut({
+  @ApiPatch({
     code: 'POSITION_UPDATE',
     name: 'Update position',
     args: ':id',

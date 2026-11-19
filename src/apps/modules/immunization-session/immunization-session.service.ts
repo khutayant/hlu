@@ -3,6 +3,7 @@ import { ProjectMaster } from '@app/entity/entities/master/project-master.entity
 import { TownshipMaster } from '@app/entity/entities/master/township-master.entity';
 import { UserMaster } from '@app/entity/entities/master/user-master.entity';
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -100,8 +101,15 @@ export class ImmunizationSessionService {
   async create(dto: CreateImmunizationSessionDto, actor?: AuthUser) {
     const project = await this.requireProject(dto.projectId);
     const township = await this.requireTownship(dto.townshipId);
+    const focalPrefix = township.focalPrefix.trim().toUpperCase();
+    if (!/^[A-Z0-9]{1,5}$/.test(focalPrefix)) {
+      throw new BadRequestException(
+        'Township focal prefix must be 1–5 characters (A–Z, 0–9)',
+      );
+    }
     const sessionNo = await this.genCodeService.getInfoCode({
       structure: CODE_STRUCTURE.sessionNo,
+      prefix: focalPrefix,
     });
     await this.assertSessionNoAvailable(sessionNo);
     await this.assertNameAvailable(dto.projectId, dto.townshipId, dto.name);

@@ -19,6 +19,10 @@ import { GenCodeService } from '../../../services/global/gen-code/gen-code.servi
 import { FILE_CATEGORY } from '../file/data/file-category.data';
 import { FileService } from '../file/file.service';
 import type { CreateEmployeeDto } from './dto/create-employee.dto';
+import {
+  focalNoLetterPrefix,
+  HEAD_OFFICE_FOCAL_PREFIX,
+} from './dto/focal-no.tool';
 import type { SetEmployeeActiveDto } from './dto/set-employee-active.dto';
 import type { UpdateEmployeeDto } from './dto/update-employee.dto';
 
@@ -97,7 +101,9 @@ export class EmployeeService {
     if (options?.gender) {
       qb.andWhere('employee.gender = :gender', { gender: options.gender });
     }
-    if (townshipName) {
+    if (townshipName === '__none__') {
+      qb.andWhere('employee.townshipId IS NULL');
+    } else if (townshipName) {
       qb.andWhere('township.name = :townshipName', { townshipName });
     }
     if (position) {
@@ -460,6 +466,7 @@ export class EmployeeService {
       townshipId: dto.townshipId,
       townshipName: dto.townshipName,
     });
+    this.assertFocalNoMatchesTownship(dto.focalNo, township);
     const position = await this.resolvePosition({
       positionId: dto.positionId,
       positionName: dto.positionName,
@@ -523,6 +530,13 @@ export class EmployeeService {
         townshipId: dto.townshipId,
         townshipName: dto.townshipName,
       });
+    }
+    if (
+      dto.focalNo !== undefined ||
+      dto.townshipId !== undefined ||
+      dto.townshipName !== undefined
+    ) {
+      this.assertFocalNoMatchesTownship(employee.focalNo, employee.township);
     }
     if (dto.positionId !== undefined || dto.positionName !== undefined) {
       employee.position = await this.resolvePosition({
@@ -601,7 +615,7 @@ export class EmployeeService {
   private async resolveTownship(options: {
     townshipId?: string | null;
     townshipName?: string | null;
-  }): Promise<TownshipMaster> {
+  }): Promise<TownshipMaster | null> {
     const townshipId = options.townshipId?.trim() || null;
     const townshipName = options.townshipName?.trim() || null;
 
@@ -628,7 +642,8 @@ export class EmployeeService {
       return byName;
     }
 
-    throw new BadRequestException('townshipId or townshipName is required');
+    // Head-office and other non-township staff.
+    return null;
   }
 
   private async resolvePosition(options: {
@@ -714,6 +729,35 @@ export class EmployeeService {
     if (existing && existing.id !== excludeId) {
       throw new ConflictException(
         `Employee number already exists: ${employeeNo}`,
+      );
+    }
+  }
+
+  /**
+   * Head office (no township) → prefix `HO`.
+   * With township → prefix must equal that township's `focalPrefix`.
+   */
+  private assertFocalNoMatchesTownship(
+    focalNo: string,
+    township: TownshipMaster | null | undefined,
+  ) {
+    const letterPrefix = focalNoLetterPrefix(focalNo);
+    if (!township) {
+      if (letterPrefix !== HEAD_OFFICE_FOCAL_PREFIX) {
+        throw new BadRequestException(
+          `Head-office focal number must start with ${HEAD_OFFICE_FOCAL_PREFIX} (e.g. ${HEAD_OFFICE_FOCAL_PREFIX}001)`,
+        );
+      }
+      return;
+    }
+
+    const expected = township.focalPrefix.trim().toUpperCase();
+    if (!expected) {
+      throw new BadRequestException('Township focal prefix is missing');
+    }
+    if (letterPrefix !== expected) {
+      throw new BadRequestException(
+        `Focal number must start with ${expected} for township ${township.name}`,
       );
     }
   }

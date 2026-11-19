@@ -11,6 +11,7 @@ import { LocationMaster } from '@app/entity/entities/master/location-master.enti
 import { ModuleMaster } from '@app/entity/entities/master/module-master.entity';
 import { PermissionMaster } from '@app/entity/entities/master/permission-master.entity';
 import { ImmunizationSessionMaster } from '@app/entity/entities/master/immunization-session-master.entity';
+import { MeetingAllowanceMaster } from '@app/entity/entities/master/meeting-allowance-master.entity';
 import { MeetingMaster } from '@app/entity/entities/master/meeting-master.entity';
 import { ProjectMaster } from '@app/entity/entities/master/project-master.entity';
 import { SessionMaster } from '@app/entity/entities/master/session-master.entity';
@@ -48,6 +49,7 @@ export const DatabaseConfig: DataSourceOptions = {
     ProjectMaster,
     ImmunizationSessionMaster,
     MeetingMaster,
+    MeetingAllowanceMaster,
     MeetingAttendanceInfo,
     SessionMaster,
     CodeGenInfo,

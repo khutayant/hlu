@@ -1,9 +1,30 @@
 [
-  { "code": "BURMESE_DAW", "name": "Daw" },
-  { "code": "DOCTOR", "name": "Dr." },
-  { "code": "BURMESE_KO", "name": "Ko" },
-  { "code": "BURMESE_MA", "name": "Ma" },
-  { "code": "BURMESE_MG", "name": "Mg" },
-  { "code": "BURMESE_SAYAR", "name": "Sayar" },
-  { "code": "BURMESE_U", "name": "U" }
+  {
+    "code": "BURMESE_DAW",
+    "name": "Daw"
+  },
+  {
+    "code": "DOCTOR",
+    "name": "Dr."
+  },
+  {
+    "code": "BURMESE_KO",
+    "name": "Ko"
+  },
+  {
+    "code": "BURMESE_MA",
+    "name": "Ma"
+  },
+  {
+    "code": "BURMESE_MG",
+    "name": "Mg"
+  },
+  {
+    "code": "BURMESE_SAYAR",
+    "name": "Sayar"
+  },
+  {
+    "code": "BURMESE_U",
+    "name": "U"
+  }
 ]

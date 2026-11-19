@@ -10,7 +10,6 @@ import {
   ApiGet,
   ApiPatch,
   ApiPost,
-  ApiPut,
 } from '../../../decorators/api.decorator';
 import { CurrentUser } from '../../../decorators/current-user.decorator';
 import type { AuthUser } from '../../../interfaces/auth-user.interface';
@@ -79,7 +78,7 @@ export class TownshipController {
     return this.townshipService.create(dto, user);
   }
 
-  @ApiPut({
+  @ApiPatch({
     code: 'TOWNSHIP_UPDATE',
     name: 'Update township',
     args: ':id',

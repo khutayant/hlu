@@ -5,7 +5,6 @@ import {
   Get,
   Patch,
   Post,
-  Put,
   SetMetadata,
 } from '@nestjs/common';
 import type { PermissionActionCode } from '../resources/data/permissions/actions/permission-action.data';
@@ -155,11 +154,7 @@ export const ApiGet = (options: ApiHttpRouteOptions): MethodDecorator =>
 export const ApiPost = (options: ApiHttpRouteOptions): MethodDecorator =>
   apiHttp(Post as NestPathDecorator, options);
 
-/** Catalogued PUT — replaces bare `@Put`. */
-export const ApiPut = (options: ApiHttpRouteOptions): MethodDecorator =>
-  apiHttp(Put as NestPathDecorator, options);
-
-/** Catalogued PATCH — replaces bare `@Patch`. */
+/** Catalogued PATCH — replaces bare `@Patch`. PUT is not allowed; use PATCH for updates. */
 export const ApiPatch = (options: ApiHttpRouteOptions): MethodDecorator =>
   apiHttp(Patch as NestPathDecorator, options);
 

@@ -81,9 +81,6 @@ export function parseCreateEmployeeDto(body: unknown): CreateEmployeeDto {
 
   const townshipId = optionalTrimmedString(record, 'townshipId');
   const townshipName = optionalTrimmedString(record, 'townshipName');
-  if (!townshipId && !townshipName) {
-    throw new Error('townshipId or townshipName is required');
-  }
 
   const positionId = optionalTrimmedString(record, 'positionId');
   // CSV / import still sends `position` as the name.

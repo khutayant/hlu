@@ -1,0 +1,22 @@
+[
+  {
+    "code": "POSITION_CATEGORIES",
+    "name": "Position categories",
+    "description": null,
+    "isPosting": false
+  },
+  {
+    "code": "HEAD_OFFICE_POSITION",
+    "name": "Head office position",
+    "description": "Positions under head office",
+    "isPosting": false,
+    "parentCategory": "POSITION_CATEGORIES"
+  },
+  {
+    "code": "FIELD_OFFICE_POSITION",
+    "name": "Field office position",
+    "description": "Non-head office / field positions",
+    "isPosting": false,
+    "parentCategory": "POSITION_CATEGORIES"
+  }
+]

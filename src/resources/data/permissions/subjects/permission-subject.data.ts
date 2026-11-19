@@ -22,6 +22,7 @@ export const PERMISSION_SUBJECT = {
   PROJECT: 'project',
   TITLE: 'title',
   POSITION: 'position',
+  CATEGORY: 'category',
   MEETING: 'meeting',
 } as const;
 

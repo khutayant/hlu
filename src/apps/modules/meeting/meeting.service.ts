@@ -1,4 +1,5 @@
 import { MeetingMaster } from '@app/entity/entities/master/meeting-master.entity';
+import { ProjectMaster } from '@app/entity/entities/master/project-master.entity';
 import { UserMaster } from '@app/entity/entities/master/user-master.entity';
 import {
   BadRequestException,
@@ -25,6 +26,8 @@ export class MeetingService {
   constructor(
     @InjectRepository(MeetingMaster)
     private readonly meetingRepository: Repository<MeetingMaster>,
+    @InjectRepository(ProjectMaster)
+    private readonly projectRepository: Repository<ProjectMaster>,
     @InjectRepository(UserMaster)
     private readonly userRepository: Repository<UserMaster>,
     private readonly genCodeService: GenCodeService,
@@ -35,25 +38,35 @@ export class MeetingService {
     limit?: number;
     q?: string;
     active?: boolean;
+    projectId?: string;
   }) {
     const page = Math.max(1, options?.page ?? 1);
     const limit = Math.min(100, Math.max(1, options?.limit ?? 20));
     const q = options?.q?.trim();
     const active = options?.active ?? true;
+    const projectId = options?.projectId?.trim();
 
     const qb = this.meetingRepository
       .createQueryBuilder('meeting')
+      .leftJoinAndSelect('meeting.project', 'project')
       .where('meeting.active = :active', { active })
       .orderBy('meeting.fromDate', 'DESC')
       .addOrderBy('meeting.name', 'ASC')
       .skip((page - 1) * limit)
       .take(limit);
 
+    if (projectId) {
+      qb.andWhere('project.id = :projectId', { projectId });
+    }
+
     if (q) {
       qb.andWhere(
         `(meeting.name ILIKE :search ESCAPE '\\'
           OR meeting.meetingNo ILIKE :search ESCAPE '\\'
-          OR COALESCE(meeting.description, '') ILIKE :search ESCAPE '\\')`,
+          OR COALESCE(meeting.place, '') ILIKE :search ESCAPE '\\'
+          OR COALESCE(meeting.description, '') ILIKE :search ESCAPE '\\'
+          OR COALESCE(project.name, '') ILIKE :search ESCAPE '\\'
+          OR COALESCE(project.projectNo, '') ILIKE :search ESCAPE '\\')`,
         { search: this.toIlikeContainsPattern(q) },
       );
     }
@@ -85,18 +98,26 @@ export class MeetingService {
     const toDate = this.parseDateTime(dto.toDate);
     this.assertDateRange(fromDate, toDate);
 
+    const project =
+      dto.projectId === undefined || dto.projectId === null
+        ? null
+        : await this.requireProject(dto.projectId);
+
     const meeting = this.meetingRepository.create({
       name: dto.name,
       meetingNo,
       fromDate,
       toDate,
+      place: dto.place ?? null,
+      project,
       description: dto.description ?? null,
       createdBy: actor?.id,
       updatedBy: actor?.id,
     });
     const saved = await this.meetingRepository.save(meeting);
-    const actors = await this.resolveActors([saved]);
-    return this.toPublic(saved, actors);
+    const withRelations = await this.requireMeeting(saved.id);
+    const actors = await this.resolveActors([withRelations]);
+    return this.toPublic(withRelations, actors);
   }
 
   async update(id: string, dto: UpdateMeetingDto, actor?: AuthUser) {
@@ -110,6 +131,15 @@ export class MeetingService {
     if (dto.toDate !== undefined) {
       meeting.toDate = this.parseDateTime(dto.toDate);
     }
+    if (dto.place !== undefined) {
+      meeting.place = dto.place;
+    }
+    if (dto.projectId !== undefined) {
+      meeting.project =
+        dto.projectId === null
+          ? null
+          : await this.requireProject(dto.projectId);
+    }
     if (dto.description !== undefined) {
       meeting.description = dto.description;
     }
@@ -117,8 +147,9 @@ export class MeetingService {
     this.assertDateRange(meeting.fromDate, meeting.toDate);
     meeting.updatedBy = actor?.id;
     const saved = await this.meetingRepository.save(meeting);
-    const actors = await this.resolveActors([saved]);
-    return this.toPublic(saved, actors);
+    const withRelations = await this.requireMeeting(saved.id);
+    const actors = await this.resolveActors([withRelations]);
+    return this.toPublic(withRelations, actors);
   }
 
   async setActive(id: string, dto: SetMeetingActiveDto, actor?: AuthUser) {
@@ -126,16 +157,28 @@ export class MeetingService {
     meeting.active = dto.active;
     meeting.updatedBy = actor?.id;
     const saved = await this.meetingRepository.save(meeting);
-    const actors = await this.resolveActors([saved]);
-    return this.toPublic(saved, actors);
+    const withRelations = await this.requireMeeting(saved.id);
+    const actors = await this.resolveActors([withRelations]);
+    return this.toPublic(withRelations, actors);
   }
 
   private async requireMeeting(id: string) {
-    const meeting = await this.meetingRepository.findOne({ where: { id } });
+    const meeting = await this.meetingRepository.findOne({
+      where: { id },
+      relations: { project: true },
+    });
     if (!meeting) {
       throw new NotFoundException('Meeting not found');
     }
     return meeting;
+  }
+
+  private async requireProject(id: string) {
+    const project = await this.projectRepository.findOne({ where: { id } });
+    if (!project || !project.active) {
+      throw new BadRequestException('Project not found or inactive');
+    }
+    return project;
   }
 
   private async assertMeetingNoAvailable(meetingNo: string) {
@@ -204,6 +247,15 @@ export class MeetingService {
       meetingNo: meeting.meetingNo,
       fromDate: meeting.fromDate.toISOString(),
       toDate: meeting.toDate.toISOString(),
+      place: meeting.place ?? null,
+      projectId: meeting.project?.id ?? null,
+      project: meeting.project
+        ? {
+            id: meeting.project.id,
+            name: meeting.project.name,
+            projectNo: meeting.project.projectNo,
+          }
+        : null,
       description: meeting.description ?? null,
       active: meeting.active,
       createdDate: meeting.createdDate,

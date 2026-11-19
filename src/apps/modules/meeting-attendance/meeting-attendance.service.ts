@@ -10,6 +10,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import type { AuthUser } from '../../../interfaces/auth-user.interface';
+import { normalizeFocalNo } from '../employee/dto/focal-no.tool';
 import type { CreateMeetingAttendanceDto } from './dto/create-meeting-attendance.dto';
 import type {
   ImportMeetingAttendanceDto,
@@ -53,6 +54,8 @@ export class MeetingAttendanceService {
       .innerJoinAndSelect('attendance.meeting', 'meeting')
       .innerJoinAndSelect('attendance.employee', 'employee')
       .leftJoinAndSelect('employee.title', 'title')
+      .leftJoinAndSelect('employee.township', 'township')
+      .leftJoinAndSelect('employee.position', 'position')
       .where('meeting.id = :meetingId', {
         meetingId: options.meetingId,
       })
@@ -156,7 +159,9 @@ export class MeetingAttendanceService {
    */
   async resolveImport(dto: ResolveMeetingAttendanceImportDto) {
     await this.requireMeeting(dto.meetingId);
-    const unique = [...new Set(dto.focalNos.map((value) => value.trim().toUpperCase()).filter(Boolean))];
+    const unique = [
+      ...new Set(dto.focalNos.map((value) => normalizeFocalNo(value)).filter(Boolean)),
+    ];
     if (unique.length === 0) {
       return { found: [], missing: [], alreadyAttending: [] };
     }
@@ -167,7 +172,7 @@ export class MeetingAttendanceService {
     });
     const foundByFocal = new Map(
       employees.map((employee) => [
-        (employee.focalNo ?? '').trim().toUpperCase(),
+        normalizeFocalNo(employee.focalNo ?? ''),
         employee,
       ]),
     );
@@ -197,7 +202,7 @@ export class MeetingAttendanceService {
         relations: { employee: true },
       });
       alreadyAttending = existing
-        .map((row) => (row.employee?.focalNo ?? '').trim().toUpperCase())
+        .map((row) => normalizeFocalNo(row.employee?.focalNo ?? ''))
         .filter(Boolean);
     }
 
@@ -240,7 +245,10 @@ export class MeetingAttendanceService {
   private async requireAttendance(id: string) {
     const attendance = await this.attendanceRepository.findOne({
       where: { id },
-      relations: { employee: { title: true }, meeting: true },
+      relations: {
+        employee: { title: true, township: true, position: true },
+        meeting: true,
+      },
     });
     if (!attendance) {
       throw new NotFoundException('Attendance record not found');
@@ -327,6 +335,11 @@ export class MeetingAttendanceService {
             focalNo: employee.focalNo,
             displayName: employee.displayName,
             titleName: employee.title?.name ?? null,
+            gender: employee.gender,
+            townshipId: employee.township?.id ?? null,
+            townshipName: employee.township?.name ?? null,
+            positionName: employee.position?.name ?? null,
+            experience: employee.experience ?? null,
           }
         : null,
     };

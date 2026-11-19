@@ -41,8 +41,8 @@ function isDevMode() {
 
 /**
  * Dev boot guardrail: controllers must use `@ApiController` and handlers must
- * use `@ApiGet` / `@ApiPost` / `@ApiPut` / `@ApiPatch` / `@ApiDelete`.
- * Bare Nest `@Controller` / `@Get` / `@Post` / … are rejected.
+ * use `@ApiGet` / `@ApiPost` / `@ApiPatch` / `@ApiDelete`.
+ * Bare Nest `@Controller` / `@Get` / `@Post` / … are rejected. PUT is forbidden.
  */
 @Injectable()
 export class ApiDecoratorCheckerService implements OnModuleInit {
@@ -128,6 +128,18 @@ export class ApiDecoratorCheckerService implements OnModuleInit {
         const displayPath = this.joinPath(controllerPath, routePath);
         const owner = `${controllerName}.${methodName}`;
 
+        if (requestMethod === RequestMethod.PUT) {
+          violations.push({
+            controller: controllerName,
+            method: methodName,
+            httpMethod,
+            path: displayPath,
+            reason:
+              'PUT is not allowed — use @ApiPatch for updates (GET/POST/PATCH/DELETE only)',
+          });
+          continue;
+        }
+
         const meta = this.reflector.get<ApiHttpRouteMeta | undefined>(
           APP_HTTP_ROUTE_KEY,
           handler,
@@ -140,7 +152,7 @@ export class ApiDecoratorCheckerService implements OnModuleInit {
             httpMethod,
             path: displayPath,
             reason:
-              'Use @ApiGet/@ApiPost/@ApiPut/@ApiPatch/@ApiDelete with { code, name, permission, args? } — bare Nest HTTP decorators are not allowed',
+              'Use @ApiGet/@ApiPost/@ApiPatch/@ApiDelete with { code, name, permission, args? } — bare Nest HTTP decorators are not allowed',
           });
           continue;
         }

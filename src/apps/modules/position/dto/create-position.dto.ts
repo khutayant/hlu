@@ -2,6 +2,7 @@ export type CreatePositionDto = {
   name: string;
   code: string;
   description?: string | null;
+  categoryId?: string | null;
 };
 
 const CODE_PATTERN = /^[A-Z0-9_]+$/;
@@ -36,5 +37,16 @@ export function parseCreatePositionDto(body: unknown): CreatePositionDto {
     }
   }
 
-  return { name, code, description };
+  let categoryId: string | null | undefined;
+  if ('categoryId' in record) {
+    if (record.categoryId === null || record.categoryId === '') {
+      categoryId = null;
+    } else if (typeof record.categoryId === 'string') {
+      categoryId = record.categoryId.trim() || null;
+    } else {
+      throw new Error('categoryId must be a string or null');
+    }
+  }
+
+  return { name, code, description, categoryId };
 }

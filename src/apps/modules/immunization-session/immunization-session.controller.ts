@@ -10,7 +10,6 @@ import {
   ApiGet,
   ApiPatch,
   ApiPost,
-  ApiPut,
 } from '../../../decorators/api.decorator';
 import { CurrentUser } from '../../../decorators/current-user.decorator';
 import type { AuthUser } from '../../../interfaces/auth-user.interface';
@@ -85,7 +84,7 @@ export class ImmunizationSessionController {
     return this.immunizationSessionService.create(dto, user);
   }
 
-  @ApiPut({
+  @ApiPatch({
     code: 'IMMUNIZATION_SESSION_UPDATE',
     name: 'Update immunization session',
     args: ':id',

@@ -10,14 +10,17 @@ import { TownshipMaster } from './township-master.entity';
 @Entity()
 @Unique(['sessionNo'])
 @Unique(['project', 'township', 'name'])
-@Check(`"sessionNo" ~ '^SEC[0-9]{4}[0-9]{4}$'`)
+@Check(
+  'CHK_immunization_session_sessionNo',
+  `"sessionNo" ~ '^[A-Z0-9]{1,5}[0-9]{8}$'`,
+)
 export class ImmunizationSessionMaster extends BaseEntityWithUuid {
   @Column({ type: 'varchar', length: 125, nullable: false })
   name!: string;
 
   /**
    * Business session number (unique). Immutable after create.
-   * Format: `SEC` + `YYYY` + 4 digits (e.g. `SEC20260001`).
+   * Format: township `focalPrefix` + `YYYY` + 4 digits (e.g. `GN20260001`).
    */
   @Column({ type: 'varchar', length: 16, nullable: false })
   sessionNo!: string;

@@ -10,7 +10,6 @@ import {
   ApiGet,
   ApiPatch,
   ApiPost,
-  ApiPut,
 } from '../../../decorators/api.decorator';
 import { CurrentUser } from '../../../decorators/current-user.decorator';
 import type { AuthUser } from '../../../interfaces/auth-user.interface';
@@ -40,12 +39,14 @@ export class MeetingController {
     @Query('page') page?: string,
     @Query('limit') limit?: string,
     @Query('active') active?: string,
+    @Query('projectId') projectId?: string,
   ) {
     return this.meetingService.list({
       q: q?.trim() || undefined,
       page: page ? Number(page) : undefined,
       limit: limit ? Number(limit) : undefined,
       active: this.parseActiveQuery(active),
+      projectId: projectId?.trim() || undefined,
     });
   }
 
@@ -77,7 +78,7 @@ export class MeetingController {
     return this.meetingService.create(dto, user);
   }
 
-  @ApiPut({
+  @ApiPatch({
     code: 'MEETING_UPDATE',
     name: 'Update meeting',
     args: ':id',

@@ -1,4 +1,5 @@
 import {
+  Check,
   Column,
   Entity,
   JoinColumn,
@@ -10,10 +11,12 @@ import { BaseEntityWithUuid } from '../../bases/entity.base';
 
 @Entity()
 @Unique(['code'])
+@Check(`"code" ~ '^[A-Z0-9_]+$'`)
 export class CategoryMaster extends BaseEntityWithUuid {
   @Column({ type: 'varchar', length: 125, nullable: false })
   name!: string;
 
+  /** `A-Z0-9_` only. */
   @Column({ type: 'varchar', length: 64, nullable: false })
   code!: string;
 

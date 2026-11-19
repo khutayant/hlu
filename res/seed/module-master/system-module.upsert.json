@@ -19,5 +19,19 @@
     "sequenceNo": 2,
     "description": "Staff / HR employee management",
     "isGroup": true
+  },
+  {
+    "code": "MEETING_AND_ATTENDANCE_MANAGEMENT_SYSTEM",
+    "name": "Meeting and Attendance Management System",
+    "sequenceNo": 3,
+    "description": "Meeting and attendance management",
+    "isGroup": true
+  },
+  {
+    "code": "MASTER_MANAGEMENT_SYSTEM",
+    "name": "Master Management System",
+    "sequenceNo": 4,
+    "description": "Reference data / masters management",
+    "isGroup": true
   }
 ]

@@ -5,10 +5,12 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DataSeedingEngineModule } from './apps/engines/data-seeding-engine/data-seeding-engine.module';
 import { AuthModule } from './apps/modules/auth/auth.module';
+import { CategoryModule } from './apps/modules/category/category.module';
 import { CountryModule } from './apps/modules/country/country.module';
 import { EmployeeModule } from './apps/modules/employee/employee.module';
 import { FileModule } from './apps/modules/file/file.module';
 import { ImmunizationSessionModule } from './apps/modules/immunization-session/immunization-session.module';
+import { MeetingAllowanceModule } from './apps/modules/meeting-allowance/meeting-allowance.module';
 import { MeetingAttendanceModule } from './apps/modules/meeting-attendance/meeting-attendance.module';
 import { MeetingModule } from './apps/modules/meeting/meeting.module';
 import { ProjectModule } from './apps/modules/project/project.module';
@@ -42,8 +44,10 @@ import { GenCodeModule } from './services/global/gen-code/gen-code.module';
     ImmunizationSessionModule,
     MeetingModule,
     MeetingAttendanceModule,
+    MeetingAllowanceModule,
     TitleModule,
     PositionModule,
+    CategoryModule,
     UserProfileModule,
     UserRolePermissionModule,
   ],

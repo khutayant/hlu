@@ -2,6 +2,7 @@ export type UpdatePositionDto = {
   name?: string;
   code?: string;
   description?: string | null;
+  categoryId?: string | null;
 };
 
 const CODE_PATTERN = /^[A-Z0-9_]+$/;
@@ -38,6 +39,16 @@ export function parseUpdatePositionDto(body: unknown): UpdatePositionDto {
       dto.description = record.description.trim() || null;
     } else {
       throw new Error('description must be a string or null');
+    }
+  }
+
+  if ('categoryId' in record) {
+    if (record.categoryId === null || record.categoryId === '') {
+      dto.categoryId = null;
+    } else if (typeof record.categoryId === 'string') {
+      dto.categoryId = record.categoryId.trim() || null;
+    } else {
+      throw new Error('categoryId must be a string or null');
     }
   }
 

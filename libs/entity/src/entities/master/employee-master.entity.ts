@@ -33,6 +33,7 @@ export class EmployeeMaster extends BaseEntityWithUuid {
    * Focal number (unique). Manual; editable.
    * Pattern: one or more `A–Z` then one or more `0–9` only (e.g. `A91`, `M003`).
    * No interleaved mixture (`A9Z1` invalid). Max length 9. Stored uppercase.
+   * Head office (no township): must start with `HO`. With township: township `focalPrefix`.
    */
   @Column({ type: 'varchar', length: 9 })
   focalNo!: string;
@@ -49,10 +50,12 @@ export class EmployeeMaster extends BaseEntityWithUuid {
   @Column({ type: 'varchar', length: 16 })
   gender!: GenderEnum;
 
-  /** Township (`TownshipMaster`). */
-  @ManyToOne(() => TownshipMaster, { nullable: false })
+  /**
+   * Township (`TownshipMaster`). Optional — head-office staff have none.
+   */
+  @ManyToOne(() => TownshipMaster, { nullable: true })
   @JoinColumn()
-  township!: TownshipMaster;
+  township?: TownshipMaster | null;
 
   /** Job position (`PositionMaster`). */
   @ManyToOne(() => PositionMaster, { nullable: false })

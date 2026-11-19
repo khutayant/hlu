@@ -1,3 +1,4 @@
+import { CategoryMaster } from '@app/entity/entities/master/category-master.entity';
 import { PositionMaster } from '@app/entity/entities/master/position-master.entity';
 import { UserMaster } from '@app/entity/entities/master/user-master.entity';
 import {
@@ -22,6 +23,8 @@ export class PositionService {
   constructor(
     @InjectRepository(PositionMaster)
     private readonly positionRepository: Repository<PositionMaster>,
+    @InjectRepository(CategoryMaster)
+    private readonly categoryRepository: Repository<CategoryMaster>,
     @InjectRepository(UserMaster)
     private readonly userRepository: Repository<UserMaster>,
   ) {}
@@ -39,6 +42,7 @@ export class PositionService {
 
     const qb = this.positionRepository
       .createQueryBuilder('position')
+      .leftJoinAndSelect('position.category', 'category')
       .where('position.active = :active', { active })
       .orderBy('position.name', 'ASC')
       .skip((page - 1) * limit)
@@ -48,7 +52,9 @@ export class PositionService {
       qb.andWhere(
         `(position.name ILIKE :search ESCAPE '\\'
           OR position.code ILIKE :search ESCAPE '\\'
-          OR COALESCE(position.description, '') ILIKE :search ESCAPE '\\')`,
+          OR COALESCE(position.description, '') ILIKE :search ESCAPE '\\'
+          OR COALESCE(category.name, '') ILIKE :search ESCAPE '\\'
+          OR COALESCE(category.code, '') ILIKE :search ESCAPE '\\')`,
         { search: this.toIlikeContainsPattern(q) },
       );
     }
@@ -65,7 +71,7 @@ export class PositionService {
   }
 
   async getById(id: string) {
-    const position = await this.requirePosition(id);
+    const position = await this.requirePosition(id, true);
     const actors = await this.resolveActors([position]);
     return this.toPublic(position, actors);
   }
@@ -73,21 +79,22 @@ export class PositionService {
   async create(dto: CreatePositionDto, actor?: AuthUser) {
     await this.assertNameAvailable(dto.name);
     await this.assertCodeAvailable(dto.code);
+    const category = await this.resolveCategory(dto.categoryId);
 
     const position = this.positionRepository.create({
       name: dto.name,
       code: dto.code,
       description: dto.description ?? null,
+      category,
       createdBy: actor?.id,
       updatedBy: actor?.id,
     });
     const saved = await this.positionRepository.save(position);
-    const actors = await this.resolveActors([saved]);
-    return this.toPublic(saved, actors);
+    return this.getById(saved.id);
   }
 
   async update(id: string, dto: UpdatePositionDto, actor?: AuthUser) {
-    const position = await this.requirePosition(id);
+    const position = await this.requirePosition(id, true);
     if (dto.name !== undefined) {
       await this.assertNameAvailable(dto.name, id);
       position.name = dto.name;
@@ -99,27 +106,44 @@ export class PositionService {
     if (dto.description !== undefined) {
       position.description = dto.description;
     }
+    if (dto.categoryId !== undefined) {
+      position.category = await this.resolveCategory(dto.categoryId);
+    }
     position.updatedBy = actor?.id;
     const saved = await this.positionRepository.save(position);
-    const actors = await this.resolveActors([saved]);
-    return this.toPublic(saved, actors);
+    return this.getById(saved.id);
   }
 
   async setActive(id: string, dto: SetPositionActiveDto, actor?: AuthUser) {
-    const position = await this.requirePosition(id);
+    const position = await this.requirePosition(id, true);
     position.active = dto.active;
     position.updatedBy = actor?.id;
     const saved = await this.positionRepository.save(position);
-    const actors = await this.resolveActors([saved]);
-    return this.toPublic(saved, actors);
+    return this.getById(saved.id);
   }
 
-  private async requirePosition(id: string) {
-    const position = await this.positionRepository.findOne({ where: { id } });
+  private async requirePosition(id: string, withCategory = false) {
+    const position = await this.positionRepository.findOne({
+      where: { id },
+      relations: withCategory ? { category: true } : undefined,
+    });
     if (!position) {
       throw new NotFoundException('Position not found');
     }
     return position;
+  }
+
+  private async resolveCategory(categoryId?: string | null) {
+    if (!categoryId) {
+      return null;
+    }
+    const category = await this.categoryRepository.findOne({
+      where: { id: categoryId, active: true },
+    });
+    if (!category) {
+      throw new NotFoundException('Category not found');
+    }
+    return category;
   }
 
   private async assertNameAvailable(name: string, excludeId?: string) {
@@ -171,11 +195,20 @@ export class PositionService {
   }
 
   private toPublic(position: PositionMaster, actors: Map<string, PublicActor>) {
+    const category = position.category ?? null;
     return {
       id: position.id,
       name: position.name,
       code: position.code,
       description: position.description ?? null,
+      categoryId: category?.id ?? null,
+      category: category
+        ? {
+            id: category.id,
+            name: category.name,
+            code: category.code,
+          }
+        : null,
       active: position.active,
       createdDate: position.createdDate,
       updatedDate: position.updatedDate,

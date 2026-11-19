@@ -2,7 +2,7 @@ import { CodeGenInfo } from '@app/entity/entities/info/code-gen-info.entity';
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import dayjs from 'dayjs';
-import { DataSource, type Repository } from 'typeorm';
+import { DataSource, IsNull, type Repository } from 'typeorm';
 import {
   type CodeDelimiter,
   type CodeStructure,
@@ -63,6 +63,8 @@ export class GenCodeService {
     useDay: boolean;
     delimiter: CodeDelimiter;
     prefix?: string | null;
+    /** When set, the counter is per prefix (type + year + month + day + prefix). */
+    partitionByPrefix?: boolean;
     count: number;
   }): Promise<string[]> {
     if (!Number.isInteger(options.count) || options.count < 1) {
@@ -97,13 +99,20 @@ export class GenCodeService {
     );
 
     return this.dataSource.transaction(async (manager) => {
+      const where = {
+        type,
+        year,
+        month,
+        day,
+        ...(options.partitionByPrefix
+          ? {
+              prefix:
+                options.prefix == null ? IsNull() : options.prefix,
+            }
+          : {}),
+      };
       let seed = await manager.findOne(CodeGenInfo, {
-        where: {
-          type,
-          year,
-          month,
-          day,
-        },
+        where,
         lock: { mode: 'pessimistic_write' },
       });
 
@@ -160,10 +169,13 @@ export class GenCodeService {
   /**
    * Reserves `count` consecutive codes in one lock/update.
    * Sequence key: type + year + month + day.
+   * When `prefix` is passed, that prefix replaces the structure prefix and
+   * the counter is kept separately for that prefix.
    */
   async getInfoCodes(data: {
     structure: CodeStructure;
     count: number;
+    prefix?: string;
     reqId?: string;
   }): Promise<string[]> {
     if (data.count === 0) {
@@ -176,6 +188,8 @@ export class GenCodeService {
       );
     }
 
+    const prefixOverride = data.prefix !== undefined;
+
     return this.getNextNumbers({
       reqId: data.reqId,
       type: data.structure.type,
@@ -184,16 +198,19 @@ export class GenCodeService {
       useMonth: data.structure.month,
       useDay: data.structure.day,
       delimiter: data.structure.delimiter,
-      prefix: data.structure.prefix,
+      prefix: prefixOverride ? data.prefix : data.structure.prefix,
+      partitionByPrefix: prefixOverride,
       count: data.count,
     });
   }
 
   /**
    * Generates the next code from a CODE_STRUCTURE entry.
+   * Pass `prefix` to override the structure prefix and count per prefix.
    */
   async getInfoCode(data: {
     structure: CodeStructure;
+    prefix?: string;
     reqId?: string;
   }): Promise<string> {
     const [code] = await this.getInfoCodes({ ...data, count: 1 });

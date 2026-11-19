@@ -425,6 +425,35 @@ export class UserRoleService {
   }
 
   /**
+   * Active roles assigned to the signed-in user.
+   */
+  async listGrantedRoles(userId: string) {
+    const mappings = await this.userRoleUserMappingRepository
+      .createQueryBuilder('mapping')
+      .innerJoinAndSelect('mapping.userRole', 'role')
+      .where('mapping.userId = :userId', { userId })
+      .andWhere('mapping.active = :active', { active: true })
+      .andWhere('mapping.deletedToken = :deletedToken', {
+        deletedToken: ACTIVE_DELETED_TOKEN,
+      })
+      .andWhere('role.active = :active', { active: true })
+      .andWhere('role.deletedToken = :deletedToken', {
+        deletedToken: ACTIVE_DELETED_TOKEN,
+      })
+      .orderBy('role.name', 'ASC')
+      .getMany();
+
+    return {
+      items: mappings.map((mapping) => ({
+        id: mapping.userRole.id,
+        name: mapping.userRole.name,
+        code: mapping.userRole.code,
+        description: mapping.userRole.description ?? null,
+      })),
+    };
+  }
+
+  /**
    * Modules the user may see in the UI.
    * Distinct modules from the user's active roles. `ALL_SYSTEM` returns every active module.
    */

@@ -9,8 +9,8 @@ import {
   ApiController,
   ApiDelete,
   ApiGet,
+  ApiPatch,
   ApiPost,
-  ApiPut,
 } from '../../../decorators/api.decorator';
 import { PERMISSION_ACTION } from '../../../resources/data/permissions/actions/permission-action.data';
 import { buildRoutePermission } from '../../../resources/data/permissions/permission-code.tool';
@@ -88,6 +88,21 @@ export class UserRoleController {
   }
 
   /**
+   * Active roles assigned to the signed-in user.
+   *
+   * `GET /user-role/me/roles`
+   */
+  @ApiGet({
+    code: 'USER_ROLE_GRANTED_ROLES',
+    name: 'Granted roles for current user',
+    args: 'me/roles',
+    permission: null,
+  })
+  grantedRoles(@CurrentUser() user: AuthUser) {
+    return this.userRoleService.listGrantedRoles(user.id);
+  }
+
+  /**
    * Modules the signed-in user may see, from their active roles.
    * `ALL_SYSTEM` expands to every active module.
    *
@@ -145,10 +160,10 @@ export class UserRoleController {
   /**
    * Update a user role.
    *
-   * `PUT /user-role/:id`
+   * `PATCH /user-role/:id`
    * Body: `{ name?, code?, description? }`
    */
-  @ApiPut({
+  @ApiPatch({
     code: 'USER_ROLE_UPDATE',
     name: 'Update user role',
     args: ':id',
@@ -189,10 +204,10 @@ export class UserRoleController {
   /**
    * Replace permissions assigned to a user role.
    *
-   * `PUT /user-role/:id/permissions`
+   * `PATCH /user-role/:id/permissions`
    * Body: `{ permissionIds: string[] }`
    */
-  @ApiPut({
+  @ApiPatch({
     code: 'USER_ROLE_SET_PERMISSIONS',
     name: 'Set user role permissions',
     args: ':id/permissions',

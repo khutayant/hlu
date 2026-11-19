@@ -10,7 +10,6 @@ import {
   ApiGet,
   ApiPatch,
   ApiPost,
-  ApiPut,
 } from '../../../decorators/api.decorator';
 import { CurrentUser } from '../../../decorators/current-user.decorator';
 import type { AuthUser } from '../../../interfaces/auth-user.interface';
@@ -172,9 +171,9 @@ export class EmployeeController {
   /**
    * Update an employee.
    *
-   * `PUT /employee/:id`
+   * `PATCH /employee/:id`
    */
-  @ApiPut({
+  @ApiPatch({
     code: 'EMPLOYEE_UPDATE',
     name: 'Update employee',
     args: ':id',

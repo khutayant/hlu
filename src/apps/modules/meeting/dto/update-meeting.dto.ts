@@ -2,6 +2,8 @@ export type UpdateMeetingDto = {
   name?: string;
   fromDate?: string;
   toDate?: string;
+  place?: string | null;
+  projectId?: string | null;
   description?: string | null;
 };
 
@@ -43,6 +45,26 @@ export function parseUpdateMeetingDto(body: unknown): UpdateMeetingDto {
   const toDate = optionalDateTime(record, 'toDate');
   if (toDate !== undefined) {
     dto.toDate = toDate;
+  }
+
+  if ('place' in record) {
+    if (record.place === null) {
+      dto.place = null;
+    } else if (typeof record.place === 'string') {
+      dto.place = record.place.trim() || null;
+    } else {
+      throw new Error('place must be a string or null');
+    }
+  }
+
+  if ('projectId' in record) {
+    if (record.projectId === null) {
+      dto.projectId = null;
+    } else if (typeof record.projectId === 'string') {
+      dto.projectId = record.projectId.trim() || null;
+    } else {
+      throw new Error('projectId must be a string or null');
+    }
   }
 
   if ('description' in record) {
