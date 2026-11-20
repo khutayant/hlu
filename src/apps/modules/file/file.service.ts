@@ -245,6 +245,38 @@ export class FileService {
   }
 
   /**
+   * Copy a file from disk into storage (does not delete the source).
+   * Used by temporary local seed tools — not for normal uploads.
+   */
+  async uploadFromDiskPath(options: {
+    sourcePath: string;
+    originalName: string;
+    categoryCode: string;
+    description?: string | null;
+    userId?: string;
+  }): Promise<FileInfo> {
+    const category = await this.ensureKnownCategoryByCode(options.categoryCode);
+    const mimeType = this.guessMimeType(options.originalName);
+    const stats = await stat(options.sourcePath);
+    const tempDir = await mkdtemp(join(AppEnv.TEMP_DIR, 'seed-file-'));
+    const tempPath = join(tempDir, basename(options.originalName));
+    await copyFile(options.sourcePath, tempPath);
+    try {
+      return await this.persistFromTempPath({
+        tempPath,
+        originalName: options.originalName,
+        mimeType,
+        size: stats.size,
+        category,
+        description: options.description ?? null,
+        userId: options.userId,
+      });
+    } finally {
+      await rm(tempDir, { recursive: true, force: true }).catch(() => undefined);
+    }
+  }
+
+  /**
    * Find an active category by known code, or create one (`isPosting=false`).
    * Only codes listed in {@link FILE_CATEGORY} are allowed.
    */

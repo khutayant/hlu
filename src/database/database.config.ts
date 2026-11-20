@@ -7,6 +7,7 @@ import { UserUserRoleMapping } from '@app/entity/entities/mapping/user-user-role
 import { CategoryMaster } from '@app/entity/entities/master/category-master.entity';
 import { CountryMaster } from '@app/entity/entities/master/country-master.entity';
 import { EmployeeMaster } from '@app/entity/entities/master/employee-master.entity';
+import { EmployeeSignatureMaster } from '@app/entity/entities/master/employee-signature-master.entity';
 import { LocationMaster } from '@app/entity/entities/master/location-master.entity';
 import { ModuleMaster } from '@app/entity/entities/master/module-master.entity';
 import { PermissionMaster } from '@app/entity/entities/master/permission-master.entity';
@@ -34,6 +35,7 @@ export const DatabaseConfig: DataSourceOptions = {
   entities: [
     UserMaster,
     EmployeeMaster,
+    EmployeeSignatureMaster,
     UserRoleMaster,
     UserUserRoleMapping,
     PermissionMaster,

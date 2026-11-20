@@ -1,4 +1,5 @@
 import { EmployeeMaster } from '@app/entity/entities/master/employee-master.entity';
+import { EmployeeSignatureMaster } from '@app/entity/entities/master/employee-signature-master.entity';
 import { PositionMaster } from '@app/entity/entities/master/position-master.entity';
 import { TitleMaster } from '@app/entity/entities/master/title-master.entity';
 import { TownshipMaster } from '@app/entity/entities/master/township-master.entity';
@@ -14,6 +15,7 @@ import { EmployeeService } from './employee.service';
   imports: [
     TypeOrmModule.forFeature([
       EmployeeMaster,
+      EmployeeSignatureMaster,
       UserMaster,
       TitleMaster,
       PositionMaster,

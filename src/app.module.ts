@@ -8,6 +8,7 @@ import { AuthModule } from './apps/modules/auth/auth.module';
 import { CategoryModule } from './apps/modules/category/category.module';
 import { CountryModule } from './apps/modules/country/country.module';
 import { EmployeeModule } from './apps/modules/employee/employee.module';
+import { EmployeeSignatureModule } from './apps/modules/employee-signature/employee-signature.module';
 import { FileModule } from './apps/modules/file/file.module';
 import { ImmunizationSessionModule } from './apps/modules/immunization-session/immunization-session.module';
 import { MeetingAllowanceModule } from './apps/modules/meeting-allowance/meeting-allowance.module';
@@ -38,6 +39,7 @@ import { GenCodeModule } from './services/global/gen-code/gen-code.module';
     FileModule,
     UserModule,
     EmployeeModule,
+    EmployeeSignatureModule,
     CountryModule,
     TownshipModule,
     ProjectModule,

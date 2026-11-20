@@ -1,4 +1,5 @@
 import { EmployeeMaster } from '@app/entity/entities/master/employee-master.entity';
+import { EmployeeSignatureMaster } from '@app/entity/entities/master/employee-signature-master.entity';
 import type { FileInfo } from '@app/entity/entities/info/file-info.entity';
 import type { GenderEnum } from '@app/entity/enums/gender.enum';
 import { PositionMaster } from '@app/entity/entities/master/position-master.entity';
@@ -47,6 +48,8 @@ export class EmployeeService {
   constructor(
     @InjectRepository(EmployeeMaster)
     private readonly employeeRepository: Repository<EmployeeMaster>,
+    @InjectRepository(EmployeeSignatureMaster)
+    private readonly signatureRepository: Repository<EmployeeSignatureMaster>,
     @InjectRepository(UserMaster)
     private readonly userRepository: Repository<UserMaster>,
     @InjectRepository(TitleMaster)
@@ -112,9 +115,14 @@ export class EmployeeService {
 
     const [items, total] = await qb.getManyAndCount();
     const actors = await this.resolveActors(items);
+    const hasSignatureIds = await this.resolveHasSignatureIds(
+      items.map((employee) => employee.id),
+    );
 
     return {
-      items: items.map((employee) => this.toPublicEmployee(employee, actors)),
+      items: items.map((employee) =>
+        this.toPublicEmployee(employee, actors, hasSignatureIds.has(employee.id)),
+      ),
       total,
       page,
       limit,
@@ -423,7 +431,12 @@ export class EmployeeService {
   async getById(id: string) {
     const employee = await this.findEmployeeOrFail(id);
     const actors = await this.resolveActors([employee]);
-    return this.toPublicEmployee(employee, actors);
+    const hasSignatureIds = await this.resolveHasSignatureIds([employee.id]);
+    return this.toPublicEmployee(
+      employee,
+      actors,
+      hasSignatureIds.has(employee.id),
+    );
   }
 
   async create(dto: CreateEmployeeDto, actor?: AuthUser) {
@@ -821,15 +834,34 @@ export class EmployeeService {
     return map;
   }
 
+  private async resolveHasSignatureIds(
+    employeeIds: string[],
+  ): Promise<Set<string>> {
+    const unique = [...new Set(employeeIds.filter(Boolean))];
+    if (unique.length === 0) {
+      return new Set();
+    }
+    const rows = await this.signatureRepository
+      .createQueryBuilder('signature')
+      .select('DISTINCT employee.id', 'employeeId')
+      .innerJoin('signature.employee', 'employee')
+      .where('employee.id IN (:...ids)', { ids: unique })
+      .andWhere('signature.active = true')
+      .getRawMany<{ employeeId: string }>();
+    return new Set(rows.map((row) => row.employeeId));
+  }
+
   private toPublicEmployee(
     employee: EmployeeMaster,
     actors: Map<string, PublicActor>,
+    hasSignature = false,
   ) {
     const user = employee.user;
 
     return {
       id: employee.id,
       employeeNo: employee.employeeNo,
+      hasSignature,
       title: employee.title
         ? {
             id: employee.title.id,

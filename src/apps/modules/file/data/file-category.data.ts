@@ -18,6 +18,12 @@ export const FILE_CATEGORY = {
     description: 'Account-owner cover image uploads',
     parentCode: 'FILE_CATEGORIES',
   },
+  SIGNATURE_IMAGE: {
+    code: 'SIGNATURE_IMAGE',
+    name: 'Signature image',
+    description: 'Employee e-signature image uploads',
+    parentCode: 'FILE_CATEGORIES',
+  },
 } as const;
 
 export type FileCategoryCode = keyof typeof FILE_CATEGORY;

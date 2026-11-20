@@ -18,5 +18,12 @@
     "description": "Account-owner cover image uploads",
     "isPosting": false,
     "parentCategory": "FILE_CATEGORIES"
+  },
+  {
+    "code": "SIGNATURE_IMAGE",
+    "name": "Signature image",
+    "description": "Employee e-signature image uploads",
+    "isPosting": false,
+    "parentCategory": "FILE_CATEGORIES"
   }
 ]
