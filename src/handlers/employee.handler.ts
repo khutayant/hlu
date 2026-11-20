@@ -63,6 +63,8 @@ export type Employee = {
   hireDate: string | null;
   endDate: string | null;
   remark: string | null;
+  /** True when the employee has at least one active e-signature. */
+  hasSignature: boolean;
   active: boolean;
   createdDate: string;
   updatedDate: string;

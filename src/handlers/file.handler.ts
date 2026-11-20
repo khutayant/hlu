@@ -104,3 +104,15 @@ export async function fetchAuthorizedFileUrl(
   const blob = await response.blob();
   return URL.createObjectURL(blob);
 }
+
+export async function fetchAuthorizedFileArrayBuffer(
+  uuidName: string,
+): Promise<ArrayBuffer> {
+  const response = await apiFetch(`${API_URL}v1/file/${uuidName}`);
+
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response));
+  }
+
+  return response.arrayBuffer();
+}

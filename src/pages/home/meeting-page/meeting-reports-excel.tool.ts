@@ -607,16 +607,48 @@ function buildAllowanceLeaves(
   });
 }
 
+export type AllowanceReportSignatureImage = {
+  employeeId: string;
+  buffer: ArrayBuffer;
+  extension: 'png' | 'jpeg' | 'gif';
+};
+
+/** Excel row height is in points; images use pixels (~96 DPI). */
+function excelRowHeightPtToPx(points: number) {
+  return points * (96 / 72);
+}
+
+async function readImageNaturalSize(
+  buffer: ArrayBuffer,
+): Promise<{ width: number; height: number } | null> {
+  try {
+    const bitmap = await createImageBitmap(new Blob([buffer]));
+    const size = { width: bitmap.width, height: bitmap.height };
+    bitmap.close();
+    if (size.width <= 0 || size.height <= 0) {
+      return null;
+    }
+    return size;
+  } catch {
+    return null;
+  }
+}
+
 export async function downloadAllowanceReportExcel(params: {
   meeting: Meeting;
   attendees: MeetingAttendance[];
   allowances: MeetingAllowance[];
   headOfficeEmployeeIds?: string[];
+  /** When set, embed primary signature images in the Signature column. */
+  signatureImages?: AllowanceReportSignatureImage[];
   dateTimeValue: string;
   labels: MeetingReportExcelLabels;
 }) {
   const { meeting, attendees, allowances, dateTimeValue, labels } = params;
   const headOfficeEmployeeIds = new Set(params.headOfficeEmployeeIds ?? []);
+  const signatureByEmployeeId = new Map(
+    (params.signatureImages ?? []).map((item) => [item.employeeId, item]),
+  );
   const workbook = new ExcelJS.Workbook();
   const sheet = workbook.addWorksheet('Allowance');
   hideSheetGridLines(sheet);
@@ -731,6 +763,10 @@ export async function downloadAllowanceReportExcel(params: {
   }
 
   let grandTotal = 0;
+  const signatureImagePlacements: Array<{
+    rowNumber: number;
+    employeeId: string;
+  }> = [];
 
   attendees.forEach((row, index) => {
     const leafValues = allLeaves.map((leaf) =>
@@ -783,7 +819,50 @@ export async function downloadAllowanceReportExcel(params: {
         cell.font = { bold: true };
       }
     });
+    const employeeId = row.employee?.id;
+    if (employeeId && signatureByEmployeeId.has(employeeId)) {
+      signatureImagePlacements.push({
+        rowNumber: dataRow.number,
+        employeeId,
+      });
+    }
   });
+
+  for (const placement of signatureImagePlacements) {
+    const image = signatureByEmployeeId.get(placement.employeeId);
+    if (!image) {
+      continue;
+    }
+    const natural = await readImageNaturalSize(image.buffer);
+    const imageId = workbook.addImage({
+      base64: arrayBufferToBase64(image.buffer),
+      extension: image.extension,
+    });
+    const cellHeightPx = excelRowHeightPtToPx(TABLE_ROW_HEIGHT);
+    // Height matches the Excel cell; width follows the image aspect ratio (no distort).
+    const imageHeightPx = Math.max(1, Math.round(cellHeightPx));
+    const aspect =
+      natural && natural.height > 0
+        ? natural.width / natural.height
+        : 1;
+    const imageWidthPx = Math.max(1, Math.round(imageHeightPx * aspect));
+    const colWidthChars = sheet.getColumn(signatureColIndex).width ?? 16;
+    const colWidthPx = excelColWidthToPx(colWidthChars);
+    const colOffset = Math.max(
+      0,
+      Math.min(0.9, (1 - imageWidthPx / Math.max(colWidthPx, 1)) / 2),
+    );
+    sheet.addImage(imageId, {
+      tl: {
+        col: signatureColIndex - 1 + colOffset,
+        row: placement.rowNumber - 1,
+      },
+      ext: {
+        width: imageWidthPx,
+        height: imageHeightPx,
+      },
+    });
+  }
 
   if (attendees.length > 0) {
     const footerValues: Array<string | number> = Array.from(

@@ -110,9 +110,23 @@ function CoverImageDialog({
         ref={inputRef}
         type='file'
         accept={ACCEPT}
-        hidden
+        tabIndex={-1}
+        aria-hidden
         disabled={locked}
         onChange={onFileChange}
+        style={{
+          position: 'absolute',
+          width: 1,
+          height: 1,
+          padding: 0,
+          margin: -1,
+          overflow: 'hidden',
+          clip: 'rect(0, 0, 0, 0)',
+          whiteSpace: 'nowrap',
+          border: 0,
+          opacity: 0,
+          pointerEvents: 'none',
+        }}
       />
 
       <Flex vertical gap={16} style={{ width: '100%', paddingBlock: 8 }}>

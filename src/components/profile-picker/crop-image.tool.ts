@@ -70,6 +70,8 @@ export async function cropImageToFile(
   canvas.width = width;
   canvas.height = height;
 
+  // Keep transparent pixels (PNG signatures with no background).
+  ctx.clearRect(0, 0, width, height);
   ctx.drawImage(
     image,
     crop.x,

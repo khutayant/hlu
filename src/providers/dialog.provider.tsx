@@ -31,10 +31,12 @@ export type PromptDialogOptions = {
 };
 
 export type CustomDialogOptions = {
-  title?: string;
+  title?: ReactNode;
   content: ReactNode;
   size?: DialogSize;
   width?: number | string;
+  /** Fixed body height (scrolls when content overflows). */
+  height?: number | string;
   /** Modal footer. Pass `null` to hide; use `setDialogActions` from content for stateful footers. */
   actions?: ReactNode;
 };
@@ -55,6 +57,12 @@ type ActiveDialog =
       options: CustomDialogOptions;
     };
 
+type StackEntry = {
+  id: number;
+  dialog: ActiveDialog;
+  actionsOverride?: ReactNode;
+};
+
 type DialogContextValue = {
   confirmDialog: (options: ConfirmDialogOptions) => Promise<boolean>;
   promptDialog: (options: PromptDialogOptions) => Promise<string | null>;
@@ -66,83 +74,222 @@ type DialogContextValue = {
 
 const DialogContext = createContext<DialogContextValue | null>(null);
 
+let nextDialogId = 1;
+
 export function DialogProvider({ children }: { children: ReactNode }) {
   const { t } = useI18n();
-  const [active, setActive] = useState<ActiveDialog | null>(null);
-  const [isOpen, setIsOpen] = useState(false);
+  const [stack, setStack] = useState<StackEntry[]>([]);
   const [promptValue, setPromptValue] = useState('');
-  const [actionsOverride, setActionsOverride] = useState<
-    ReactNode | undefined
-  >(undefined);
   const closingRef = useRef(false);
+  const stackRef = useRef(stack);
+  stackRef.current = stack;
 
-  const finishClose = useCallback(() => {
-    setIsOpen(false);
+  const clearAll = useCallback(() => {
+    setStack([]);
+    setPromptValue('');
+    closingRef.current = false;
   }, []);
 
-  const closeDialog = useCallback(() => {
-    if (!active || closingRef.current) {
-      finishClose();
+  const closeById = useCallback(
+    (id: number) => {
+      const current = stackRef.current;
+      const index = current.findIndex((entry) => entry.id === id);
+      if (index < 0) {
+        return;
+      }
+      // Only the top dialog can be closed.
+      if (index !== current.length - 1) {
+        return;
+      }
+      const top = current[index];
+      if (current.length === 1) {
+        closingRef.current = true;
+        if (top.dialog.kind === 'confirm') {
+          top.dialog.resolve(false);
+        } else if (top.dialog.kind === 'prompt') {
+          top.dialog.resolve(null);
+        }
+        clearAll();
+        return;
+      }
+      setStack((prev) => prev.slice(0, -1));
+    },
+    [clearAll],
+  );
+
+  const setActionsById = useCallback((id: number, actions: ReactNode) => {
+    setStack((prev) => {
+      const index = prev.findIndex((entry) => entry.id === id);
+      if (index < 0) {
+        return prev;
+      }
+      const next = [...prev];
+      next[index] = {
+        ...next[index],
+        actionsOverride: actions,
+      };
+      return next;
+    });
+  }, []);
+
+  const closeTop = useCallback(() => {
+    const current = stackRef.current;
+    if (current.length === 0) {
+      clearAll();
       return;
     }
-    closingRef.current = true;
-    if (active.kind === 'confirm') {
-      active.resolve(false);
-    } else if (active.kind === 'prompt') {
-      active.resolve(null);
-    }
-    finishClose();
-  }, [active, finishClose]);
+    closeById(current[current.length - 1].id);
+  }, [clearAll, closeById]);
+
+  const setTopActions = useCallback(
+    (actions: ReactNode) => {
+      const current = stackRef.current;
+      if (current.length === 0) {
+        return;
+      }
+      setActionsById(current[current.length - 1].id, actions);
+    },
+    [setActionsById],
+  );
 
   const confirmDialog = useCallback((options: ConfirmDialogOptions) => {
     return new Promise<boolean>((resolve) => {
       closingRef.current = false;
-      setActionsOverride(undefined);
-      setActive({ kind: 'confirm', options, resolve });
-      setIsOpen(true);
+      setStack([
+        {
+          id: nextDialogId++,
+          dialog: { kind: 'confirm', options, resolve },
+        },
+      ]);
     });
   }, []);
 
   const promptDialog = useCallback((options: PromptDialogOptions) => {
     return new Promise<string | null>((resolve) => {
       closingRef.current = false;
-      setActionsOverride(undefined);
       setPromptValue(options.defaultValue ?? '');
-      setActive({ kind: 'prompt', options, resolve });
-      setIsOpen(true);
+      setStack([
+        {
+          id: nextDialogId++,
+          dialog: { kind: 'prompt', options, resolve },
+        },
+      ]);
     });
   }, []);
 
   const customDialog = useCallback((options: CustomDialogOptions) => {
     closingRef.current = false;
-    setActionsOverride(undefined);
-    setActive({ kind: 'custom', options });
-    setIsOpen(true);
+    setStack((prev) => [
+      ...prev,
+      {
+        id: nextDialogId++,
+        dialog: { kind: 'custom', options },
+      },
+    ]);
   }, []);
 
-  const setDialogActions = useCallback((actions: ReactNode) => {
-    setActionsOverride(actions);
-  }, []);
+  const onConfirmOk = useCallback(() => {
+    const top = stackRef.current[stackRef.current.length - 1];
+    if (!top || top.dialog.kind !== 'confirm') {
+      return;
+    }
+    closingRef.current = true;
+    top.dialog.resolve(true);
+    clearAll();
+  }, [clearAll]);
 
-  const value = useMemo(
+  const onPromptOk = useCallback(() => {
+    const top = stackRef.current[stackRef.current.length - 1];
+    if (!top || top.dialog.kind !== 'prompt') {
+      return;
+    }
+    closingRef.current = true;
+    top.dialog.resolve(promptValue);
+    clearAll();
+  }, [clearAll, promptValue]);
+
+  const rootValue = useMemo(
     () => ({
       confirmDialog,
       promptDialog,
       customDialog,
-      closeDialog,
-      setDialogActions,
+      closeDialog: closeTop,
+      setDialogActions: setTopActions,
     }),
     [
       confirmDialog,
       promptDialog,
       customDialog,
-      closeDialog,
-      setDialogActions,
+      closeTop,
+      setTopActions,
     ],
   );
 
+  return (
+    <DialogContext.Provider value={rootValue}>
+      {children}
+      {stack.map((entry, index) => (
+        <StackedDialogModal
+          key={entry.id}
+          entry={entry}
+          isTop={index === stack.length - 1}
+          zIndex={1000 + index * 20}
+          promptValue={promptValue}
+          setPromptValue={setPromptValue}
+          onConfirmOk={onConfirmOk}
+          onPromptOk={onPromptOk}
+          rootValue={rootValue}
+          closeById={closeById}
+          setActionsById={setActionsById}
+          t={t}
+        />
+      ))}
+    </DialogContext.Provider>
+  );
+}
+
+function StackedDialogModal({
+  entry,
+  isTop,
+  zIndex,
+  promptValue,
+  setPromptValue,
+  onConfirmOk,
+  onPromptOk,
+  rootValue,
+  closeById,
+  setActionsById,
+  t,
+}: {
+  entry: StackEntry;
+  isTop: boolean;
+  zIndex: number;
+  promptValue: string;
+  setPromptValue: (value: string) => void;
+  onConfirmOk: () => void;
+  onPromptOk: () => void;
+  rootValue: DialogContextValue;
+  closeById: (id: number) => void;
+  setActionsById: (id: number, actions: ReactNode) => void;
+  t: (key: string) => string;
+}) {
+  const { dialog, actionsOverride } = entry;
+  const scopedValue = useMemo(
+    () => ({
+      ...rootValue,
+      closeDialog: () => closeById(entry.id),
+      setDialogActions: (actions: ReactNode) =>
+        setActionsById(entry.id, actions),
+    }),
+    [closeById, entry.id, rootValue, setActionsById],
+  );
+
   const isFullscreen =
-    active?.kind === 'custom' && active.options.size === 'fullscreen';
+    dialog.kind === 'custom' && dialog.options.size === 'fullscreen';
+  const customBodyHeight =
+    dialog.kind === 'custom' && !isFullscreen
+      ? dialog.options.height
+      : undefined;
 
   const modalStyles: CSSProperties = isFullscreen
     ? {
@@ -156,112 +303,87 @@ export function DialogProvider({ children }: { children: ReactNode }) {
     : {};
 
   const title =
-    active?.kind === 'confirm'
-      ? (active.options.title ?? t('common.confirm'))
-      : active?.kind === 'prompt'
-        ? (active.options.title ?? t('common.prompt'))
-        : active?.options.title;
+    dialog.kind === 'confirm'
+      ? (dialog.options.title ?? t('common.confirm'))
+      : dialog.kind === 'prompt'
+        ? (dialog.options.title ?? t('common.prompt'))
+        : dialog.options.title;
 
   const width =
-    active?.kind === 'custom'
+    dialog.kind === 'custom'
       ? isFullscreen
         ? '100vw'
-        : (active.options.width ?? 'fit-content')
+        : (dialog.options.width ?? 'fit-content')
       : 420;
 
-  const onConfirmOk = () => {
-    if (active?.kind !== 'confirm') {
-      return;
-    }
-    closingRef.current = true;
-    active.resolve(true);
-    finishClose();
-  };
-
-  const onPromptOk = () => {
-    if (active?.kind !== 'prompt') {
-      return;
-    }
-    closingRef.current = true;
-    active.resolve(promptValue);
-    finishClose();
-  };
-
   const footer =
-    active?.kind === 'confirm' ? (
+    dialog.kind === 'confirm' ? (
       <Space>
-        <Button onClick={closeDialog}>
-          {active.options.cancelText ?? t('common.cancel')}
+        <Button onClick={() => closeById(entry.id)}>
+          {dialog.options.cancelText ?? t('common.cancel')}
         </Button>
         <Button
           type='primary'
-          danger={active.options.danger}
+          danger={dialog.options.danger}
           onClick={onConfirmOk}
         >
-          {active.options.okText ?? t('common.ok')}
+          {dialog.options.okText ?? t('common.ok')}
         </Button>
       </Space>
-    ) : active?.kind === 'prompt' ? (
+    ) : dialog.kind === 'prompt' ? (
       <Space>
-        <Button onClick={closeDialog}>
-          {active.options.cancelText ?? t('common.cancel')}
+        <Button onClick={() => closeById(entry.id)}>
+          {dialog.options.cancelText ?? t('common.cancel')}
         </Button>
         <Button type='primary' onClick={onPromptOk}>
-          {active.options.okText ?? t('common.ok')}
+          {dialog.options.okText ?? t('common.ok')}
         </Button>
       </Space>
-    ) : active?.kind === 'custom' ? (
+    ) : dialog.kind === 'custom' ? (
       actionsOverride !== undefined ? (
         actionsOverride
-      ) : active.options.actions !== undefined ? (
-        active.options.actions
+      ) : dialog.options.actions !== undefined ? (
+        dialog.options.actions
       ) : (
-        <Button onClick={closeDialog}>{t('common.close')}</Button>
+        <Button onClick={() => closeById(entry.id)}>{t('common.close')}</Button>
       )
     ) : null;
 
   const body =
-    active?.kind === 'confirm' ? (
-      typeof active.options.message === 'string' ||
-      typeof active.options.message === 'number' ? (
+    dialog.kind === 'confirm' ? (
+      typeof dialog.options.message === 'string' ||
+      typeof dialog.options.message === 'number' ? (
         <Typography.Paragraph style={{ margin: 0 }}>
-          {active.options.message}
+          {dialog.options.message}
         </Typography.Paragraph>
       ) : (
-        <div>{active.options.message}</div>
+        <div>{dialog.options.message}</div>
       )
-    ) : active?.kind === 'prompt' ? (
+    ) : dialog.kind === 'prompt' ? (
       <Space direction='vertical' size={12} style={{ width: '100%' }}>
-        {active.options.message ? (
+        {dialog.options.message ? (
           <Typography.Paragraph style={{ margin: 0 }}>
-            {active.options.message}
+            {dialog.options.message}
           </Typography.Paragraph>
         ) : null}
         <Input
-          autoFocus
+          autoFocus={isTop}
           value={promptValue}
-          placeholder={active.options.placeholder}
+          placeholder={dialog.options.placeholder}
           onChange={(event) => setPromptValue(event.target.value)}
           onPressEnter={onPromptOk}
         />
       </Space>
-    ) : active?.kind === 'custom' ? (
-      active.options.content
+    ) : dialog.kind === 'custom' ? (
+      dialog.options.content
     ) : null;
 
   return (
-    <DialogContext.Provider value={value}>
-      {children}
+    <DialogContext.Provider value={scopedValue}>
       <Modal
-        open={isOpen}
+        open
         title={title}
-        onCancel={closeDialog}
-        afterClose={() => {
-          setActive(null);
-          setPromptValue('');
-          setActionsOverride(undefined);
-          closingRef.current = false;
-        }}
+        onCancel={() => closeById(entry.id)}
         closable={false}
         maskClosable={false}
         keyboard={false}
@@ -269,6 +391,7 @@ export function DialogProvider({ children }: { children: ReactNode }) {
         centered={!isFullscreen}
         width={width}
         style={modalStyles}
+        zIndex={zIndex}
         styles={{
           wrapper: isFullscreen
             ? {
@@ -282,7 +405,12 @@ export function DialogProvider({ children }: { children: ReactNode }) {
             display: isFullscreen ? 'flex' : undefined,
             flexDirection: isFullscreen ? 'column' : undefined,
             overflow: isFullscreen ? 'hidden' : 'auto',
-            maxHeight: isFullscreen ? 'none' : 'calc(100vh - 200px)',
+            maxHeight: isFullscreen
+              ? 'none'
+              : customBodyHeight
+                ? 'none'
+                : 'calc(100vh - 200px)',
+            ...(isFullscreen ? {} : { paddingBottom: 8 }),
           },
           header: { flexShrink: 0 },
           footer: {
@@ -294,7 +422,9 @@ export function DialogProvider({ children }: { children: ReactNode }) {
                   paddingInline: 16,
                   paddingBottom: 'max(12px, env(safe-area-inset-bottom))',
                 }
-              : {}),
+              : {
+                  paddingTop: 16,
+                }),
           },
           content: isFullscreen
             ? {
@@ -308,7 +438,8 @@ export function DialogProvider({ children }: { children: ReactNode }) {
             : {
                 minWidth: 300,
                 maxWidth: 'calc(100vw - 48px)',
-                maxHeight: 'calc(100vh - 48px)',
+                height: customBodyHeight,
+                maxHeight: customBodyHeight ?? 'calc(100vh - 48px)',
                 display: 'flex',
                 flexDirection: 'column',
                 boxSizing: 'border-box',

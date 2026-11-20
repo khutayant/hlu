@@ -1,394 +1,247 @@
-import { EditOutlined } from '@ant-design/icons';
+import { FormOutlined, UserOutlined } from '@ant-design/icons';
+import { Button, Empty, Grid, Menu, Spin, theme } from 'antd';
 import {
-  Button,
-  Empty,
-  Flex,
-  Grid,
-  Space,
-  Spin,
-  Tag,
-  Typography,
-  message,
-} from 'antd';
-import dayjs from 'dayjs';
-import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import type { ImagePickerValue } from '../../../../components/image-picker/image-picker';
-import ProfilePicker from '../../../../components/profile-picker/profile-picker';
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from 'react';
+import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import {
   getEmployeeByIdRequest,
-  updateEmployeeRequest,
-  uploadEmployeeProfileImageRequest,
   type Employee,
 } from '../../../../handlers/employee.handler';
-import { fetchAuthorizedFileUrl } from '../../../../handlers/file.handler';
-import { useDialog } from '../../../../providers/dialog.provider';
 import { useI18n } from '../../../../providers/i18n.provider';
-import {
-  RibbonTitle,
-  useSetRibbon,
-} from '../../../../providers/ribbon.provider';
+import { RibbonTitle, useSetRibbon } from '../../../../providers/ribbon.provider';
 import { useToast } from '../../../../providers/toast.provider';
-import { formatDisplayDateTime } from '../../../../tools/format-date.tool';
-import { EmployeeFormDialogBody } from './employee-form-dialog';
+import { EmployeeProfilePanel } from './employee-profile-panel';
+import { EmployeeSignaturePanel } from './employee-signature-panel';
+
+/** Matches `HomeLayout` Content padding so this shell can bleed edge-to-edge. */
+const CONTENT_PAD_X = 20;
+const CONTENT_PAD_TOP = 20;
+const CONTENT_PAD_BOTTOM = 32;
 
 const { useBreakpoint } = Grid;
 
-function DetailRow({ label, value }: { label: string; value: ReactNode }) {
-  return (
-    <div
-      style={{
-        display: 'grid',
-        gridTemplateColumns: 'minmax(110px, 160px) 1fr',
-        columnGap: 24,
-        rowGap: 4,
-        paddingBlock: 14,
-        borderBottom: '1px solid rgba(5, 5, 5, 0.08)',
-      }}
-    >
-      <Typography.Text type='secondary' style={{ fontSize: 13 }}>
-        {label}
-      </Typography.Text>
-      <Typography.Text style={{ fontSize: 15 }}>{value}</Typography.Text>
-    </div>
-  );
-}
+const EMPLOYEE_SECTIONS = ['profile', 'signature'] as const;
 
-function formatDateOnly(value: string | null | undefined) {
-  if (!value) {
-    return '—';
-  }
-  const parsed = dayjs(value);
-  return parsed.isValid() ? parsed.format('DD-MMM-YYYY') : value;
-}
+type EmployeeSection = (typeof EMPLOYEE_SECTIONS)[number];
 
-function revokeIfBlob(url: string | null | undefined) {
-  if (url?.startsWith('blob:')) {
-    URL.revokeObjectURL(url);
-  }
+function isEmployeeSection(
+  value: string | undefined,
+): value is EmployeeSection {
+  return EMPLOYEE_SECTIONS.includes(value as EmployeeSection);
 }
 
 function EmployeeProfilePage() {
   const { t } = useI18n();
+  const { token } = theme.useToken();
   const { showToast } = useToast();
-  const { customDialog } = useDialog();
   const navigate = useNavigate();
   const screens = useBreakpoint();
   const isMobile = !screens.md;
-  const { id } = useParams<{ id: string }>();
-
+  const { id, section: sectionParam } = useParams<{
+    id: string;
+    section?: string;
+  }>();
   const [employee, setEmployee] = useState<Employee | null>(null);
   const [loading, setLoading] = useState(true);
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  const [savingAvatar, setSavingAvatar] = useState(false);
-  const [pickerKey, setPickerKey] = useState(0);
   const [reloadKey, setReloadKey] = useState(0);
-  const avatarBlobRef = useRef<string | null>(null);
+
+  const section = useMemo<EmployeeSection | null>(() => {
+    if (!isEmployeeSection(sectionParam)) {
+      return null;
+    }
+    return sectionParam;
+  }, [sectionParam]);
 
   const title = employee
     ? [employee.title?.name, employee.displayName].filter(Boolean).join(' ')
-    : t('employeePage.profile.title');
-  const description = t('employeePage.profile.description');
+    : t('nav.employeeProfilePage');
+  const description = employee
+    ? [employee.employeeNo, employee.focalNo].filter(Boolean).join(' · ')
+    : t('employeePage.profile.description');
 
-  const loadEmployee = useCallback(async () => {
+  useSetRibbon(
+    <>
+      <RibbonTitle title={title} description={description} />
+      <Button
+        onClick={() => navigate('/staff/employee')}
+        style={{ marginInlineStart: 'auto', flexShrink: 0 }}
+      >
+        {t('common.close')}
+      </Button>
+    </>,
+    [title, description, navigate, t],
+  );
+
+  const reload = useCallback(() => {
+    setReloadKey((key) => key + 1);
+  }, []);
+
+  useEffect(() => {
     if (!id) {
-      setEmployee(null);
       setLoading(false);
+      setEmployee(null);
       return;
     }
-    setLoading(true);
-    try {
-      const next = await getEmployeeByIdRequest(id);
-      setEmployee(next);
-    } catch (error) {
-      setEmployee(null);
-      showToast({
-        message:
-          error instanceof Error
-            ? error.message
-            : t('employeePage.profile.loadFailed'),
-        severity: 'error',
-      });
-    } finally {
-      setLoading(false);
-    }
-  }, [id, showToast, t]);
 
-  useEffect(() => {
-    void loadEmployee();
-  }, [loadEmployee, reloadKey]);
-
-  useEffect(() => {
     let cancelled = false;
-    const uuidName = employee?.profileImage?.uuidName;
-
-    revokeIfBlob(avatarBlobRef.current);
-    avatarBlobRef.current = null;
-    setAvatarUrl(null);
-
-    if (!uuidName) {
-      return;
-    }
-
     void (async () => {
+      setLoading(true);
       try {
-        const url = await fetchAuthorizedFileUrl(uuidName);
-        if (cancelled) {
-          revokeIfBlob(url);
-          return;
-        }
-        avatarBlobRef.current = url;
-        setAvatarUrl(url);
-      } catch {
+        const result = await getEmployeeByIdRequest(id);
         if (!cancelled) {
-          setAvatarUrl(null);
+          setEmployee(result);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setEmployee(null);
+          showToast({
+            message:
+              error instanceof Error
+                ? error.message
+                : t('employeePage.profile.loadFailed'),
+            severity: 'error',
+          });
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
         }
       }
     })();
 
     return () => {
       cancelled = true;
-      revokeIfBlob(avatarBlobRef.current);
-      avatarBlobRef.current = null;
     };
-  }, [employee?.id, employee?.profileImage?.uuidName]);
+  }, [id, reloadKey, showToast, t]);
 
-  const onAvatarChange = async (next: ImagePickerValue) => {
-    if (!employee) {
-      return;
-    }
-    setSavingAvatar(true);
-    try {
-      if (!next.file) {
-        const updated = await updateEmployeeRequest(employee.id, {
-          profileImageId: null,
-        });
-        setEmployee(updated);
-        setPickerKey((key) => key + 1);
-        message.success(t('employeePage.profile.avatarCleared'));
-        return;
-      }
-      const uploaded = await uploadEmployeeProfileImageRequest(next.file);
-      const updated = await updateEmployeeRequest(employee.id, {
-        profileImageId: uploaded.id,
-      });
-      setEmployee(updated);
-      setPickerKey((key) => key + 1);
-      message.success(t('employeePage.profile.avatarSaved'));
-    } catch (error) {
-      message.error(
-        error instanceof Error
-          ? error.message
-          : t('employeePage.profileImageUploadFailed'),
-      );
-      throw error;
-    } finally {
-      setSavingAvatar(false);
-    }
-  };
-
-  const openEdit = useCallback(() => {
-    if (!employee) {
-      return;
-    }
-    customDialog({
-      title: t('employeePage.editTitle'),
-      width: 560,
-      content: (
-        <EmployeeFormDialogBody
-          mode='edit'
-          initial={employee}
-          onSaved={() => setReloadKey((key) => key + 1)}
-        />
-      ),
-    });
-  }, [customDialog, employee, t]);
-
-  useSetRibbon(
-    <>
-      <RibbonTitle title={title} description={description} />
-      <Space style={{ marginInlineStart: 'auto', flexShrink: 0 }}>
-        {employee ? (
-          <Button type='primary' icon={<EditOutlined />} onClick={openEdit}>
-            {t('employeePage.actions.edit')}
-          </Button>
-        ) : null}
-        <Button onClick={() => navigate('/staff/employee')}>
-          {t('common.close')}
-        </Button>
-      </Space>
-    </>,
-    [title, description, navigate, t, employee, openEdit],
-  );
-
-  if (loading) {
-    return (
-      <Flex justify='center' align='center' style={{ minHeight: 240 }}>
-        <Spin />
-      </Flex>
-    );
+  if (!id) {
+    return <Navigate to='/staff/employee' replace />;
   }
 
-  if (!employee) {
-    return (
-      <Empty
-        description={t('employeePage.profile.notFound')}
-        style={{ marginBlock: 48 }}
-      >
+  if (!section) {
+    return <Navigate to={`/staff/employee/${id}/profile`} replace />;
+  }
+
+  let mainContent: ReactNode;
+  if (loading) {
+    mainContent = (
+      <div style={{ display: 'flex', justifyContent: 'center', padding: 48 }}>
+        <Spin />
+      </div>
+    );
+  } else if (!employee) {
+    mainContent = (
+      <Empty description={t('employeePage.profile.notFound')}>
         <Button type='primary' onClick={() => navigate('/staff/employee')}>
           {t('employeePage.profile.backToList')}
         </Button>
       </Empty>
     );
+  } else if (section === 'profile') {
+    mainContent = (
+      <EmployeeProfilePanel employee={employee} onChanged={reload} />
+    );
+  } else if (section === 'signature') {
+    mainContent = <EmployeeSignaturePanel employee={employee} />;
+  } else {
+    mainContent = null;
   }
 
-  const metaLine = [employee.employeeNo, employee.focalNo]
-    .filter(Boolean)
-    .join(' · ');
+  const shellHeight = `calc(100% + ${CONTENT_PAD_TOP + CONTENT_PAD_BOTTOM}px)`;
 
   return (
     <div
       style={{
-        width: '100%',
-        maxWidth: 720,
-        background: '#fff',
-        borderRadius: 16,
-        border: '1px solid rgba(5, 5, 5, 0.06)',
-        padding: isMobile ? 16 : 28,
+        display: 'flex',
+        flexDirection: isMobile ? 'column' : 'row',
+        alignItems: 'stretch',
+        flex: 1,
+        alignSelf: 'stretch',
+        width: `calc(100% + ${CONTENT_PAD_X * 2}px)`,
+        marginInline: -CONTENT_PAD_X,
+        marginTop: -CONTENT_PAD_TOP,
+        marginBottom: -CONTENT_PAD_BOTTOM,
+        height: shellHeight,
+        maxHeight: shellHeight,
+        minHeight: 0,
+        overflow: 'hidden',
+        background: '#f5f7fa',
       }}
     >
-      <header style={{ marginBottom: 24 }}>
-        <Typography.Title
-          level={2}
+      <nav
+        aria-label={title}
+        style={{
+          width: isMobile ? '100%' : 280,
+          flexShrink: 0,
+          alignSelf: 'stretch',
+          minHeight: 0,
+          maxHeight: isMobile ? '40%' : undefined,
+          overflow: 'auto',
+          background: '#fff',
+          borderInlineEnd: isMobile
+            ? 'none'
+            : '1px solid rgba(5, 5, 5, 0.06)',
+          borderBottom: isMobile ? '1px solid rgba(5, 5, 5, 0.06)' : 'none',
+          paddingBlock: 12,
+          paddingInline: 8,
+          boxSizing: 'border-box',
+        }}
+      >
+        <Menu
+          mode={isMobile ? 'horizontal' : 'vertical'}
+          selectedKeys={[section]}
+          onClick={({ key }) => {
+            navigate(`/staff/employee/${id}/${key}`);
+          }}
           style={{
-            margin: 0,
-            fontWeight: 600,
-            letterSpacing: '-0.02em',
+            border: 'none',
+            background: 'transparent',
+            fontSize: 15,
+          }}
+          items={[
+            {
+              key: 'profile',
+              icon: <UserOutlined />,
+              label: t('employeeDetailPage.menu.profile'),
+            },
+            {
+              key: 'signature',
+              icon: <FormOutlined />,
+              label: t('employeeDetailPage.menu.signature'),
+            },
+          ]}
+        />
+      </nav>
+
+      <main
+        style={{
+          flex: 1,
+          minWidth: 0,
+          minHeight: 0,
+          alignSelf: 'stretch',
+          padding: isMobile ? 16 : 20,
+          overflow: 'auto',
+          boxSizing: 'border-box',
+        }}
+      >
+        <div
+          style={{
+            width: '100%',
+            minHeight: '100%',
+            padding: token.paddingLG,
+            borderRadius: token.borderRadiusLG,
+            background: token.colorBgContainer,
+            boxSizing: 'border-box',
           }}
         >
-          {t('employeePage.profile.title')}
-        </Typography.Title>
-        <Typography.Paragraph
-          type='secondary'
-          style={{ margin: '8px 0 0', fontSize: 15, maxWidth: 520 }}
-        >
-          {t('employeePage.profile.adminHint')}
-        </Typography.Paragraph>
-      </header>
-
-      <ProfilePicker
-        key={pickerKey}
-        showCover={false}
-        avatarUrl={avatarUrl}
-        displayName={
-          [employee.title?.name, employee.displayName].filter(Boolean).join(' ')
-        }
-        username={metaLine}
-        avatarLabel={t('employeePage.fields.profileImage')}
-        pickProfileLabel={t('employeePage.fields.profileImagePick')}
-        removeProfileLabel={t('employeePage.fields.profileImageRemove')}
-        cropProfileLabel={t('employeePage.fields.profileImageCrop')}
-        usePhotoLabel={t('employeePage.fields.profileImageUse')}
-        cancelLabel={t('common.cancel')}
-        invalidTypeMessage={t('employeePage.validation.profileImageType')}
-        disabled={savingAvatar}
-        onAvatarChange={onAvatarChange}
-      />
-
-      <div style={{ marginTop: 8, marginBottom: 16 }}>
-        <Tag color={employee.active ? 'success' : 'default'}>
-          {employee.active
-            ? t('employeePage.statusActive')
-            : t('employeePage.statusInactive')}
-        </Tag>
-      </div>
-
-      <section>
-        <DetailRow
-          label={t('employeePage.fields.employeeNo')}
-          value={employee.employeeNo}
-        />
-        <DetailRow
-          label={t('employeePage.fields.focalNo')}
-          value={employee.focalNo}
-        />
-        <DetailRow
-          label={t('employeePage.fields.title')}
-          value={employee.title?.name || '—'}
-        />
-        <DetailRow
-          label={t('employeePage.fields.gender')}
-          value={t(`employeePage.gender.${employee.gender}`)}
-        />
-        <DetailRow
-          label={t('employeePage.fields.townshipName')}
-          value={employee.township?.name || employee.townshipName || '—'}
-        />
-        <DetailRow
-          label={t('employeePage.fields.position')}
-          value={employee.position?.name || employee.positionName || '—'}
-        />
-        <DetailRow
-          label={t('employeePage.fields.experience')}
-          value={employee.experience || '—'}
-        />
-        <DetailRow
-          label={t('employeePage.fields.email')}
-          value={employee.email || '—'}
-        />
-        <DetailRow
-          label={t('employeePage.fields.phone')}
-          value={employee.phone || '—'}
-        />
-        <DetailRow
-          label={t('employeePage.fields.hireDate')}
-          value={formatDateOnly(employee.hireDate)}
-        />
-        <DetailRow
-          label={t('employeePage.fields.endDate')}
-          value={formatDateOnly(employee.endDate)}
-        />
-        <DetailRow
-          label={t('employeePage.fields.user')}
-          value={
-            employee.user
-              ? `${employee.user.displayName} (${employee.user.username})`
-              : '—'
-          }
-        />
-        <DetailRow
-          label={t('employeePage.fields.remark')}
-          value={employee.remark || '—'}
-        />
-        <DetailRow
-          label={t('employeePage.columns.createdBy')}
-          value={
-            <>
-              {employee.createdBy?.name || '—'}
-              <Typography.Text
-                type='secondary'
-                style={{ display: 'block', fontSize: 12 }}
-              >
-                {formatDisplayDateTime(employee.createdDate)}
-              </Typography.Text>
-            </>
-          }
-        />
-        <DetailRow
-          label={t('employeePage.columns.updatedBy')}
-          value={
-            <>
-              {employee.updatedBy?.name || '—'}
-              <Typography.Text
-                type='secondary'
-                style={{ display: 'block', fontSize: 12 }}
-              >
-                {formatDisplayDateTime(employee.updatedDate)}
-              </Typography.Text>
-            </>
-          }
-        />
-      </section>
+          {mainContent}
+        </div>
+      </main>
     </div>
   );
 }

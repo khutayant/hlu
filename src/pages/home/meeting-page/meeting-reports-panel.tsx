@@ -1,7 +1,13 @@
-import { DownloadOutlined } from '@ant-design/icons';
 import {
+  DownloadOutlined,
+  EyeOutlined,
+  PlusOutlined,
+} from '@ant-design/icons';
+import {
+  Alert,
   Button,
   Checkbox,
+  Dropdown,
   Empty,
   Flex,
   Popover,
@@ -12,8 +18,16 @@ import {
   Typography,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useEmployeeSignatureEditor } from '../../../components/employee-signature/employee-signature-editor-dialog';
 import {
   listEmployeesRequest,
   type Employee,
@@ -28,6 +42,11 @@ import {
   type MeetingAllowance,
 } from '../../../handlers/meeting-allowance.handler';
 import type { Meeting } from '../../../handlers/meeting.handler';
+import {
+  listPrimarySignaturesByEmployeeIdsRequest,
+  type EmployeeSignature,
+} from '../../../handlers/employee-signature.handler';
+import { fetchAuthorizedFileArrayBuffer, fetchAuthorizedFileUrl } from '../../../handlers/file.handler';
 import { listPositionsRequest } from '../../../handlers/position.handler';
 import {
   listTownshipsRequest,
@@ -40,6 +59,7 @@ import { formatMeetingDateTimeRange } from '../../../tools/format-date.tool';
 import {
   downloadAllowanceReportExcel,
   downloadAttendanceReportExcel,
+  type AllowanceReportSignatureImage,
 } from './meeting-reports-excel.tool';
 import { buildMeetingReportFilename } from './meeting-reports-filename.tool';
 import { ReportsSummaryTab } from './meeting-reports-summary-tab';
@@ -60,7 +80,156 @@ const TOWNSHIP_FILTER_NONE = '__none__';
 const ATTENDANCE_TOWNSHIPS_PARAM = 'attendanceTownships';
 const ALLOWANCE_TOWNSHIPS_PARAM = 'allowanceTownships';
 const ADD_HEAD_OFFICE_PARAM = 'addHeadOffice';
+const ADD_SIGNATURE_PARAM = 'addSignature';
 const HEAD_OFFICE_POSITION_CODE = 'HEAD_OFFICE_POSITION';
+
+function mimeToExcelExtension(
+  mimeType: string | null | undefined,
+): AllowanceReportSignatureImage['extension'] {
+  const mime = (mimeType || '').toLowerCase();
+  if (mime.includes('jpeg') || mime.includes('jpg')) {
+    return 'jpeg';
+  }
+  if (mime.includes('gif')) {
+    return 'gif';
+  }
+  return 'png';
+}
+
+function ReportSignatureImage({
+  uuidName,
+  onError,
+}: {
+  uuidName: string;
+  onError?: (message: string) => void;
+}) {
+  const [url, setUrl] = useState<string | null>(null);
+  const onErrorRef = useRef(onError);
+  onErrorRef.current = onError;
+
+  useEffect(() => {
+    let cancelled = false;
+    let objectUrl: string | null = null;
+    setUrl(null);
+    void (async () => {
+      try {
+        const next = await fetchAuthorizedFileUrl(uuidName);
+        if (cancelled) {
+          if (next.startsWith('blob:')) {
+            URL.revokeObjectURL(next);
+          }
+          return;
+        }
+        objectUrl = next;
+        setUrl(next);
+      } catch (error) {
+        if (!cancelled) {
+          setUrl(null);
+          onErrorRef.current?.(
+            error instanceof Error
+              ? error.message
+              : 'Failed to load signature image',
+          );
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+      if (objectUrl?.startsWith('blob:')) {
+        URL.revokeObjectURL(objectUrl);
+      }
+    };
+  }, [uuidName]);
+
+  if (!url) {
+    return null;
+  }
+
+  return <img src={url} alt='' />;
+}
+
+function AllowanceSignatureCell({
+  employeeId,
+  signature,
+  onSaved,
+  onUseSignature,
+  onSignatureImageError,
+}: {
+  employeeId: string;
+  signature: EmployeeSignature | null;
+  onSaved: () => void;
+  onUseSignature: (signature: EmployeeSignature) => void;
+  onSignatureImageError?: (message: string) => void;
+}) {
+  const { t } = useI18n();
+  const { openCreate, openView, openPreview } = useEmployeeSignatureEditor();
+  const uuidName = signature?.signatureImage?.uuidName ?? null;
+
+  return (
+    <Dropdown
+      trigger={['contextMenu']}
+      menu={{
+        items: [
+          {
+            key: 'view-signatures',
+            icon: <EyeOutlined />,
+            label: t('meetingReportsPanel.contextMenu.viewSignatures'),
+            onClick: () => {
+              void openView({
+                employeeId,
+                currentSignatureId: signature?.id,
+                onUse: onUseSignature,
+                onSaved,
+              });
+            },
+          },
+          {
+            key: 'add-signature',
+            icon: <PlusOutlined />,
+            label: t('meetingReportsPanel.contextMenu.addSignature'),
+            onClick: () => {
+              void openCreate({
+                employeeId,
+                onSaved,
+              });
+            },
+          },
+        ],
+      }}
+    >
+      <div
+        className={
+          uuidName
+            ? 'meeting-report-signature-fill meeting-report-signature-fill--clickable'
+            : 'meeting-report-signature-fill'
+        }
+        role={uuidName && signature ? 'button' : undefined}
+        tabIndex={uuidName && signature ? 0 : undefined}
+        onClick={() => {
+          if (signature?.signatureImage?.uuidName) {
+            openPreview(signature);
+          }
+        }}
+        onKeyDown={(event) => {
+          if (!signature?.signatureImage?.uuidName) {
+            return;
+          }
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            openPreview(signature);
+          }
+        }}
+      >
+        {uuidName ? (
+          <ReportSignatureImage
+            uuidName={uuidName}
+            onError={onSignatureImageError}
+          />
+        ) : null}
+      </div>
+    </Dropdown>
+  );
+}
 
 function parseTownshipIdsParam(value: string | null): string[] {
   if (!value?.trim()) {
@@ -886,13 +1055,49 @@ function AllowanceReportTab({ meeting }: { meeting: Meeting }) {
     }
     setSearchParams(next, { replace: true });
   };
+  const addSignature = searchParams.get(ADD_SIGNATURE_PARAM) === '1';
+  const setAddSignature = (checked: boolean) => {
+    const next = new URLSearchParams(searchParams);
+    if (checked) {
+      next.set(ADD_SIGNATURE_PARAM, '1');
+    } else {
+      next.delete(ADD_SIGNATURE_PARAM);
+    }
+    setSearchParams(next, { replace: true });
+  };
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [signatureError, setSignatureError] = useState<string | null>(null);
+  const [signatureImageError, setSignatureImageError] = useState<string | null>(
+    null,
+  );
+  const [downloadError, setDownloadError] = useState<string | null>(null);
+  const [signatureByEmployeeId, setSignatureByEmployeeId] = useState<
+    Record<string, EmployeeSignature>
+  >({});
+  /** In-memory report picks (not saved to DB). Wins over primary/latest load. */
+  const [signatureOverrideByEmployeeId, setSignatureOverrideByEmployeeId] =
+    useState<Record<string, EmployeeSignature>>({});
+  const [signaturesLoading, setSignaturesLoading] = useState(false);
+  const [signatureReloadKey, setSignatureReloadKey] = useState(0);
+
+  const effectiveSignatureByEmployeeId = useMemo(() => {
+    return {
+      ...signatureByEmployeeId,
+      ...signatureOverrideByEmployeeId,
+    };
+  }, [signatureByEmployeeId, signatureOverrideByEmployeeId]);
+
+  const onSignatureImageError = useCallback((message: string) => {
+    setSignatureImageError((prev) => prev ?? message);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
     void (async () => {
       setLoading(true);
+      setLoadError(null);
       try {
         const [attendanceRows, allowanceRows, hoEmployees] = await Promise.all([
           loadAllAttendance(meeting.id),
@@ -909,13 +1114,11 @@ function AllowanceReportTab({ meeting }: { meeting: Meeting }) {
           setAttendees([]);
           setAllowances([]);
           setHeadOfficeEmployees([]);
-          showToast({
-            message:
-              error instanceof Error
-                ? error.message
-                : t('meetingReportsPanel.allowanceLoadFailed'),
-            severity: 'error',
-          });
+          setLoadError(
+            error instanceof Error
+              ? error.message
+              : t('meetingReportsPanel.allowanceLoadFailed'),
+          );
         }
       } finally {
         if (!cancelled) {
@@ -926,7 +1129,7 @@ function AllowanceReportTab({ meeting }: { meeting: Meeting }) {
     return () => {
       cancelled = true;
     };
-  }, [meeting.id, showToast, t]);
+  }, [meeting.id, t]);
 
   const headOfficeEmployeeIds = useMemo(
     () => new Set(headOfficeEmployees.map((employee) => employee.id)),
@@ -959,6 +1162,64 @@ function AllowanceReportTab({ meeting }: { meeting: Meeting }) {
     townshipIds,
     townshipSelected,
   ]);
+
+  useEffect(() => {
+    if (!addSignature || filteredAttendees.length === 0) {
+      setSignatureByEmployeeId({});
+      setSignatureOverrideByEmployeeId({});
+      setSignatureError(null);
+      setSignatureImageError(null);
+      setSignaturesLoading(false);
+      return;
+    }
+    const employeeIds = [
+      ...new Set(
+        filteredAttendees
+          .map((row) => row.employee?.id)
+          .filter((id): id is string => Boolean(id)),
+      ),
+    ];
+    if (employeeIds.length === 0) {
+      setSignatureByEmployeeId({});
+      setSignatureError(null);
+      setSignatureImageError(null);
+      return;
+    }
+    let cancelled = false;
+    void (async () => {
+      setSignaturesLoading(true);
+      setSignatureError(null);
+      setSignatureImageError(null);
+      try {
+        const items =
+          await listPrimarySignaturesByEmployeeIdsRequest(employeeIds);
+        if (cancelled) {
+          return;
+        }
+        const next: Record<string, EmployeeSignature> = {};
+        for (const item of items) {
+          next[item.employeeId] = item;
+        }
+        setSignatureByEmployeeId(next);
+      } catch (error) {
+        if (!cancelled) {
+          setSignatureByEmployeeId({});
+          setSignatureError(
+            error instanceof Error
+              ? error.message
+              : t('meetingReportsPanel.signatureLoadFailed'),
+          );
+        }
+      } finally {
+        if (!cancelled) {
+          setSignaturesLoading(false);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [addSignature, filteredAttendees, signatureReloadKey, t]);
 
   const grandTotalAmount = useMemo(() => {
     const total = filteredAttendees.reduce(
@@ -1126,7 +1387,36 @@ function AllowanceReportTab({ meeting }: { meeting: Meeting }) {
         title: translateEn('meetingReportsPanel.columns.signature'),
         key: 'signature',
         width: 140,
-        render: () => '',
+        align: 'center',
+        onCell: () => ({
+          className: 'meeting-report-signature-cell',
+          style: { padding: 0 },
+        }),
+        render: (_value, row) => {
+          if (!addSignature) {
+            return '';
+          }
+          const employeeId = row.employee?.id;
+          if (!employeeId) {
+            return '';
+          }
+          const signature =
+            effectiveSignatureByEmployeeId[employeeId] ?? null;
+          return (
+            <AllowanceSignatureCell
+              employeeId={employeeId}
+              signature={signature}
+              onSaved={() => setSignatureReloadKey((key) => key + 1)}
+              onUseSignature={(picked) => {
+                setSignatureOverrideByEmployeeId((prev) => ({
+                  ...prev,
+                  [employeeId]: picked,
+                }));
+              }}
+              onSignatureImageError={onSignatureImageError}
+            />
+          );
+        },
       },
       {
         title: translateEn('meetingReportsPanel.columns.remark'),
@@ -1135,7 +1425,13 @@ function AllowanceReportTab({ meeting }: { meeting: Meeting }) {
         render: (_value, row) => row.remark || '',
       },
     ];
-  }, [allowances, headOfficeEmployeeIds]);
+  }, [
+    addSignature,
+    allowances,
+    effectiveSignatureByEmployeeId,
+    headOfficeEmployeeIds,
+    onSignatureImageError,
+  ]);
 
   const onDownloadExcel = async () => {
     if (!townshipSelected || filteredAttendees.length === 0) {
@@ -1155,12 +1451,38 @@ function AllowanceReportTab({ meeting }: { meeting: Meeting }) {
     }
 
     setDownloading(true);
+    setDownloadError(null);
     try {
+      let signatureImages: AllowanceReportSignatureImage[] | undefined;
+      if (addSignature) {
+        const entries = Object.values(effectiveSignatureByEmployeeId).filter(
+          (item) => item.signatureImage?.uuidName,
+        );
+        signatureImages = (
+          await Promise.all(
+            entries.map(async (item) => {
+              const uuidName = item.signatureImage!.uuidName;
+              try {
+                const buffer = await fetchAuthorizedFileArrayBuffer(uuidName);
+                return {
+                  employeeId: item.employeeId,
+                  buffer,
+                  extension: mimeToExcelExtension(item.signatureImage?.mimeType),
+                } satisfies AllowanceReportSignatureImage;
+              } catch {
+                return null;
+              }
+            }),
+          )
+        ).filter((item): item is AllowanceReportSignatureImage => item != null);
+      }
+
       await downloadAllowanceReportExcel({
         meeting,
         attendees: filteredAttendees,
         allowances,
         headOfficeEmployeeIds: [...headOfficeEmployeeIds],
+        signatureImages,
         dateTimeValue: formatMeetingDateTimeRange(
           meeting.fromDate,
           meeting.toDate,
@@ -1203,17 +1525,22 @@ function AllowanceReportTab({ meeting }: { meeting: Meeting }) {
         severity: 'success',
       });
     } catch (error) {
-      showToast({
-        message:
-          error instanceof Error
-            ? error.message
-            : t('meetingReportsPanel.downloadExcelFailed'),
-        severity: 'error',
-      });
+      setDownloadError(
+        error instanceof Error
+          ? error.message
+          : t('meetingReportsPanel.downloadExcelFailed'),
+      );
     } finally {
       setDownloading(false);
     }
   };
+
+  const pageErrors = [
+    loadError,
+    signatureError,
+    signatureImageError,
+    downloadError,
+  ].filter((message): message is string => Boolean(message));
 
   let body: ReactNode;
   if (loading) {
@@ -1307,13 +1634,26 @@ function AllowanceReportTab({ meeting }: { meeting: Meeting }) {
           >
             {t('meetingReportsPanel.filters.addHeadOffice')}
           </Checkbox>
+          <Checkbox
+            checked={addSignature}
+            disabled={!townshipSelected || loading}
+            onChange={(event) => {
+              setAddSignature(event.target.checked);
+            }}
+          >
+            {t('meetingReportsPanel.filters.addSignature')}
+            {addSignature && signaturesLoading ? '…' : null}
+          </Checkbox>
         </Flex>
         <Button
           type='primary'
           icon={<DownloadOutlined />}
           loading={downloading}
           disabled={
-            loading || !townshipSelected || filteredAttendees.length === 0
+            loading ||
+            !townshipSelected ||
+            filteredAttendees.length === 0 ||
+            (addSignature && signaturesLoading)
           }
           onClick={() => {
             void onDownloadExcel();
@@ -1322,6 +1662,33 @@ function AllowanceReportTab({ meeting }: { meeting: Meeting }) {
           {t('meetingReportsPanel.downloadExcel')}
         </Button>
       </Flex>
+      {pageErrors.length > 0 ? (
+        <Flex vertical gap={8} style={{ marginBottom: 12 }}>
+          {pageErrors.map((message) => (
+            <Alert
+              key={message}
+              type='error'
+              showIcon
+              closable
+              message={message}
+              onClose={() => {
+                if (message === loadError) {
+                  setLoadError(null);
+                }
+                if (message === signatureError) {
+                  setSignatureError(null);
+                }
+                if (message === signatureImageError) {
+                  setSignatureImageError(null);
+                }
+                if (message === downloadError) {
+                  setDownloadError(null);
+                }
+              }}
+            />
+          ))}
+        </Flex>
+      ) : null}
       <ReportHeader
         reportTitle={translateEn('meetingReportsPanel.titles.allowanceReceipt')}
         meeting={meeting}

@@ -20,6 +20,14 @@ const ROUTE_LABELS: { path: string; labelKey: string }[] = [
   { path: '/staff/employee', labelKey: 'nav.employeePage' },
   { path: '/staff/employee/import', labelKey: 'nav.employeeImportPage' },
   { path: '/staff/employee/:id', labelKey: 'nav.employeeProfilePage' },
+  {
+    path: '/staff/employee/:id/profile',
+    labelKey: 'employeeDetailPage.menu.profile',
+  },
+  {
+    path: '/staff/employee/:id/signature',
+    labelKey: 'employeeDetailPage.menu.signature',
+  },
   { path: '/meeting', labelKey: 'nav.meetingPage' },
   { path: '/meeting/:id', labelKey: 'nav.meetingDetail' },
   {

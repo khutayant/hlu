@@ -1,5 +1,5 @@
 import { CameraOutlined, DeleteOutlined } from '@ant-design/icons';
-import { Button, Flex, Typography } from 'antd';
+import { Button, Flex, Image, Typography } from 'antd';
 import {
   useEffect,
   useId,
@@ -19,6 +19,11 @@ export type ImagePickerValue = {
 export type ImagePickerProps = {
   value?: string | null;
   onChange?: (next: ImagePickerValue) => void;
+  /**
+   * When set, picking a file opens this callback instead of applying via `onChange`
+   * (e.g. open a crop dialog). Caller owns the object URL.
+   */
+  onPickFile?: (file: File, objectUrl: string) => void;
   /** `circle` for avatar, `rect` for cover. */
   shape?: 'circle' | 'rect';
   width?: number | string;
@@ -28,9 +33,16 @@ export type ImagePickerProps = {
   emptyIcon?: ReactNode;
   emptyLabel?: string;
   ariaLabel?: string;
+  /** Preview object-fit (signatures often need `contain`). */
+  objectFit?: 'cover' | 'contain';
+  /** Checkerboard behind preview (transparent PNGs). */
+  transparencyGrid?: boolean;
   className?: string;
   style?: CSSProperties;
 };
+
+const TRANSPARENCY_GRID =
+  'linear-gradient(45deg, #d0d0d0 25%, transparent 25%), linear-gradient(-45deg, #d0d0d0 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #d0d0d0 75%), linear-gradient(-45deg, transparent 75%, #d0d0d0 75%)';
 
 function revokeIfBlob(url: string | null | undefined) {
   if (url?.startsWith('blob:')) {
@@ -41,6 +53,7 @@ function revokeIfBlob(url: string | null | undefined) {
 function ImagePicker({
   value = null,
   onChange,
+  onPickFile,
   shape = 'rect',
   width = '100%',
   height = 160,
@@ -49,12 +62,15 @@ function ImagePicker({
   emptyIcon,
   emptyLabel,
   ariaLabel,
+  objectFit = 'cover',
+  transparencyGrid = false,
   className,
   style,
 }: ImagePickerProps) {
   const inputId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(value);
+  const [previewOpen, setPreviewOpen] = useState(false);
   const localBlobRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -74,10 +90,29 @@ function ImagePicker({
     inputRef.current?.click();
   };
 
+  const openPreview = () => {
+    if (!previewUrl) {
+      return;
+    }
+    setPreviewOpen(true);
+  };
+
+  const onSurfaceActivate = () => {
+    if (disabled) {
+      return;
+    }
+    if (previewUrl) {
+      openPreview();
+      return;
+    }
+    openPicker();
+  };
+
   const clearImage = () => {
     revokeIfBlob(localBlobRef.current);
     localBlobRef.current = null;
     setPreviewUrl(null);
+    setPreviewOpen(false);
     onChange?.({ file: null, previewUrl: null });
     if (inputRef.current) {
       inputRef.current.value = '';
@@ -90,8 +125,16 @@ function ImagePicker({
       return;
     }
 
-    revokeIfBlob(localBlobRef.current);
     const nextUrl = URL.createObjectURL(file);
+    if (onPickFile) {
+      onPickFile(file, nextUrl);
+      if (inputRef.current) {
+        inputRef.current.value = '';
+      }
+      return;
+    }
+
+    revokeIfBlob(localBlobRef.current);
     localBlobRef.current = nextUrl;
     setPreviewUrl(nextUrl);
     onChange?.({ file, previewUrl: nextUrl });
@@ -103,7 +146,7 @@ function ImagePicker({
     }
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
-      openPicker();
+      onSurfaceActivate();
     }
   };
 
@@ -130,16 +173,31 @@ function ImagePicker({
         ref={inputRef}
         type='file'
         accept={accept}
-        hidden
+        tabIndex={-1}
+        aria-hidden
         disabled={disabled}
         onChange={onFileChange}
+        style={{
+          // Ant Form input rules can override the HTML `hidden` attribute.
+          position: 'absolute',
+          width: 1,
+          height: 1,
+          padding: 0,
+          margin: -1,
+          overflow: 'hidden',
+          clip: 'rect(0, 0, 0, 0)',
+          whiteSpace: 'nowrap',
+          border: 0,
+          opacity: 0,
+          pointerEvents: 'none',
+        }}
       />
 
       <div
         role='button'
         tabIndex={disabled ? -1 : 0}
         aria-label={ariaLabel}
-        onClick={openPicker}
+        onClick={onSurfaceActivate}
         onKeyDown={onKeyDown}
         style={{
           position: 'absolute',
@@ -149,9 +207,19 @@ function ImagePicker({
           cursor: disabled ? 'default' : 'pointer',
           boxSizing: 'border-box',
           background: previewUrl
-            ? '#f0f2f5'
+            ? transparencyGrid
+              ? '#fff'
+              : '#f0f2f5'
             : (style?.background as string | undefined) ||
               'linear-gradient(145deg, #e8eef5 0%, #d7dee8 100%)',
+          backgroundImage:
+            previewUrl && transparencyGrid ? TRANSPARENCY_GRID : undefined,
+          backgroundSize:
+            previewUrl && transparencyGrid ? '16px 16px' : undefined,
+          backgroundPosition:
+            previewUrl && transparencyGrid
+              ? '0 0, 0 8px, 8px -8px, -8px 0'
+              : undefined,
           border: style?.border ?? '1px solid rgba(5, 5, 5, 0.08)',
           boxShadow: style?.boxShadow,
           color: style?.color,
@@ -164,7 +232,7 @@ function ImagePicker({
             style={{
               width: '100%',
               height: '100%',
-              objectFit: 'cover',
+              objectFit,
               display: 'block',
               pointerEvents: 'none',
             }}
@@ -199,6 +267,19 @@ function ImagePicker({
           </Flex>
         )}
       </div>
+
+      {previewUrl ? (
+        <Image
+          src={previewUrl}
+          alt=''
+          style={{ display: 'none' }}
+          preview={{
+            visible: previewOpen,
+            src: previewUrl,
+            onVisibleChange: (visible) => setPreviewOpen(visible),
+          }}
+        />
+      ) : null}
 
       <Flex
         gap={6}

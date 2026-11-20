@@ -22,6 +22,7 @@ import {
   Space,
   Switch,
   Table,
+  Tag,
   Typography,
   theme,
 } from 'antd';
@@ -492,6 +493,17 @@ function EmployeePage() {
         row.position?.name || row.positionName || '—',
       width: 140,
       ellipsis: true,
+    },
+    {
+      title: t('employeePage.columns.signExists'),
+      key: 'hasSignature',
+      width: 110,
+      render: (_: unknown, row: Employee) =>
+        row.hasSignature ? (
+          <Tag color='blue'>{t('common.yes')}</Tag>
+        ) : (
+          <Tag>{t('common.no')}</Tag>
+        ),
     },
     {
       title: t('employeePage.columns.experience'),

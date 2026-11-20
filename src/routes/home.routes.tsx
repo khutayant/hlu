@@ -125,6 +125,10 @@ export function HomeRoutes() {
             path='/staff/employee/:id'
             element={<EmployeeProfilePage />}
           />
+          <Route
+            path='/staff/employee/:id/:section'
+            element={<EmployeeProfilePage />}
+          />
         </Route>
         <Route element={<ModuleGate code={MASTER_MANAGEMENT_SYSTEM_CODE} />}>
           <Route
